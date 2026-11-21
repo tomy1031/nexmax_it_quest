@@ -1,0 +1,342 @@
+import { useEffect, useState } from "react";
+import tipsJson from "@content/tips.json";
+import type { Tip } from "@/content/schema";
+import { useGame } from "@/lib/store";
+import { fill, t, type UiKey } from "@/lib/t";
+import { playActions, usePlay } from "@/stages/play-store";
+import { RubyText } from "@/ui/RubyText";
+import { IconBulb, IconCheck, IconClose, IconMenu } from "@/ui/icons";
+import { usePhotoUrl } from "@/ui/use-photo";
+import { Menu } from "@/ui/hud/Menu";
+import { Panels } from "@/ui/hud/Panels";
+
+const TIPS = (tipsJson.tips as Tip[]).reduce<Record<string, Tip>>(
+  (m, tip) => ((m[tip.id] = tip), m),
+  {},
+);
+const BASE = import.meta.env.BASE_URL;
+
+/**
+ * 3D の上に重ねる表示。いま する こと（上）・セリフ（下）・選択肢・豆知識・判定・メニュー。
+ * 中身はどれも台本のデータ。VR では同じデータを 3D の板に描く（docs/design/00_全体設計.md）。
+ */
+export function Hud() {
+  const [menu, setMenu] = useState(false);
+  const line = usePlay((s) => s.line);
+  const verdict = usePlay((s) => s.verdict);
+  const dream = usePlay((s) => s.dream);
+
+  // スペース・エンターで「つぎへ」
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (menu) return;
+      if ((e.key === " " || e.key === "Enter") && (line || verdict || dream)) {
+        const tag = (e.target as HTMLElement | null)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
+        e.preventDefault();
+        playActions.advance();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [line, verdict, dream, menu]);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10 select-none">
+      <ObjectiveBar />
+      <button
+        type="button"
+        className="btn btn-ghost pointer-events-auto absolute top-3 right-3 px-3"
+        onClick={() => setMenu(true)}
+        data-testid="hud-menu"
+      >
+        <IconMenu className="h-5 w-5" />
+        <RubyText text={t("hud.menu")} />
+      </button>
+      <HintBubble />
+      <ChapterBanner />
+      <Dialogue />
+      <Choice />
+      <Verdict />
+      <Dream />
+      <TipCard />
+      <Panels />
+      {menu && <Menu onClose={() => setMenu(false)} />}
+    </div>
+  );
+}
+
+function ObjectiveBar() {
+  const objective = usePlay((s) => s.objective);
+  if (!objective) return null;
+  return (
+    <div
+      className="glass pop absolute top-3 left-3 flex max-w-[min(70vw,560px)] items-center gap-3 rounded-2xl px-4 py-2.5"
+      data-testid="objective"
+    >
+      <span className="bg-cyan text-ink shrink-0 rounded-full px-2.5 py-0.5 text-xs font-extrabold">
+        <RubyText text={t("hud.objective")} />
+      </span>
+      <span className="text-lg font-extrabold">
+        <RubyText text={objective.text} />
+      </span>
+    </div>
+  );
+}
+
+function HintBubble() {
+  const objective = usePlay((s) => s.objective);
+  const level = usePlay((s) => s.hintLevel);
+  const line = usePlay((s) => s.line);
+  if (!objective || level === 0 || line) return null;
+  const hint = objective.hints[level - 1];
+  if (!hint) return null;
+  return (
+    <div className="pop absolute bottom-6 left-4 flex items-end gap-2" key={level}>
+      <img src={`${BASE}img/nexmax/guide.webp`} alt="" className="bob h-24 w-24" />
+      <div className="glass-light max-w-sm rounded-2xl rounded-bl-sm px-4 py-3 text-lg font-bold">
+        <span className="bg-sun text-ink mr-2 inline-flex items-center gap-1 rounded-full px-2 text-xs">
+          <IconBulb className="h-3.5 w-3.5" />
+          <RubyText text={t("hud.hint")} />
+        </span>
+        <RubyText text={hint} />
+      </div>
+    </div>
+  );
+}
+
+function ChapterBanner() {
+  const no = usePlay((s) => s.chapterBanner);
+  const stageId = usePlay((s) => s.stageId);
+  if (!no) return null;
+  return (
+    <div className="bg-deep/40 absolute inset-0 grid place-items-center">
+      <div className="pop glass rounded-3xl px-12 py-6 text-center" data-testid="chapter-banner">
+        <p className="text-cyan text-sm font-bold tracking-widest">{stageId.toUpperCase()}</p>
+        <p className="text-4xl font-extrabold">
+          <RubyText text={t("hud.chapter", { no })} />
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function speakerName(who: string, nickname: string): string {
+  if (who === "me") return nickname;
+  return t(`speaker.${who}` as UiKey);
+}
+
+function Dialogue() {
+  const line = usePlay((s) => s.line);
+  const nickname = useGame((s) => s.profile.nickname);
+  const photo = usePhotoUrl();
+  if (!line) return null;
+  const text = fill(line.text, { nickname });
+  const face =
+    line.who === "nexmax"
+      ? `${BASE}img/nexmax/${line.pose ?? "guide"}.webp`
+      : line.who === "hendy"
+        ? `${BASE}img/people/hendy.webp`
+        : line.who === "me"
+          ? photo
+          : null;
+  const announce = line.who === "announce";
+  return (
+    <div className="pointer-events-auto absolute right-0 bottom-0 left-0 flex justify-center p-3 sm:p-5">
+      <button
+        type="button"
+        onClick={() => playActions.advance()}
+        className={`pop flex w-full max-w-4xl items-end gap-4 rounded-3xl p-4 text-left sm:p-5 ${announce ? "glass border-sun/70" : "glass"}`}
+        data-testid="dialogue"
+        key={text}
+      >
+        {face ? (
+          <img
+            src={face}
+            alt=""
+            className={`h-20 w-20 shrink-0 rounded-2xl object-cover sm:h-24 sm:w-24 ${line.who === "nexmax" ? "bob" : "border-cyan/60 border-2"}`}
+          />
+        ) : null}
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className={`text-sm font-extrabold ${announce ? "text-sun" : "text-cyan"}`}>
+            <RubyText text={speakerName(line.who, nickname)} />
+          </span>
+          <span className="text-2xl leading-[2.4] font-bold sm:text-[1.7rem]">
+            <RubyText text={text} />
+          </span>
+        </span>
+        <span className="bg-cyan text-ink shrink-0 self-end rounded-full px-3 py-1 text-sm font-extrabold">
+          <RubyText text={t("hud.next")} /> ▶
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function Choice() {
+  const choice = usePlay((s) => s.choice);
+  if (!choice) return null;
+  return (
+    <div className="bg-deep/40 pointer-events-auto absolute inset-0 grid place-items-center p-4">
+      <div
+        className="glass pop flex w-full max-w-xl flex-col gap-4 rounded-3xl p-6"
+        data-testid="choice"
+      >
+        <p className="text-center text-2xl leading-loose font-extrabold">
+          <RubyText text={choice.prompt} />
+        </p>
+        {choice.options.map((o, i) => (
+          <button
+            key={o}
+            type="button"
+            className="btn btn-ghost py-4 text-xl"
+            onClick={() => playActions.choose(i)}
+            data-testid={`choice-${i}`}
+          >
+            <RubyText text={o} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Verdict() {
+  const verdict = usePlay((s) => s.verdict);
+  if (!verdict) return null;
+  return (
+    <div className="pointer-events-auto absolute inset-x-0 top-[18%] flex justify-center p-4">
+      <button
+        type="button"
+        className={`pop flex max-w-2xl items-center gap-4 rounded-3xl border-4 px-6 py-5 text-left shadow-2xl ${verdict.ok ? "border-leaf bg-[#eafff1] text-[#0b4a25]" : "border-coral bg-[#fff1ee] text-[#7a1f12]"}`}
+        onClick={() => playActions.advance()}
+        data-testid="verdict"
+      >
+        <span
+          className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl font-black text-white ${verdict.ok ? "bg-leaf" : "bg-coral"}`}
+        >
+          {verdict.ok ? <IconCheck className="h-9 w-9" /> : <IconClose className="h-8 w-8" />}
+        </span>
+        <span className="flex flex-col">
+          <span className="text-sm font-extrabold">
+            <RubyText text={t(verdict.ok ? "hud.correct" : "hud.wrong")} />
+          </span>
+          <span className="text-2xl leading-loose font-extrabold">
+            <RubyText text={verdict.text} />
+          </span>
+        </span>
+        <span className="ml-2 shrink-0 rounded-full bg-black/10 px-3 py-1 text-sm font-extrabold">
+          <RubyText text={t("hud.next")} /> ▶
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function Dream() {
+  const dream = usePlay((s) => s.dream);
+  if (!dream) return null;
+  return (
+    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[radial-gradient(circle,rgba(255,183,213,0.35),rgba(7,26,70,0.6))] p-4">
+      <button
+        type="button"
+        className="pop text-ink flex flex-col items-center gap-5 rounded-[3rem] bg-white/95 px-10 py-8 shadow-2xl"
+        onClick={() => playActions.advance()}
+        data-testid="dream"
+      >
+        <p className="text-xl font-extrabold">
+          <RubyText text={t("hud.dream")} />
+        </p>
+        <div className="flex flex-wrap justify-center gap-5">
+          {dream.map((d) => (
+            <div
+              key={d.text}
+              className="flex w-40 flex-col items-center gap-2 rounded-3xl bg-sky-50 p-4"
+            >
+              <span className="text-6xl">{d.icon}</span>
+              <span className="text-center text-lg font-extrabold">
+                <RubyText text={d.text} />
+              </span>
+            </div>
+          ))}
+        </div>
+        <span className="bg-cyan rounded-full px-4 py-1 font-extrabold">
+          <RubyText text={t("hud.next")} /> ▶
+        </span>
+      </button>
+    </div>
+  );
+}
+
+export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
+  const [more, setMore] = useState(false);
+  const [imgOk, setImgOk] = useState(true);
+  return (
+    <div
+      className="glass-light pop flex w-full max-w-2xl flex-col gap-4 rounded-3xl p-6"
+      data-testid="tip"
+    >
+      <div className="flex items-center gap-2">
+        <span className="bg-sun flex items-center gap-1 rounded-full px-3 py-1 text-sm font-extrabold">
+          <IconBulb className="h-4 w-4" />
+          <RubyText text={t("hud.tip")} />
+        </span>
+        <h3 className="text-2xl font-extrabold">
+          <RubyText text={tip.title} />
+        </h3>
+      </div>
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
+        <div className="relative grid h-48 w-full shrink-0 place-items-center overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#dff4ff,#ffffff)] sm:w-64">
+          {imgOk ? (
+            <img
+              src={`${BASE}${tip.image.slice(1)}`}
+              alt=""
+              className="h-full w-full object-contain"
+              onError={() => setImgOk(false)}
+            />
+          ) : (
+            <img
+              src={`${BASE}img/nexmax/${tip.pose ?? "book"}.webp`}
+              alt=""
+              className="bob h-40 w-40"
+            />
+          )}
+        </div>
+        <div className="flex flex-col gap-3">
+          <p className="text-xl leading-[2.3] font-bold">
+            <RubyText text={tip.text} />
+          </p>
+          {more && tip.more && (
+            <p className="text-ink/80 text-lg leading-[2.2] font-bold">
+              <RubyText text={tip.more} />
+            </p>
+          )}
+          <p className="text-ink/60 text-sm">{tip.en}</p>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        {tip.more && !more && (
+          <button type="button" className="btn btn-ghost !text-ink" onClick={() => setMore(true)}>
+            <RubyText text={t("hud.more")} />
+          </button>
+        )}
+        <button type="button" className="btn btn-primary" onClick={onClose} data-testid="tip-close">
+          <RubyText text={t("hud.ok")} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TipCard() {
+  const id = usePlay((s) => s.tip);
+  const tip = id ? TIPS[id] : undefined;
+  if (!tip) return null;
+  return (
+    <div className="bg-deep/50 pointer-events-auto absolute inset-0 grid place-items-center p-4">
+      <TipView key={tip.id} tip={tip} onClose={() => playActions.closeTip()} />
+    </div>
+  );
+}
+
+export { TIPS };

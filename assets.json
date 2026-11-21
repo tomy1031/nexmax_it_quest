@@ -1,0 +1,48 @@
+{
+  "$comment": "polyfork から取り寄せる 3D モデルの一覧。npm run assets:fetch で public/models/ に置き、CREDITS.md を作り直す。params はバリエーション（体型など）。clips は人の動き（CC0）。",
+  "models": [
+    { "file": "people/suit-m", "id": "salaryman-commuter-4170c1" },
+    {
+      "file": "people/suit-f",
+      "id": "salaryman-commuter-4170c1",
+      "params": { "figure": "feminine" }
+    },
+    { "file": "people/casual-m", "id": "student-with-backpack-65d2b4" },
+    {
+      "file": "people/casual-f",
+      "id": "student-with-backpack-65d2b4",
+      "params": { "figure": "feminine" }
+    },
+    { "file": "people/hoodie", "id": "student-in-a-hoodie-7c8223" },
+    { "file": "people/school", "id": "school-student-385134" },
+    { "file": "people/worker", "id": "standing-worker-on-a-8a0f9a" },
+    { "file": "street/apartment", "id": "apartment-block-6445af" },
+    { "file": "street/traffic-signal", "id": "traffic-signal-2a517e" },
+    { "file": "street/konbini", "id": "convenience-store-c30e1d" },
+    { "file": "street/vending", "id": "vending-machine-471c29" },
+    { "file": "street/pole", "id": "utility-pole-574130" },
+    { "file": "street/lamp", "id": "street-lamp-29f365" },
+    { "file": "street/shop2", "id": "two-storey-shophouse-183790" },
+    { "file": "street/shop3", "id": "three-storey-shophouse-2f6378" },
+    { "file": "street/shop-corner", "id": "corner-shophouse-ad15c2" },
+    { "file": "street/shop-wide", "id": "wide-shophouse-089f20" },
+    { "file": "street/taxi", "id": "city-taxi-eefa91" },
+    { "file": "street/kei-van", "id": "kei-van-211ed5" },
+    { "file": "street/bicycle", "id": "city-bicycle-5b67d1" },
+    { "file": "street/bike-rack", "id": "bicycle-parking-rack-282058" },
+    { "file": "street/guardrail", "id": "guardrail-section-68c3c4" },
+    { "file": "street/post-box", "id": "red-post-box-f12045" },
+    { "file": "street/shrub", "id": "potted-shrub-43bd21" },
+    { "file": "street/mirror", "id": "convex-traffic-mirror-a64d15" },
+    { "file": "street/block-wall", "id": "concrete-block-wall-02c715" },
+    { "file": "home/bed", "id": "bed-6e10e8" },
+    { "file": "home/desk", "id": "sit-stand-desk-3ff7b8" },
+    { "file": "home/chair", "id": "task-chair-ccd944" },
+    { "file": "home/laptop", "id": "laptop-e775ba" },
+    { "file": "home/coat-rack", "id": "coat-rack-57bbbc" },
+    { "file": "home/mug", "id": "office-mug-8afee0" },
+    { "file": "station/clock", "id": "station-clock-post-eaaf63" },
+    { "file": "station/bench", "id": "wooden-bench-661da4" }
+  ],
+  "clips": ["idle", "walk", "run", "sitting", "agree", "talking", "head-shake"]
+}

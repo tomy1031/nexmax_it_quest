@@ -1,0 +1,71 @@
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
+import { onFx } from "@/stages/events";
+import { playActions, usePlay } from "@/stages/play-store";
+import { NMChat } from "@/ui/hud/NMChat";
+import { AvatarEditor } from "@/ui/hud/AvatarPanel";
+import { RouteMapQuiz } from "@/ui/hud/RouteMapQuiz";
+import { MemoEditor } from "@/ui/hud/MemoPanel";
+import { ReportPanel } from "@/ui/hud/ReportPanel";
+import { Certificate } from "@/ui/Certificate";
+import { questEvents } from "@/stages/events";
+
+/** 台本が開く画面（NMChat・着がえ・路線図・メモ・連絡・修了証）。閉じると台本が先へ進む。 */
+export function Panels() {
+  const panel = usePlay((s) => s.panel);
+  const stageId = usePlay((s) => s.stageId);
+  const [, navigate] = useLocation();
+  if (!panel) return <PhoneOverlay />;
+  const close = () => playActions.closePanel();
+  return (
+    <div className="bg-deep/45 pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto p-3">
+      {panel.id === "nmchat" && (
+        <div className="w-full max-w-4xl">
+          <NMChat mode="onboarding" onDone={close} />
+        </div>
+      )}
+      {panel.id === "avatar" && (
+        <AvatarEditor
+          mode={panel.mode === "suit" ? "suit" : "free"}
+          onDone={() => {
+            questEvents.emit("avatar:done");
+            close();
+          }}
+        />
+      )}
+      {panel.id === "routemap-quiz" && <RouteMapQuiz onDone={close} />}
+      {panel.id === "memo" && <MemoEditor required onSaved={close} />}
+      {panel.id === "report" && <ReportPanel onDone={close} />}
+      {panel.id === "certificate" && (
+        <Certificate
+          stageId={stageId}
+          onClose={() => {
+            close();
+            navigate("/stages");
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/** 電車の中で電話がふるえる（台本の fx: phone-ring / phone-stop）。 */
+function PhoneOverlay() {
+  const [ringing, setRinging] = useState(false);
+  useEffect(
+    () =>
+      onFx((id) => {
+        if (id === "phone-ring") setRinging(true);
+        if (id === "phone-stop" || id === "stare-end") setRinging(false);
+      }),
+    [],
+  );
+  if (!ringing) return null;
+  return (
+    <div className="absolute right-6 bottom-40 sm:right-12">
+      <div className="shake grid h-40 w-24 place-items-center rounded-[1.4rem] border-4 border-slate-700 bg-gradient-to-b from-slate-800 to-slate-900 shadow-2xl">
+        <span className="text-4xl">📳</span>
+      </div>
+    </div>
+  );
+}

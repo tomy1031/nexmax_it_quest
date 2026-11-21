@@ -1,0 +1,122 @@
+{
+  "$comment": "豆知識。1枚は「絵1つ＋1文＋英語」。「もっと」で2文目。image は public/ の下の絵（3D の部品を撮った絵か、ネクマックスの絵）。",
+  "tips": [
+    {
+      "id": "nmchat",
+      "title": "会社の チャット",
+      "text": "日本の 会社では、チャットで 連絡する ことが 多いです。",
+      "more": "大事な お知らせは、毎朝 見る ように しましょう。",
+      "en": "Many Japanese companies use chat tools (like Slack) for daily messages.",
+      "image": "/img/tips/nmchat.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "suit",
+      "title": "入社式の スーツ",
+      "text": "入社式には、黒・紺・グレーの スーツで 行きます。",
+      "more": "シャツは 白が 安心です。",
+      "en": "For a welcome ceremony, wear a black, navy or gray suit.",
+      "image": "/img/tips/suit.webp",
+      "pose": "cheer"
+    },
+    {
+      "id": "aoshingou",
+      "title": "青信号",
+      "text": "日本では、緑の 信号を「青信号」と 言います。",
+      "more": "昔の 日本語では、緑も「青」と 言いました。",
+      "en": "In Japan, the green light is called \"ao\" (blue).",
+      "image": "/img/tips/aoshingou.webp",
+      "pose": "book"
+    },
+    {
+      "id": "oshibotan",
+      "title": "押しボタン式の 信号",
+      "text": "ボタンを 押さないと、青に ならない 信号が あります。",
+      "more": "「おまちください」が 光ったら、そのまま 待ちましょう。",
+      "en": "Push-button signals: press the button, then wait for the walk light.",
+      "image": "/img/tips/oshibotan.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "yajirushi",
+      "title": "矢印信号",
+      "text": "赤信号でも、緑の 矢印の 方向へは 車が 進めます。",
+      "more": "歩く 人は、歩行者用の 信号を 見ましょう。",
+      "en": "Even on red, cars may go in the direction of a green arrow.",
+      "image": "/img/tips/yajirushi.webp",
+      "pose": "book"
+    },
+    {
+      "id": "ekibango",
+      "title": "駅の 番号",
+      "text": "大阪メトロの 駅には、線の アルファベットと 番号が あります。",
+      "more": "天王寺は 御堂筋線の M23 です。",
+      "en": "Osaka Metro stations have a line letter and number (e.g. M23).",
+      "image": "/img/tips/ekibango.webp",
+      "pose": "book"
+    },
+    {
+      "id": "teikiken",
+      "title": "定期券（commuter pass）",
+      "text": "定期券の 区間の 中なら、どの 駅でも 乗り降りできます。",
+      "more": "区間の 外へ 行く ときは、ICOCAの お金で はらいます。",
+      "en": "With a commuter pass, you can get on and off at any station on your route.",
+      "image": "/img/tips/teikiken.webp",
+      "pose": "cheer"
+    },
+    {
+      "id": "koutsuhi",
+      "title": "交通費（transportation cost）",
+      "text": "日本の 会社は、通勤の 交通費を 出す ことが 多いです。",
+      "more": "定期券の 領収書（receipt）は なくさない ように しましょう。",
+      "en": "Japanese companies usually pay your commuting costs.",
+      "image": "/img/tips/koutsuhi.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "icoca",
+      "title": "ICOCAで 買い物",
+      "text": "ICOCAは コンビニや 自動販売機でも 使えます。",
+      "more": "チャージは 20,000円まで できます。",
+      "en": "You can pay with ICOCA at convenience stores and vending machines.",
+      "image": "/img/tips/icoca.webp",
+      "pose": "cheer"
+    },
+    {
+      "id": "kaisatsu",
+      "title": "改札（ticket gate）",
+      "text": "改札では、ICOCAを 光って いる 所に タッチします。",
+      "more": "「ピッ」と 鳴ったら、通れます。",
+      "en": "At the gate, touch your ICOCA on the reader. Walk through after the beep.",
+      "image": "/img/tips/kaisatsu.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "houmen",
+      "title": "方面（direction）と 行き（bound for）",
+      "text": "「〇〇方面」は、電車が 進む 方向です。",
+      "more": "「〇〇行き」は、電車が 最後に 止まる 駅です。",
+      "en": "\"…houmen\" is the direction. \"…yuki\" is the last stop of the train.",
+      "image": "/img/tips/houmen.webp",
+      "pose": "book"
+    },
+    {
+      "id": "rush",
+      "title": "ラッシュアワー",
+      "text": "朝の 8時ごろは、電車が とても こみます。",
+      "more": "リュックは 前に 持ちましょう。",
+      "en": "Trains are very crowded around 8 a.m. Hold your backpack in front.",
+      "image": "/img/tips/rush.webp",
+      "pose": "listen"
+    },
+    {
+      "id": "densha-denwa",
+      "title": "電車の 中の 電話",
+      "text": "電車の 中では、電話に 出ません。",
+      "more": "マナーモードに して、降りてから かけなおします。",
+      "en": "Don't answer calls on the train. Use silent mode and call back later.",
+      "image": "/img/tips/densha-denwa.webp",
+      "pose": "listen"
+    }
+  ]
+}

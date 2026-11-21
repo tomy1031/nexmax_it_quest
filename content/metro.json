@@ -1,0 +1,241 @@
+{
+  "$comment": "路線図（大阪メトロの一部をかんたんにしたもの）。駅の番号と線の色は docs/research/大阪メトロ.md。x・y は路線図の上の位置（0〜100）。",
+  "lines": [
+    {
+      "id": "M",
+      "letter": "M",
+      "name": "御堂筋線",
+      "en": "Midosuji Line",
+      "color": "#e5171f",
+      "stations": [
+        "umeda",
+        "yodoyabashi",
+        "hommachi",
+        "shinsaibashi",
+        "namba",
+        "daikokucho",
+        "dobutsuenmae",
+        "tennoji"
+      ]
+    },
+    {
+      "id": "C",
+      "letter": "C",
+      "name": "中央線",
+      "en": "Chuo Line",
+      "color": "#019a66",
+      "stations": [
+        "cosmosquare",
+        "bentencho",
+        "kujo",
+        "awaza",
+        "hommachi",
+        "sakaisujihommachi",
+        "tanimachi4",
+        "morinomiya",
+        "nagata"
+      ]
+    },
+    {
+      "id": "T",
+      "letter": "T",
+      "name": "谷町線",
+      "en": "Tanimachi Line",
+      "color": "#522886",
+      "stations": ["higashiumeda", "tenmabashi", "tanimachi4", "tanimachi9", "tennoji"]
+    },
+    {
+      "id": "Y",
+      "letter": "Y",
+      "name": "四つ橋線",
+      "en": "Yotsubashi Line",
+      "color": "#0078ba",
+      "stations": []
+    }
+  ],
+  "stations": [
+    {
+      "id": "umeda",
+      "name": "梅田",
+      "en": "Umeda",
+      "numbers": ["M16"],
+      "x": 50,
+      "y": 8,
+      "label": "left"
+    },
+    {
+      "id": "higashiumeda",
+      "name": "東梅田",
+      "en": "Higashi-Umeda",
+      "numbers": ["T20"],
+      "x": 68,
+      "y": 8,
+      "label": "right"
+    },
+    {
+      "id": "yodoyabashi",
+      "name": "淀屋橋",
+      "en": "Yodoyabashi",
+      "numbers": ["M17"],
+      "x": 50,
+      "y": 22,
+      "label": "left"
+    },
+    {
+      "id": "tenmabashi",
+      "name": "天満橋",
+      "en": "Temmabashi",
+      "numbers": ["T22"],
+      "x": 68,
+      "y": 26,
+      "label": "right"
+    },
+    {
+      "id": "cosmosquare",
+      "name": "コスモスクエア",
+      "en": "Cosmosquare",
+      "numbers": ["C10"],
+      "x": 4,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "bentencho",
+      "name": "弁天町",
+      "en": "Bentencho",
+      "numbers": ["C13"],
+      "x": 16,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "kujo",
+      "name": "九条",
+      "en": "Kujo",
+      "numbers": ["C14"],
+      "x": 27,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "awaza",
+      "name": "阿波座",
+      "en": "Awaza",
+      "numbers": ["C15"],
+      "x": 38,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "hommachi",
+      "name": "本町",
+      "en": "Hommachi",
+      "numbers": ["M18", "C16"],
+      "x": 50,
+      "y": 40,
+      "label": "top"
+    },
+    {
+      "id": "sakaisujihommachi",
+      "name": "堺筋本町",
+      "en": "Sakaisuji-Hommachi",
+      "numbers": ["C17"],
+      "x": 59,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "tanimachi4",
+      "name": "谷町四丁目",
+      "en": "Tanimachi 4-chome",
+      "numbers": ["C18", "T23"],
+      "x": 68,
+      "y": 40,
+      "label": "top"
+    },
+    {
+      "id": "morinomiya",
+      "name": "森ノ宮",
+      "en": "Morinomiya",
+      "numbers": ["C19"],
+      "x": 80,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "nagata",
+      "name": "長田",
+      "en": "Nagata",
+      "numbers": ["C23"],
+      "x": 95,
+      "y": 40,
+      "label": "bottom"
+    },
+    {
+      "id": "shinsaibashi",
+      "name": "心斎橋",
+      "en": "Shinsaibashi",
+      "numbers": ["M19"],
+      "x": 50,
+      "y": 52,
+      "label": "left",
+      "weekend": {
+        "text": "買い物",
+        "icon": "🛍️"
+      }
+    },
+    {
+      "id": "namba",
+      "name": "なんば",
+      "en": "Namba",
+      "numbers": ["M20"],
+      "x": 50,
+      "y": 63,
+      "label": "left",
+      "weekend": {
+        "text": "たこやき",
+        "icon": "🐙"
+      }
+    },
+    {
+      "id": "daikokucho",
+      "name": "大国町",
+      "en": "Daikokucho",
+      "numbers": ["M21"],
+      "x": 50,
+      "y": 74,
+      "label": "left"
+    },
+    {
+      "id": "dobutsuenmae",
+      "name": "動物園前",
+      "en": "Dobutsuen-mae",
+      "numbers": ["M22"],
+      "x": 50,
+      "y": 84,
+      "label": "left",
+      "weekend": {
+        "text": "動物園",
+        "icon": "🦒"
+      }
+    },
+    {
+      "id": "tanimachi9",
+      "name": "谷町九丁目",
+      "en": "Tanimachi 9-chome",
+      "numbers": ["T25"],
+      "x": 68,
+      "y": 66,
+      "label": "right"
+    },
+    {
+      "id": "tennoji",
+      "name": "天王寺",
+      "en": "Tennoji",
+      "numbers": ["M23", "T27"],
+      "x": 59,
+      "y": 95,
+      "label": "bottom"
+    }
+  ]
+}

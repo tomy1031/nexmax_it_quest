@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/*
+ * 見た目の決まり。タイトル画像（ダイブの渦・濃い青・シアンの光・白・桜色）から色を取った。
+ * 画面の上に重ねる板は「ガラスの板＋シアンの縁」でそろえる（docs/design/00_全体設計.md）。
+ */
+@theme {
+  --font-sans:
+    "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+  --color-deep: #071a46;
+  --color-navy: #0a2a6b;
+  --color-sky: #1f8fff;
+  --color-cyan: #38e1ff;
+  --color-ice: #e8f6ff;
+  --color-sakura: #ffb7d5;
+  --color-leaf: #3ccf7a;
+  --color-sun: #ffc93c;
+  --color-coral: #ff7a6b;
+  --color-ink: #12305a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-deep);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ふりがなの色は、いつも文字と同じ色（色の面でふりがなだけ沈まない。academy 2026-08-18） */
+rt {
+  color: currentColor;
+  opacity: 0.85;
+  font-size: 0.5em;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+ruby {
+  ruby-position: over;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgb(10 42 107 / 0.82), rgb(7 26 70 / 0.88));
+  border: 1.5px solid rgb(56 225 255 / 0.55);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.06) inset,
+    0 10px 40px rgb(0 0 0 / 0.35),
+    0 0 24px rgb(56 225 255 / 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.glass-light {
+  background: rgb(255 255 255 / 0.94);
+  color: var(--color-ink);
+  border: 1.5px solid rgb(56 225 255 / 0.6);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  padding: 0.7rem 1.3rem;
+  font-weight: 800;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:active {
+  transform: translateY(2px);
+}
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.btn-primary {
+  background: linear-gradient(180deg, #4fe8ff, #1aa6ff);
+  color: #04214f;
+  box-shadow:
+    0 4px 0 #0b62b8,
+    0 0 22px rgb(56 225 255 / 0.55);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow:
+    0 4px 0 #0b62b8,
+    0 0 34px rgb(56 225 255 / 0.85);
+}
+.btn-ghost {
+  background: rgb(7 26 70 / 0.7);
+  color: #fff;
+  border: 1.5px solid rgb(56 225 255 / 0.55);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: rgb(20 60 140 / 0.8);
+}
+.btn-ok {
+  background: linear-gradient(180deg, #6ff0a4, #2bbf6a);
+  color: #053a1c;
+  box-shadow: 0 4px 0 #1b8a4a;
+}
+
+.focus-ring:focus-visible,
+.btn:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--color-sun);
+  outline-offset: 2px;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pop {
+  animation: pop 0.22s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.bob {
+  animation: bob 3s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  25% {
+    transform: translate(-3px, 1px) rotate(-4deg);
+  }
+  75% {
+    transform: translate(3px, -1px) rotate(4deg);
+  }
+}
+.shake {
+  animation: shake 0.12s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop,
+  .bob,
+  .shake {
+    animation: none !important;
+  }
+}
+
+.input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid rgb(56 225 255 / 0.5);
+  background: rgb(255 255 255 / 0.95);
+  color: var(--color-ink);
+  padding: 0.7rem 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.input::placeholder {
+  color: rgb(18 48 90 / 0.45);
+}

@@ -1,0 +1,104 @@
+{
+  "$comment": "駅のホームの看板・電光掲示板の中身。番線と方面は docs/research/大阪メトロ.md（確かめていない所は「じっさいと ちがう ところが あります」の注意を出す）。時刻は れい。",
+  "platforms": [
+    {
+      "id": "tennoji",
+      "station": "tennoji",
+      "line": "M",
+      "prev": "dobutsuenmae",
+      "tracks": [
+        {
+          "side": "left",
+          "track": 1,
+          "direction": "なかもず・あびこ 方面",
+          "en": "for Nakamozu / Abiko",
+          "led": [
+            { "kind": "普通", "time": "8:12", "dest": "なかもず" },
+            { "kind": "普通", "time": "8:16", "dest": "あびこ" }
+          ]
+        },
+        {
+          "side": "right",
+          "track": 2,
+          "direction": "なんば・梅田・新大阪 方面",
+          "en": "for Namba / Umeda / Shin-Osaka",
+          "led": [
+            { "kind": "普通", "time": "8:13", "dest": "千里中央" },
+            { "kind": "普通", "time": "8:17", "dest": "新大阪" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hommachi-chuo",
+      "station": "hommachi",
+      "line": "C",
+      "prev": "awaza",
+      "next": "sakaisujihommachi",
+      "tracks": [
+        {
+          "side": "left",
+          "track": 1,
+          "direction": "森ノ宮・長田 方面",
+          "en": "for Morinomiya / Nagata",
+          "led": [
+            { "kind": "普通", "time": "8:31", "dest": "長田" },
+            { "kind": "普通", "time": "8:35", "dest": "長田" }
+          ]
+        },
+        {
+          "side": "right",
+          "track": 2,
+          "direction": "阿波座・コスモスクエア 方面",
+          "en": "for Awaza / Cosmosquare",
+          "led": [
+            { "kind": "普通", "time": "8:32", "dest": "コスモスクエア" },
+            { "kind": "普通", "time": "8:36", "dest": "夢洲" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "awaza",
+      "station": "awaza",
+      "line": "C",
+      "prev": "kujo",
+      "next": "hommachi",
+      "tracks": [
+        {
+          "side": "right",
+          "track": 2,
+          "direction": "九条・コスモスクエア 方面",
+          "en": "for Kujo / Cosmosquare",
+          "led": [
+            { "kind": "普通", "time": "8:34", "dest": "コスモスクエア" },
+            { "kind": "普通", "time": "8:38", "dest": "夢洲" }
+          ]
+        }
+      ]
+    }
+  ],
+  "transfer": [
+    {
+      "id": "stairs-C",
+      "lines": ["C"],
+      "text": "中央線 のりかえ",
+      "en": "Chuo Line",
+      "tone": "navy",
+      "arrow": "up"
+    },
+    {
+      "id": "stairs-Y",
+      "lines": ["Y"],
+      "text": "四つ橋線 のりかえ",
+      "en": "Yotsubashi Line",
+      "tone": "navy",
+      "arrow": "up"
+    },
+    { "id": "exit", "lines": [], "text": "出口", "en": "Exit", "tone": "yellow", "arrow": "up" }
+  ],
+  "trainNext": {
+    "midosuji": ["動物園前", "大国町", "なんば", "心斎橋", "本町"],
+    "chuo": ["阿波座"]
+  }
+}

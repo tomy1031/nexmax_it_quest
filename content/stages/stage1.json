@@ -1,0 +1,1216 @@
+{
+  "id": "stage1",
+  "title": "入社初日：ネクストメイクに 行きましょう！",
+  "subtitle": "家から 会社の 駅まで、地下鉄で 行きます。",
+  "chapters": [
+    {
+      "no": 1,
+      "title": "朝の 家"
+    },
+    {
+      "no": 2,
+      "title": "駅まで・定期券"
+    },
+    {
+      "no": 3,
+      "title": "電車で 会社へ"
+    }
+  ],
+  "words": [
+    {
+      "word": "定期券",
+      "en": "commuter pass"
+    },
+    {
+      "word": "改札",
+      "en": "ticket gate"
+    },
+    {
+      "word": "方面",
+      "en": "direction"
+    },
+    {
+      "word": "乗りかえ",
+      "en": "transfer"
+    },
+    {
+      "word": "番線",
+      "en": "track number"
+    },
+    {
+      "word": "押しボタン",
+      "en": "push button"
+    }
+  ],
+  "sections": [
+    {
+      "id": "s01-wake",
+      "chapter": 1,
+      "title": "目覚まし",
+      "scene": "home",
+      "spawn": "bed",
+      "beats": [
+        {
+          "t": "sfx",
+          "id": "alarm"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "うーん…… 何の 音？"
+        },
+        {
+          "t": "objective",
+          "text": "目覚まし時計を 止めよう",
+          "target": "alarm",
+          "hints": ["ベッドの 横に 時計が あります。", "光って いる 時計を クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:alarm"
+        },
+        {
+          "t": "fx",
+          "id": "alarm-off"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "7時だ。今日は 大事な 日！"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "今日から ネクストメイクの インターン生だ！"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "hello",
+          "text": "おはようございます！ ぼくは ネクマックスです。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "text": "今日は 一緒に 会社まで 行きましょう。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "まず、会社からの 連絡を 見ましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "つくえの パソコンを クリックしよう",
+          "target": "pc",
+          "hints": [
+            "床を クリックすると、そこへ 歩きます。",
+            "光って いる パソコンを クリックしましょう。"
+          ]
+        },
+        {
+          "t": "wait",
+          "event": "click:pc"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s02-nmchat",
+      "chapter": 1,
+      "title": "NMChat",
+      "scene": "home",
+      "spawn": "desk",
+      "beats": [
+        {
+          "t": "focus",
+          "target": "pc"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "これは NMChat です。会社の チャットです。"
+        },
+        {
+          "t": "objective",
+          "text": "#onboarding を 開いて、お知らせを 読もう"
+        },
+        {
+          "t": "panel",
+          "id": "nmchat",
+          "mode": "onboarding"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "tip",
+          "id": "nmchat"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "入社式は 今日の 10時から！"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "スーツを 着て 行かないと。"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "ICOCAの 定期券も 買わないと。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "NMChatは メニューから いつでも 見られます。"
+        }
+      ]
+    },
+    {
+      "id": "s03-dress",
+      "chapter": 1,
+      "title": "着がえ",
+      "scene": "home",
+      "spawn": "desk",
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "スーツに 着がえよう。"
+        },
+        {
+          "t": "objective",
+          "text": "クローゼットを クリックしよう",
+          "target": "closet",
+          "hints": ["部屋の 右に クローゼットが あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:closet"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "mirror"
+        },
+        {
+          "t": "panel",
+          "id": "avatar",
+          "mode": "suit"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
+          "text": "スーツ、よく にあって いますね！"
+        },
+        {
+          "t": "tip",
+          "id": "suit"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "では、出かけましょう！"
+        },
+        {
+          "t": "objective",
+          "text": "ドアから 外に 出よう",
+          "target": "door",
+          "hints": ["部屋の 入口に ドアが あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:door"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s04-crossing",
+      "chapter": 2,
+      "title": "押しボタンの 信号",
+      "scene": "street",
+      "spawn": "home-door",
+      "beats": [
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "駅は 家を 出て 左です。"
+        },
+        {
+          "t": "objective",
+          "text": "左へ まっすぐ 歩こう",
+          "target": "crosswalk-stop",
+          "hints": ["道の 先に 信号が あります。", "光って いる 輪を クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "reach:crosswalk-stop"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "ped-signal"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "信号だ。青に なって いる！"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "色は 緑なのに、青信号って 言うんですよね。"
+        },
+        {
+          "t": "tip",
+          "id": "aoshingou"
+        },
+        {
+          "t": "fx",
+          "id": "ped-blink"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "あっ、点滅して いる！"
+        },
+        {
+          "t": "pause",
+          "ms": 2600
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "赤に なった……。待とう。"
+        },
+        {
+          "t": "pause",
+          "ms": 2500
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "あれ？ ずっと 赤の ままだ。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "信号の 柱を よく 見て ください。"
+        },
+        {
+          "t": "focus",
+          "target": "push-button"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "「おしてください」…… 押しボタンだ！"
+        },
+        {
+          "t": "objective",
+          "text": "ボタンを 押そう",
+          "target": "push-button",
+          "hints": ["白い 箱の ボタンを クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:push-button"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "button-pressed"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "「おまちください」が 光った。"
+        },
+        {
+          "t": "tip",
+          "id": "oshibotan"
+        },
+        {
+          "t": "focus",
+          "target": "car-signal"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "車の 信号も 見て みよう。"
+        },
+        {
+          "t": "fx",
+          "id": "car-yellow"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "黄色に なった。"
+        },
+        {
+          "t": "fx",
+          "id": "car-arrow"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "赤に なった。でも、緑の 矢印が 出た！"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "矢印の 方向だけ、車は 進めるんです。"
+        },
+        {
+          "t": "tip",
+          "id": "yajirushi"
+        },
+        {
+          "t": "fx",
+          "id": "car-red"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "矢印が 消えた。車が 全部 止まった。"
+        },
+        {
+          "t": "focus",
+          "target": "ped-signal"
+        },
+        {
+          "t": "fx",
+          "id": "ped-green"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "歩行者の 信号が 青に なった！"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "objective",
+          "text": "横断歩道を わたろう",
+          "target": "across",
+          "hints": ["道の 向こうに メトロの 入口が あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "reach:across"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "メトロの 入口だ。"
+        },
+        {
+          "t": "objective",
+          "text": "階段を 下りよう",
+          "target": "metro-entrance",
+          "hints": ["入口の 階段を クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:metro-entrance"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s05-routemap",
+      "chapter": 2,
+      "title": "路線図",
+      "scene": "tennoji-concourse",
+      "spawn": "stairs-bottom",
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "地下の 駅だ。人が 多い！"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "book",
+          "text": "まず、路線図で 行き方を 調べましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "路線図を クリックしよう",
+          "target": "route-map",
+          "hints": ["かべに 大きな 路線図が あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:route-map"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "route-map"
+        },
+        {
+          "t": "panel",
+          "id": "routemap-quiz"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "tip",
+          "id": "ekibango"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "book",
+          "text": "家の 駅と 線を メモして おきましょう。"
+        },
+        {
+          "t": "panel",
+          "id": "memo"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "メモは メニューから いつでも 見られます。"
+        }
+      ]
+    },
+    {
+      "id": "s06-ticket",
+      "chapter": 2,
+      "title": "定期券を 買う",
+      "scene": "tennoji-concourse",
+      "spawn": "route-map",
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "次は 定期券を 買おう。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "定期券は、ピンクの 券売機で 買えます。"
+        },
+        {
+          "t": "objective",
+          "text": "定期券の 券売機を さがそう",
+          "target": "pass-machine",
+          "arrow": false,
+          "hints": [
+            "券売機が ならんで います。",
+            "ピンクの 券売機を さがしましょう。",
+            "いちばん 右の ピンクの 券売機です。"
+          ]
+        },
+        {
+          "t": "wait",
+          "event": "click:pass-machine",
+          "else": {
+            "click:ticket-machine": [
+              {
+                "t": "say",
+                "who": "me",
+                "text": "この 券売機は きっぷだけだ。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "guide",
+                "text": "ピンクの 券売機を さがしましょう。"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "pass-machine"
+        },
+        {
+          "t": "objective",
+          "text": "画面を おして、定期券を 買おう"
+        },
+        {
+          "t": "wait",
+          "event": "ticket:purchased"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "give",
+          "item": "icoca-pass"
+        },
+        {
+          "t": "fx",
+          "id": "card-out"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "ICOCAが 出て きた！"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "天王寺から 阿波座まで、3か月の 定期券だ。"
+        },
+        {
+          "t": "tip",
+          "id": "teikiken"
+        },
+        {
+          "t": "dream",
+          "items": [
+            {
+              "text": "動物園前： 動物園",
+              "icon": "🦒"
+            },
+            {
+              "text": "なんば： たこやき",
+              "icon": "🐙"
+            },
+            {
+              "text": "心斎橋： 買い物",
+              "icon": "🛍️"
+            }
+          ]
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "週末は どこに 行こうかな。楽しみ！"
+        },
+        {
+          "t": "tip",
+          "id": "koutsuhi"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "お店でも 使えるように、チャージも しましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "ICOCAに お金を チャージしよう"
+        },
+        {
+          "t": "wait",
+          "event": "ticket:charged"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "tip",
+          "id": "icoca"
+        }
+      ]
+    },
+    {
+      "id": "s07-gate",
+      "chapter": 3,
+      "title": "改札",
+      "scene": "tennoji-concourse",
+      "spawn": "pass-machine",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "この 駅は、線ごとに 改札が 分かれて います。"
+        },
+        {
+          "t": "objective",
+          "text": "御堂筋線の 改札に 入ろう",
+          "arrow": false,
+          "hints": [
+            "上の 看板を 見ましょう。",
+            "路線図で 御堂筋線の 色と マークを 思い出しましょう。",
+            "御堂筋線は 赤い「M」の マークです。"
+          ]
+        },
+        {
+          "t": "wait",
+          "event": "click:gate-M",
+          "else": {
+            "click:gate-T": [
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。ここは 谷町線の 改札です。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "御堂筋線の マークを、上の 看板で さがしましょう。"
+              }
+            ],
+            "click:jr": [
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。そちらは JRの のりかえ口です。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "今日は メトロに 乗ります。"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "gate-pass"
+        },
+        {
+          "t": "sfx",
+          "id": "pi"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "ピッ！ 改札に 入れた。"
+        },
+        {
+          "t": "tip",
+          "id": "kaisatsu"
+        },
+        {
+          "t": "objective",
+          "text": "ホームへの 階段を 下りよう",
+          "target": "platform-stairs",
+          "hints": ["改札の 先に 階段が あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:platform-stairs"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s08-platform",
+      "chapter": 3,
+      "title": "ホーム",
+      "scene": "tennoji-platform",
+      "spawn": "stairs",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "ホームに 着いた。右と 左、どっちだろう？"
+        },
+        {
+          "t": "focus",
+          "target": "led-boards"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "電光掲示板が ある。"
+        },
+        {
+          "t": "tip",
+          "id": "houmen"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "objective",
+          "text": "本町へ 行く 電車に 乗ろう",
+          "arrow": false,
+          "hints": [
+            "路線図で、本町は 天王寺の 北でした。",
+            "看板の「なんば・梅田 方面」を さがしましょう。",
+            "2番線の 電車です。"
+          ]
+        },
+        {
+          "t": "fx",
+          "id": "trains-arrive"
+        },
+        {
+          "t": "wait",
+          "event": "click:train-2",
+          "else": {
+            "click:train-1": [
+              {
+                "t": "fx",
+                "id": "board-wrong"
+              },
+              {
+                "t": "say",
+                "who": "me",
+                "text": "あれ？ なかもず 行き……反対だ！"
+              },
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。反対の 方向の 電車でした。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "券売機の 前から やり直しましょう。"
+              },
+              {
+                "t": "jump",
+                "to": "s07-gate"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "board"
+        }
+      ]
+    },
+    {
+      "id": "s09-train",
+      "chapter": 3,
+      "title": "電車の 中",
+      "scene": "train-midosuji",
+      "spawn": "inside",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "すごい 人……。朝の ラッシュアワーだ。"
+        },
+        {
+          "t": "tip",
+          "id": "rush"
+        },
+        {
+          "t": "say",
+          "who": "announce",
+          "text": "つぎは 動物園前、動物園前です。"
+        },
+        {
+          "t": "pause",
+          "ms": 1200
+        },
+        {
+          "t": "sfx",
+          "id": "vibrate"
+        },
+        {
+          "t": "fx",
+          "id": "phone-ring"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "あっ、電話だ！"
+        },
+        {
+          "t": "choice",
+          "prompt": "電話が 鳴って います。どう しますか？",
+          "options": [
+            {
+              "text": "電話に 出る",
+              "then": [
+                {
+                  "t": "fx",
+                  "id": "stare"
+                },
+                {
+                  "t": "say",
+                  "who": "people",
+                  "text": "……！"
+                },
+                {
+                  "t": "say",
+                  "who": "me",
+                  "text": "みんなが こっちを 見て いる……。"
+                },
+                {
+                  "t": "verdict",
+                  "ok": false,
+                  "text": "不正解。電車の 中では、電話に 出ません。"
+                },
+                {
+                  "t": "fx",
+                  "id": "stare-end"
+                },
+                {
+                  "t": "say",
+                  "who": "nexmax",
+                  "pose": "book",
+                  "text": "もう一度 えらんで みましょう。"
+                }
+              ]
+            },
+            {
+              "text": "出ない",
+              "correct": true,
+              "then": [
+                {
+                  "t": "verdict",
+                  "ok": true,
+                  "text": "正解！ 電車の 中では、電話に 出ません。"
+                },
+                {
+                  "t": "fx",
+                  "id": "phone-stop"
+                },
+                {
+                  "t": "say",
+                  "who": "me",
+                  "text": "降りてから、かけなおそう。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "t": "tip",
+          "id": "densha-denwa"
+        },
+        {
+          "t": "fx",
+          "id": "ride"
+        },
+        {
+          "t": "say",
+          "who": "announce",
+          "text": "つぎは 本町、本町です。"
+        },
+        {
+          "t": "say",
+          "who": "announce",
+          "text": "中央線と 四つ橋線は、お乗りかえです。"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "本町だ！ ここで 降りよう。"
+        },
+        {
+          "t": "objective",
+          "text": "ドアから 降りよう",
+          "target": "door",
+          "hints": ["開いて いる ドアを クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:door"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s10-hommachi",
+      "chapter": 3,
+      "title": "本町で 乗りかえ",
+      "scene": "hommachi",
+      "spawn": "train-door",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ここで 中央線に 乗りかえます。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
+          "text": "今度は、自分で 看板を 見て 進みましょう！"
+        },
+        {
+          "t": "objective",
+          "text": "中央線の のりかえ口を さがそう",
+          "arrow": false,
+          "hints": [
+            "上の 看板を 見ましょう。",
+            "中央線は 緑の「C」の マークです。",
+            "緑の「C」の 看板の 階段です。"
+          ]
+        },
+        {
+          "t": "wait",
+          "event": "click:stairs-C",
+          "else": {
+            "click:stairs-Y": [
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。ここは 四つ橋線の のりかえ口です。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "中央線の マークを さがしましょう。"
+              }
+            ],
+            "click:exit": [
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。ここは 出口です。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "駅の 外には まだ 出ません。"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "階段を 上って、中央線の ホームへ！"
+        }
+      ]
+    },
+    {
+      "id": "s11-chuo",
+      "chapter": 3,
+      "title": "中央線の ホーム",
+      "scene": "hommachi-chuo",
+      "spawn": "stairs",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "中央線の ホームに 着いた。"
+        },
+        {
+          "t": "focus",
+          "target": "led-boards"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "電光掲示板と 看板を 見よう。"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "objective",
+          "text": "阿波座へ 行く 電車に 乗ろう",
+          "arrow": false,
+          "hints": [
+            "路線図で、阿波座は 本町の 西でした。",
+            "看板の「阿波座・コスモスクエア 方面」を さがしましょう。",
+            "2番線の 電車です。"
+          ]
+        },
+        {
+          "t": "fx",
+          "id": "trains-arrive"
+        },
+        {
+          "t": "wait",
+          "event": "click:train-2",
+          "else": {
+            "click:train-1": [
+              {
+                "t": "fx",
+                "id": "board-wrong"
+              },
+              {
+                "t": "say",
+                "who": "me",
+                "text": "長田 行き……反対だ！"
+              },
+              {
+                "t": "verdict",
+                "ok": false,
+                "text": "不正解。反対の 方向の 電車でした。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "book",
+                "text": "ホームの 看板を もう一度 見ましょう。"
+              },
+              {
+                "t": "jump",
+                "to": "s11-chuo"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "board"
+        }
+      ]
+    },
+    {
+      "id": "s12-train-chuo",
+      "chapter": 3,
+      "title": "中央線の 中",
+      "scene": "train-chuo",
+      "spawn": "inside",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "中央線は 少し すいて いる。"
+        },
+        {
+          "t": "fx",
+          "id": "ride"
+        },
+        {
+          "t": "say",
+          "who": "announce",
+          "text": "つぎは 阿波座、阿波座です。"
+        },
+        {
+          "t": "say",
+          "who": "announce",
+          "text": "千日前線は、お乗りかえです。"
+        },
+        {
+          "t": "objective",
+          "text": "阿波座で 降りよう",
+          "target": "door",
+          "hints": ["開いて いる ドアを クリックしましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:door"
+        },
+        {
+          "t": "clear-objective"
+        }
+      ]
+    },
+    {
+      "id": "s13-awaza",
+      "chapter": 3,
+      "title": "阿波座に 着いた",
+      "scene": "awaza",
+      "spawn": "train-door",
+      "requires": ["icoca-pass"],
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "無事に 阿波座駅に 着きました！"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
+          "text": "やりましたね！ 会社は もうすぐです。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ヘンディさんに、着いたことを 連絡しましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "NMChatで ヘンディさんに 連絡しよう"
+        },
+        {
+          "t": "panel",
+          "id": "report"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
+          "text": "ステージ1 クリアです！"
+        },
+        {
+          "t": "end"
+        },
+        {
+          "t": "panel",
+          "id": "certificate"
+        }
+      ]
+    }
+  ]
+}

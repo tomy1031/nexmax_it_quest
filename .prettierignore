@@ -1,0 +1,9 @@
+node_modules
+dist
+package-lock.json
+public
+docs/企画メモ
+test-results
+playwright-report
+e2e-screens
+*.glb

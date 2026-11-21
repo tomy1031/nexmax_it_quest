@@ -1,0 +1,22 @@
+# dependencies
+/node_modules
+
+# build
+/dist
+*.tsbuildinfo
+
+# env（実値は .env.local に置く。コミットしない）
+.env*
+!.env.example
+
+# test output
+/test-results/
+/playwright-report/
+/blob-report/
+/e2e-screens/
+/coverage/
+
+# misc
+.DS_Store
+*.pem
+*.log

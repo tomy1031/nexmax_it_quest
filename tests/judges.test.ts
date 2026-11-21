@@ -1,0 +1,40 @@
+import { describe, expect, it } from "vitest";
+import { isKatakanaName } from "@/lib/store";
+import { memoHasStation } from "@/ui/hud/MemoPanel";
+import { reportOk } from "@/ui/hud/ReportPanel";
+
+/** 書く練習の判定は学生に有利に（漢字・かな・ローマ字のどれでも通す）。 */
+describe("メモ（家の駅）", () => {
+  it.each(["天王寺 御堂筋線", "てんのうじ", "テンノウジ M", "Tennoji Midosuji", "m23"])(
+    "%s は通る",
+    (t) => {
+      expect(memoHasStation(t)).toBe(true);
+    },
+  );
+  it.each(["", "御堂筋線", "本町"])("%s は通らない", (t) => {
+    expect(memoHasStation(t)).toBe(false);
+  });
+});
+
+describe("ヘンディさんへの連絡", () => {
+  it.each([
+    "阿波座駅に 着きました。",
+    "あわざえきに つきました",
+    "いま つきました！",
+    "Arrived at Awaza",
+  ])("%s は通る", (t) => {
+    expect(reportOk(t)).toBe(true);
+  });
+  it.each(["", "はい", "おはようございます"])("%s は通らない", (t) => {
+    expect(reportOk(t)).toBe(false);
+  });
+});
+
+describe("名前はカタカナ", () => {
+  it.each(["ソク ピセット", "ソピア", "ピア・ソク"])("%s は通る", (n) =>
+    expect(isKatakanaName(n)).toBe(true),
+  );
+  it.each(["", "sok", "そく", "ソク1"])("%s は通らない", (n) =>
+    expect(isKatakanaName(n)).toBe(false),
+  );
+});
