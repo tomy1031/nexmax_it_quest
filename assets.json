@@ -1,48 +1,226 @@
 {
-  "$comment": "polyfork から取り寄せる 3D モデルの一覧。npm run assets:fetch で public/models/ に置き、CREDITS.md を作り直す。params はバリエーション（体型など）。clips は人の動き（CC0）。",
+  "$comment": "polyfork から取り寄せる 3D モデルの一覧。npm run assets:fetch で public/models/ に置き、CREDITS.md を作り直す。params はバリエーション（形のちがい）。人はちびキャラ工場（src/three/chibi.ts）で作るので、ここには無い。",
   "models": [
-    { "file": "people/suit-m", "id": "salaryman-commuter-4170c1" },
     {
-      "file": "people/suit-f",
-      "id": "salaryman-commuter-4170c1",
-      "params": { "figure": "feminine" }
+      "file": "street/apartment",
+      "id": "apartment-block-6445af"
     },
-    { "file": "people/casual-m", "id": "student-with-backpack-65d2b4" },
     {
-      "file": "people/casual-f",
-      "id": "student-with-backpack-65d2b4",
-      "params": { "figure": "feminine" }
+      "file": "street/konbini",
+      "id": "convenience-store-c30e1d"
     },
-    { "file": "people/hoodie", "id": "student-in-a-hoodie-7c8223" },
-    { "file": "people/school", "id": "school-student-385134" },
-    { "file": "people/worker", "id": "standing-worker-on-a-8a0f9a" },
-    { "file": "street/apartment", "id": "apartment-block-6445af" },
-    { "file": "street/traffic-signal", "id": "traffic-signal-2a517e" },
-    { "file": "street/konbini", "id": "convenience-store-c30e1d" },
-    { "file": "street/vending", "id": "vending-machine-471c29" },
-    { "file": "street/pole", "id": "utility-pole-574130" },
-    { "file": "street/lamp", "id": "street-lamp-29f365" },
-    { "file": "street/shop2", "id": "two-storey-shophouse-183790" },
-    { "file": "street/shop3", "id": "three-storey-shophouse-2f6378" },
-    { "file": "street/shop-corner", "id": "corner-shophouse-ad15c2" },
-    { "file": "street/shop-wide", "id": "wide-shophouse-089f20" },
-    { "file": "street/taxi", "id": "city-taxi-eefa91" },
-    { "file": "street/kei-van", "id": "kei-van-211ed5" },
-    { "file": "street/bicycle", "id": "city-bicycle-5b67d1" },
-    { "file": "street/bike-rack", "id": "bicycle-parking-rack-282058" },
-    { "file": "street/guardrail", "id": "guardrail-section-68c3c4" },
-    { "file": "street/post-box", "id": "red-post-box-f12045" },
-    { "file": "street/shrub", "id": "potted-shrub-43bd21" },
-    { "file": "street/mirror", "id": "convex-traffic-mirror-a64d15" },
-    { "file": "street/block-wall", "id": "concrete-block-wall-02c715" },
-    { "file": "home/bed", "id": "bed-6e10e8" },
-    { "file": "home/desk", "id": "sit-stand-desk-3ff7b8" },
-    { "file": "home/chair", "id": "task-chair-ccd944" },
-    { "file": "home/laptop", "id": "laptop-e775ba" },
-    { "file": "home/coat-rack", "id": "coat-rack-57bbbc" },
-    { "file": "home/mug", "id": "office-mug-8afee0" },
-    { "file": "station/clock", "id": "station-clock-post-eaaf63" },
-    { "file": "station/bench", "id": "wooden-bench-661da4" }
+    {
+      "file": "street/vending",
+      "id": "vending-machine-471c29"
+    },
+    {
+      "file": "street/pole",
+      "id": "utility-pole-574130"
+    },
+    {
+      "file": "street/lamp",
+      "id": "street-lamp-29f365"
+    },
+    {
+      "file": "street/shop2",
+      "id": "two-storey-shophouse-183790"
+    },
+    {
+      "file": "street/shop3",
+      "id": "three-storey-shophouse-2f6378"
+    },
+    {
+      "file": "street/shop-corner",
+      "id": "corner-shophouse-ad15c2"
+    },
+    {
+      "file": "street/shop-wide",
+      "id": "wide-shophouse-089f20"
+    },
+    {
+      "file": "street/taxi",
+      "id": "city-taxi-eefa91"
+    },
+    {
+      "file": "street/kei-van",
+      "id": "kei-van-211ed5"
+    },
+    {
+      "file": "street/bicycle",
+      "id": "city-bicycle-5b67d1"
+    },
+    {
+      "file": "street/bike-rack",
+      "id": "bicycle-parking-rack-282058"
+    },
+    {
+      "file": "street/guardrail",
+      "id": "guardrail-section-68c3c4"
+    },
+    {
+      "file": "street/post-box",
+      "id": "red-post-box-f12045"
+    },
+    {
+      "file": "street/shrub",
+      "id": "potted-shrub-43bd21"
+    },
+    {
+      "file": "street/mirror",
+      "id": "convex-traffic-mirror-a64d15"
+    },
+    {
+      "file": "street/block-wall",
+      "id": "concrete-block-wall-02c715"
+    },
+    {
+      "file": "home/bed",
+      "id": "bed-6e10e8"
+    },
+    {
+      "file": "home/desk",
+      "id": "sit-stand-desk-3ff7b8"
+    },
+    {
+      "file": "home/chair",
+      "id": "task-chair-ccd944"
+    },
+    {
+      "file": "home/laptop",
+      "id": "laptop-e775ba"
+    },
+    {
+      "file": "home/coat-rack",
+      "id": "coat-rack-57bbbc"
+    },
+    {
+      "file": "home/mug",
+      "id": "office-mug-8afee0"
+    },
+    {
+      "file": "station/clock",
+      "id": "station-clock-post-eaaf63"
+    },
+    {
+      "file": "station/bench",
+      "id": "wooden-bench-661da4"
+    },
+    {
+      "file": "street/awning",
+      "id": "fabric-awning-4d6acc"
+    },
+    {
+      "file": "street/noren",
+      "id": "noren-curtain-7b9e53"
+    },
+    {
+      "file": "street/shutter",
+      "id": "roller-shutter-c58b4f"
+    },
+    {
+      "file": "street/aircon",
+      "id": "air-con-unit-9fadc2"
+    },
+    {
+      "file": "street/meter",
+      "id": "meter-box-1e6e42"
+    },
+    {
+      "file": "street/planter",
+      "id": "flower-planter-550bfb"
+    },
+    {
+      "file": "street/bin",
+      "id": "street-bin-770173"
+    },
+    {
+      "file": "street/drum",
+      "id": "plastic-drum-da992f"
+    },
+    {
+      "file": "street/crate",
+      "id": "beverage-crate-c195c9"
+    },
+    {
+      "file": "street/sandwich-board",
+      "id": "sandwich-board-sign-cb5e7c"
+    },
+    {
+      "file": "street/moped",
+      "id": "delivery-moped-1aa2ce"
+    },
+    {
+      "file": "street/cherry",
+      "id": "cherry-blossom-tree-3f7ab7"
+    },
+    {
+      "file": "street/ginkgo",
+      "id": "ginkgo-tree-baa895"
+    },
+    {
+      "file": "street/ginkgo-litter",
+      "id": "ginkgo-leaf-litter-9784e9"
+    },
+    {
+      "file": "street/manhole",
+      "id": "manhole-cover-137569"
+    },
+    {
+      "file": "street/bollard",
+      "id": "sidewalk-bollard-c2567e"
+    },
+    {
+      "file": "street/sento",
+      "id": "bathhouse-4ac41a"
+    },
+    {
+      "file": "home/wardrobe",
+      "id": "wardrobe-f3b2f2"
+    },
+    {
+      "file": "home/plant",
+      "id": "floor-houseplant-8fad17"
+    },
+    {
+      "file": "home/wall-art",
+      "id": "framed-wall-art-d2c8a2"
+    },
+    {
+      "file": "home/table-lamp",
+      "id": "table-lamp-e25998"
+    },
+    {
+      "file": "home/cushion",
+      "id": "cushion-121479"
+    },
+    {
+      "file": "home/laundry",
+      "id": "laundry-basket-16ed8e"
+    },
+    {
+      "file": "home/rug",
+      "id": "area-rug-5c56e2"
+    },
+    {
+      "file": "home/basket",
+      "id": "woven-storage-basket-983d80"
+    },
+    {
+      "file": "station/lockers",
+      "id": "locker-bank-1784b8"
+    },
+    {
+      "file": "station/exit-light",
+      "id": "illuminated-exit-sign-23becd"
+    },
+    {
+      "file": "station/extinguisher",
+      "id": "fire-extinguisher-95dca1"
+    },
+    {
+      "file": "station/wall-clock",
+      "id": "wall-clock-05f8ff"
+    }
   ],
-  "clips": ["idle", "walk", "run", "sitting", "agree", "talking", "head-shake"]
+  "clips": []
 }

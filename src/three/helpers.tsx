@@ -177,7 +177,7 @@ export function Companion() {
   useFrame((s, dt) => {
     const sp = ref.current;
     if (!sp) return;
-    const side = new THREE.Vector3(0.75, 1.95, 0.25).applyAxisAngle(
+    const side = new THREE.Vector3(0.65, 1.45, 0.2).applyAxisAngle(
       new THREE.Vector3(0, 1, 0),
       player.yaw,
     );

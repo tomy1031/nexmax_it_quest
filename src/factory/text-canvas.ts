@@ -64,7 +64,7 @@ export function drawRuby(
   x: number,
   y: number,
   o: RubyDrawOptions,
-): void {
+): number {
   const weight = o.weight ?? 800;
   const showRuby = (o.ruby ?? true) && useSettings.getState().furigana;
   const segments = showRuby ? annotateRuby(text, FURIGANA) : [{ text }];
@@ -98,6 +98,7 @@ export function drawRuby(
     }
     cx += w;
   }
+  return total;
 }
 
 /** Canvas から 3D 用のテクスチャを作る（色の空間・ミップマップを決めておく）。 */

@@ -28,7 +28,7 @@ export function TrainScene({ line, crowded }: { line: "midosuji" | "chuo"; crowd
     walk: [{ minX: -0.6, maxX: 0.6, minZ: 2.8, maxZ: 3.6 }],
     shots: {},
     triggers: [],
-    camera: { mode: "fixed", shot: { pos: [0.15, 1.62, 3.4], look: [0, 1.45, -6], fov: 62 } },
+    camera: { mode: "fixed", shot: { pos: [0.15, 1.32, 3.4], look: [0, 1.05, -6], fov: 62 } },
     showPlayer: false,
   });
 

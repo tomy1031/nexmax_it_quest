@@ -2,19 +2,19 @@ import { useFrame } from "@react-three/fiber";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { DEFAULT_AVATAR, useSettings, type AvatarConfig } from "@/lib/store";
-import { Avatar, type Motion } from "@/three/Avatar";
-import type { ModelKey } from "@/three/avatar-model";
+import { Chibi, type ChibiMotion } from "@/three/Chibi";
 
 /**
- * まわりの人。同じモデルを色ちがいで使う（モデルの数を増やさず、にぎやかに見せる）。
+ * まわりの人（ちびキャラ。色・髪型・身長をばらけさせる）。
  * 「かるい」設定では人数を半分にする。stare が true のとき、こちら（カメラ）へ顔を向ける。
  */
 export interface NpcSpec {
   pos: [number, number, number];
   yaw?: number;
-  model?: ModelKey;
+  /** ふだんの服にするか（スーツでない人）。 */
+  casual?: boolean;
   look?: Partial<AvatarConfig>;
-  motion?: Motion;
+  motion?: ChibiMotion;
 }
 
 const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b"];
@@ -22,11 +22,27 @@ const HAIRS = ["#1d1612", "#2b1d14", "#4a3020", "#6a6a6a", "#1a1a1a"];
 const SUITS = ["#1c1e24", "#232f52", "#3a3d45", "#4b505a"];
 const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"];
 
+const STYLES: AvatarConfig["hairStyle"][] = [
+  "model",
+  "bob",
+  "spiky",
+  "long",
+  "side",
+  "ponytail",
+  "bun",
+  "twin",
+];
+const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle"];
+
 export function npcLook(i: number, outfit: "suit" | "casual"): AvatarConfig {
   return {
     ...DEFAULT_AVATAR,
     outfit,
     figure: i % 3 === 1 ? "f" : "m",
+    hairStyle: STYLES[(i * 5) % STYLES.length]!,
+    eyes: EYES[(i * 3) % EYES.length]!,
+    height: 156 + ((i * 7) % 26),
+    glasses: i % 5 === 2,
     skin: SKINS[i % SKINS.length]!,
     hair: HAIRS[(i * 7) % HAIRS.length]!,
     suit: SUITS[(i * 3) % SUITS.length]!,
@@ -50,11 +66,9 @@ export function Crowd({ people, stare = false }: { people: NpcSpec[]; stare?: bo
 function Npc({ spec, index, stare }: { spec: NpcSpec; index: number; stare: boolean }) {
   const group = useRef<THREE.Group>(null);
   const cfg = useMemo<AvatarConfig>(() => {
-    const base = npcLook(index, spec.model?.startsWith("casual") ? "casual" : "suit");
+    const base = npcLook(index, spec.casual || index % 4 === 3 ? "casual" : "suit");
     return { ...base, ...spec.look };
-  }, [index, spec.model, spec.look]);
-  const model: ModelKey =
-    spec.model ?? (index % 4 === 3 ? "casual-m" : cfg.figure === "f" ? "suit-f" : "suit-m");
+  }, [index, spec.casual, spec.look]);
   const baseYaw = spec.yaw ?? 0;
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
@@ -75,10 +89,9 @@ function Npc({ spec, index, stare }: { spec: NpcSpec; index: number; stare: bool
   return (
     <group ref={group} position={spec.pos} rotation={[0, baseYaw, 0]}>
       <Suspense fallback={null}>
-        <Avatar
+        <Chibi
           config={cfg}
-          model={model}
-          motion={spec.motion ?? "idle"}
+          motion={stare ? "surprised" : (spec.motion ?? "idle")}
           phase={(index * 0.37) % 1}
         />
       </Suspense>
@@ -109,11 +122,77 @@ function Exclaim() {
     return t;
   }, []);
   useFrame((s) => {
-    if (ref.current) ref.current.position.y = 2.05 + Math.sin(s.clock.elapsedTime * 8) * 0.04;
+    if (ref.current) ref.current.position.y = 1.45 + Math.sin(s.clock.elapsedTime * 8) * 0.04;
   });
   return (
-    <sprite ref={ref} position={[0, 2.05, 0]} scale={[0.32, 0.32, 0.32]} raycast={() => null}>
+    <sprite ref={ref} position={[0, 1.45, 0]} scale={[0.32, 0.32, 0.32]} raycast={() => null}>
       <spriteMaterial map={tex} depthTest={false} toneMapped={false} />
     </sprite>
+  );
+}
+
+/** 道を行き来する人。from と to の間を歩き、はしで向きを変える。 */
+export interface WalkerSpec {
+  from: [number, number];
+  to: [number, number];
+  speed?: number;
+  /** 0〜1。はじめにどこにいるか。 */
+  at?: number;
+  casual?: boolean;
+  look?: Partial<AvatarConfig>;
+}
+
+export function Walkers({ people, seed = 0 }: { people: WalkerSpec[]; seed?: number }) {
+  const low = useSettings((s) => s.quality) === "low";
+  const list = low ? people.filter((_, i) => i % 2 === 0) : people;
+  return (
+    <>
+      {list.map((p, i) => (
+        <Walker key={i} spec={p} index={i + seed} />
+      ))}
+    </>
+  );
+}
+
+function Walker({ spec, index }: { spec: WalkerSpec; index: number }) {
+  const group = useRef<THREE.Group>(null);
+  const cfg = useMemo<AvatarConfig>(() => {
+    const base = npcLook(index, (spec.casual ?? index % 3 === 0) ? "casual" : "suit");
+    return { ...base, ...spec.look };
+  }, [index, spec.casual, spec.look]);
+  const st = useRef({ u: spec.at ?? 0, dir: 1 });
+  const len = Math.hypot(spec.to[0] - spec.from[0], spec.to[1] - spec.from[1]) || 1;
+  useFrame((_, rawDt) => {
+    const g = group.current;
+    if (!g) return;
+    const dt = Math.min(rawDt, 0.05);
+    const s = st.current;
+    s.u += (s.dir * (spec.speed ?? 1.1) * dt) / len;
+    if (s.u > 1) {
+      s.u = 1;
+      s.dir = -1;
+    } else if (s.u < 0) {
+      s.u = 0;
+      s.dir = 1;
+    }
+    const dx = (spec.to[0] - spec.from[0]) * s.dir;
+    const dz = (spec.to[1] - spec.from[1]) * s.dir;
+    g.position.set(
+      spec.from[0] + (spec.to[0] - spec.from[0]) * s.u,
+      0,
+      spec.from[1] + (spec.to[1] - spec.from[1]) * s.u,
+    );
+    const want = Math.atan2(dx, dz);
+    let diff = want - g.rotation.y;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    g.rotation.y += diff * Math.min(1, dt * 8);
+  });
+  return (
+    <group ref={group} position={[spec.from[0], 0, spec.from[1]]}>
+      <Suspense fallback={null}>
+        <Chibi config={cfg} motion="walk" phase={(index * 0.29) % 1} />
+      </Suspense>
+    </group>
   );
 }

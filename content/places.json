@@ -95,7 +95,15 @@
       "tone": "navy",
       "arrow": "up"
     },
-    { "id": "exit", "lines": [], "text": "出口", "en": "Exit", "tone": "yellow", "arrow": "up" }
+    {
+      "id": "exit",
+      "lines": [],
+      "text": "出口",
+      "en": "Exit",
+      "tone": "yellow",
+      "arrow": "up",
+      "number": 8
+    }
   ],
   "trainNext": {
     "midosuji": ["動物園前", "大国町", "なんば", "心斎橋", "本町"],

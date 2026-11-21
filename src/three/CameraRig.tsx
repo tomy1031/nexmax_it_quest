@@ -96,7 +96,7 @@ export function CameraRig() {
         player.pos.y + height,
         player.pos.z + Math.cos(yaw) * dist,
       );
-      desiredLook.current.set(player.pos.x, player.pos.y + 1.35, player.pos.z);
+      desiredLook.current.set(player.pos.x, player.pos.y + 0.95, player.pos.z);
     }
     if (layout.bounds) {
       const b = layout.bounds;

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { useGame } from "@/lib/store";
 import { questEvents } from "@/stages/events";
 import { usePlay } from "@/stages/play-store";
-import { Avatar, type Motion } from "@/three/Avatar";
+import { Chibi, type ChibiMotion } from "@/three/Chibi";
 import { insideWalk, useLayout } from "@/three/layout";
 import { placePlayer, player } from "@/three/player";
 import { cameraYaw } from "@/three/CameraRig";
@@ -14,7 +14,7 @@ const SPEED = 2.1; // m/s（実際の歩く速さの 1.5 倍くらい。操作�
 /** 自分。クリックした所へ歩く。WASD・矢印キーでも歩ける。近づくと reach:<地点> を出す。 */
 export function Player() {
   const group = useRef<THREE.Group>(null);
-  const motion = useRef<Motion>("idle");
+  const motion = useRef<ChibiMotion>("idle");
   const avatar = useGame((s) => s.avatar);
   const spawn = usePlay((s) => s.spawn);
   const sceneKey = usePlay((s) => s.sceneKey);
@@ -133,7 +133,7 @@ export function Player() {
   return (
     <group ref={group} visible={showPlayer}>
       <Suspense fallback={null}>
-        <Avatar config={avatar} motionRef={motion} />
+        <Chibi config={avatar} motionRef={motion} />
       </Suspense>
     </group>
   );

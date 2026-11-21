@@ -1,6 +1,13 @@
 import metroJson from "@content/metro.json";
 import type { MetroFile } from "@/content/schema";
-import { AR_RUBY, drawArrow, drawLineBadge, drawRuby, roundRect } from "@/factory/text-canvas";
+import {
+  AR_RUBY,
+  drawArrow,
+  drawLineBadge,
+  drawRuby,
+  FONT_FAMILY,
+  roundRect,
+} from "@/factory/text-canvas";
 
 /**
  * 看板の描き方（データ → Canvas）。駅の看板は本物と同じく日本語と英語を並べる。
@@ -24,6 +31,8 @@ export interface LineSignSpec {
   arrow?: "left" | "right" | "up" | "down";
   /** 黄色の地（出口）・紺の地（のりかえ）。 */
   tone?: "navy" | "yellow" | "white";
+  /** 出口の番号（黒い四角に白い字）。 */
+  number?: number;
 }
 
 /** 天井から下がる案内の看板（線のマーク＋日本語＋英語＋矢印）。 */
@@ -51,11 +60,25 @@ export function drawLineSign(
     if (line) drawLineBadge(ctx, x + r, H / 2, r, line.letter, line.color);
     x += r * 2.3;
   }
-  drawRuby(ctx, s.text, x + H * 0.1, H * 0.66, {
+  const tw = drawRuby(ctx, s.text, x + H * 0.1, H * 0.66, {
     size: H * 0.34,
     color: fg,
     rubyColor: s.tone === "navy" || !s.tone ? AR_RUBY : "#0a6bd6",
   });
+  if (s.number !== undefined) {
+    const bx = x + H * 0.1 + tw + H * 0.18;
+    const bs = H * 0.62;
+    ctx.fillStyle = "#1a1a1a";
+    roundRect(ctx, bx, (H - bs) / 2, bs, bs, bs * 0.14);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `800 ${bs * 0.78}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(s.number), bx + bs / 2, H / 2 + bs * 0.04);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+  }
   ctx.font = `700 ${H * 0.16}px sans-serif`;
   ctx.fillStyle = fg;
   ctx.globalAlpha = 0.85;
@@ -143,8 +166,13 @@ export function drawLed(
     ctx.font = `800 ${size}px monospace`;
     ctx.fillStyle = "#ff9d2e";
     ctx.fillText(r.time, W * 0.33, y);
-    drawRuby(ctx, `${r.dest} ${labels.bound}`, W * 0.52, y, {
-      size,
+    // 行き先が長いとき（コスモスクエア など）は、番線の字にかからないよう小さくする
+    const dest = `${r.dest} ${labels.bound}`;
+    ctx.font = `800 ${size}px ${FONT_FAMILY}`;
+    const room = W * 0.8 - W * 0.52;
+    const fit = Math.min(1, room / Math.max(1, ctx.measureText(dest).width));
+    drawRuby(ctx, dest, W * 0.52, y, {
+      size: size * fit,
       color: "#ff9d2e",
       rubyColor: AR_RUBY,
     });

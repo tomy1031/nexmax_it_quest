@@ -19,6 +19,10 @@ export interface AvatarConfig {
   glasses: boolean;
   /** 身長（cm）。モデルの大きさを、この高さに合わせる。 */
   height: number;
+  /** 目の形（ちびキャラの顔）。 */
+  eyes: "round" | "smile" | "sparkle" | "calm";
+  /** ほっぺの赤み。 */
+  blush: boolean;
   suit: string;
   shirt: string;
   tie: string;
@@ -34,7 +38,9 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   hairStyle: "model",
   glasses: false,
   height: 168,
-  suit: "#262b38",
+  eyes: "round",
+  blush: true,
+  suit: "#2f3a5e",
   shirt: "#f4f6f8",
   tie: "#1f3f7a",
   coat: "#8a8f98",
@@ -122,12 +128,13 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "nexmax-it-quest:game",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       // 版1 → 2: アバターに身長が増えた（無い人は決まった値）
       migrate: (persisted, version) => {
         const s = persisted as PersistedState;
-        if (version < 2 && s?.avatar) s.avatar = { ...DEFAULT_AVATAR, ...s.avatar };
+        // 版2 → 3: ちびキャラの目とほっぺが増えた
+        if (version < 3 && s?.avatar) s.avatar = { ...DEFAULT_AVATAR, ...s.avatar };
         return s;
       },
       partialize: (s): PersistedState => ({

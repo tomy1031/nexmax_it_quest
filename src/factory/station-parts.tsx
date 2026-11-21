@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { t } from "@/lib/t";
 import { CanvasPanel } from "@/factory/CanvasPanel";
-import { block, box, cyl, FLAT, glowMaterial, merge, shade } from "@/factory/kit";
+import { block, box, cyl, FLAT, merge, shade } from "@/factory/kit";
 import {
   drawLed,
   drawLineSign,
@@ -14,6 +14,14 @@ import {
   type LineSignSpec,
 } from "@/factory/signs";
 import { drawRuby } from "@/factory/text-canvas";
+import {
+  LightStrips,
+  Pillars,
+  Poster,
+  PosterRow,
+  TileWall,
+  type PosterKind,
+} from "@/factory/subway-parts";
 
 /**
  * 駅の部品（グラフィック工場）。寸法は実物に近づける（改札機の高さ 約1m・券売機 約1.75m・ホームの高さ 約1.1m）。
@@ -293,77 +301,127 @@ export function StationNameBoard({
   );
 }
 
-/** 地下の部屋（床・かべ・天井・柱・天井のあかり）。 */
+/** 地下の部屋（床・かべ・天井・柱・天井のあかり）。かべは白いタイル、腰の高さに band の色の帯。 */
 export function Hall({
   width,
   depth,
   height = 3.4,
   floor = "#d9d4c8",
-  wall = "#eef0f2",
+  band = "#e5171f",
   pillars = [],
 }: {
   width: number;
   depth: number;
   height?: number;
   floor?: string;
-  wall?: string;
+  band?: string;
   pillars?: [number, number][];
 }) {
   const geo = useMemo(() => {
     const p: THREE.BufferGeometry[] = [
       box(width, 0.1, depth, floor, { pos: [0, -0.05, 0] }),
-      box(width, 0.1, depth, "#f7f7f5", { pos: [0, height, 0] }),
-      box(width, height, 0.2, wall, { pos: [0, height / 2, -depth / 2] }),
-      box(width, height, 0.2, wall, { pos: [0, height / 2, depth / 2] }),
-      box(0.2, height, depth, wall, { pos: [-width / 2, height / 2, 0] }),
-      box(0.2, height, depth, wall, { pos: [width / 2, height / 2, 0] }),
-      box(width, 0.3, 0.22, "#bfc6cf", { pos: [0, 0.15, -depth / 2 + 0.01] }),
+      box(width, 0.1, depth, "#eceef0", { pos: [0, height, 0] }),
+      // かべの下の幅木
+      box(width, 0.16, 0.06, "#9aa0a8", { pos: [0, 0.08, -depth / 2 + 0.03] }),
+      box(width, 0.16, 0.06, "#9aa0a8", { pos: [0, 0.08, depth / 2 - 0.03] }),
+      box(0.06, 0.16, depth, "#9aa0a8", { pos: [-width / 2 + 0.03, 0.08, 0] }),
+      box(0.06, 0.16, depth, "#9aa0a8", { pos: [width / 2 - 0.03, 0.08, 0] }),
     ];
     // 床のタイルの線
-    for (let x = -width / 2 + 2; x < width / 2; x += 2)
-      p.push(box(0.03, 0.005, depth, shade(floor, 0.9), { pos: [x, 0.003, 0] }));
-    for (const [x, z] of pillars) p.push(block(0.7, height, 0.7, "#cfd5dc", { pos: [x, 0, z] }));
+    for (let x = -width / 2 + 1; x < width / 2; x += 1)
+      p.push(box(0.025, 0.004, depth, shade(floor, 0.9), { pos: [x, 0.002, 0] }));
+    for (let z = -depth / 2 + 1; z < depth / 2; z += 1)
+      p.push(box(width, 0.004, 0.025, shade(floor, 0.9), { pos: [0, 0.002, z] }));
     return merge(p);
-  }, [width, depth, height, floor, wall, pillars]);
-  const lights = useMemo(() => {
-    const p: THREE.BufferGeometry[] = [];
-    for (let x = -width / 2 + 2; x < width / 2; x += 4)
-      for (let z = -depth / 2 + 2; z < depth / 2; z += 4)
-        p.push(box(1.4, 0.05, 0.25, "#ffffff", { pos: [x, height - 0.05, z] }));
-    return merge(p);
-  }, [width, depth, height]);
-  const glow = useMemo(() => glowMaterial("#ffffff", 1.2), []);
+  }, [width, depth, floor, height]);
   return (
     <>
       <mesh geometry={geo} material={FLAT} />
-      <mesh geometry={lights} material={glow} />
+      <Pillars list={pillars} height={height} band={band} size={0.7} />
+      <TileWall
+        size={[width, height]}
+        position={[0, height / 2, -depth / 2]}
+        band={band}
+        bandY={1.0}
+      />
+      <TileWall
+        size={[width, height]}
+        position={[0, height / 2, depth / 2]}
+        rotationY={Math.PI}
+        band={band}
+        bandY={1.0}
+      />
+      <TileWall
+        size={[depth, height]}
+        position={[-width / 2, height / 2, 0]}
+        rotationY={Math.PI / 2}
+        band={band}
+        bandY={1.0}
+      />
+      <TileWall
+        size={[depth, height]}
+        position={[width / 2, height / 2, 0]}
+        rotationY={-Math.PI / 2}
+        band={band}
+        bandY={1.0}
+      />
+      <LightStrips
+        xs={Array.from({ length: Math.floor(width / 4) }, (_, i) => -width / 2 + 2 + i * 4)}
+        y={height - 0.1}
+        from={-depth / 2 + 0.5}
+        to={depth / 2 - 0.5}
+      />
     </>
   );
 }
 
-/** ホーム（片側か両側に線路）。z が長い方向。 */
+/**
+ * ホーム（片側か両側に線路）。z が長い方向。
+ * 「8番出口」の地下通路のように: 線路の向こうは白いタイルのかべ・同じポスターが等間隔・長い蛍光灯の列。
+ * 柱は2列（まん中を歩く人とカメラのじゃまをしない）。pillars で場所を変えられる。
+ */
 export function PlatformSlab({
   width,
   length,
   tracks,
+  lineColor = "#e5171f",
+  pillars,
+  posters = true,
 }: {
   width: number;
   length: number;
   tracks: ("left" | "right")[];
+  lineColor?: string;
+  pillars?: [number, number][];
+  posters?: boolean;
 }) {
+  const pillarList = useMemo<[number, number][]>(
+    () =>
+      pillars ??
+      [-18, -10, -2, 10, 18].flatMap((z) => [
+        [-2.55, z],
+        [2.55, z],
+      ]),
+    [pillars],
+  );
   const geo = useMemo(() => {
     const p: THREE.BufferGeometry[] = [
       box(width, 0.2, length, "#cfcac0", { pos: [0, -0.1, 0] }),
       box(width, 1.0, length, "#8d8a84", { pos: [0, -0.7, 0] }),
       box(width + 12, 0.1, length, "#3b3a38", { pos: [0, -1.25, 0] }),
-      box(width + 12, 6, 0.2, "#d6d9de", { pos: [0, 1.5, -length / 2] }),
-      box(width + 12, 6, 0.2, "#d6d9de", { pos: [0, 1.5, length / 2] }),
-      box(width + 12, 0.15, length, "#eef0f2", { pos: [0, 3.6, 0] }),
+      box(width + 12, 0.15, length, "#e9ebee", { pos: [0, 3.6, 0] }),
+      // ホームのふち（白いへり）
+      box(0.25, 0.04, length, "#f2f2ee", { pos: [-width / 2 + 0.12, 0.02, 0] }),
+      box(0.25, 0.04, length, "#f2f2ee", { pos: [width / 2 - 0.12, 0.02, 0] }),
     ];
-    // 黄色の点字ブロックと白線
+    // 床のタイルの目地
+    for (let z = -length / 2 + 1; z < length / 2; z += 1)
+      p.push(box(width - 0.6, 0.004, 0.025, "#bdb8ad", { pos: [0, 0.002, z] }));
+    // 黄色の点字ブロック
     for (const side of [-1, 1]) {
       p.push(box(0.3, 0.012, length, "#f2c230", { pos: [side * (width / 2 - 0.85), 0.006, 0] }));
-      p.push(box(0.08, 0.01, length, "#ffffff", { pos: [side * (width / 2 - 0.12), 0.005, 0] }));
+      for (let z = -length / 2 + 0.15; z < length / 2; z += 0.3)
+        p.push(box(0.26, 0.01, 0.03, "#d8a91f", { pos: [side * (width / 2 - 0.85), 0.014, z] }));
     }
     for (const side of tracks) {
       const sx = side === "left" ? -1 : 1;
@@ -372,13 +430,71 @@ export function PlatformSlab({
       p.push(box(0.08, 0.15, length, "#8a8f96", { pos: [cx + 0.55, -1.12, 0] }));
       for (let z = -length / 2; z < length / 2; z += 0.8)
         p.push(box(1.8, 0.08, 0.22, "#5a514a", { pos: [cx, -1.18, z] }));
-      p.push(box(0.2, 6, length, "#c9ccd2", { pos: [sx * (width / 2 + 3.6), 1.5, 0] }));
+      // 線路の下の待避所（ホームの下のくぼみ）
+      p.push(box(0.1, 0.9, length, "#4a4844", { pos: [sx * (width / 2 + 0.05), -0.75, 0] }));
     }
-    for (let z = -length / 2 + 4; z < length / 2; z += 8)
-      p.push(block(0.5, 3.6, 0.5, "#e7e9ec", { pos: [0, 0, z] }));
     return merge(p);
   }, [width, length, tracks]);
-  return <mesh geometry={geo} material={FLAT} />;
+
+  /** 線路のある側は線路の向こう、ない側はホームのすぐ横がかべ。 */
+  const wallX = (sx: number) =>
+    tracks.includes(sx < 0 ? "left" : "right") ? width / 2 + 3.6 : width / 2 + 0.05;
+  const posterZs = useMemo(() => {
+    const zs: number[] = [];
+    for (let z = -length / 2 + 4; z < length / 2 - 2; z += 4.2)
+      if (Math.abs(z + 6) > 1.6) zs.push(z);
+    return zs;
+  }, [length]);
+  return (
+    <>
+      <mesh geometry={geo} material={FLAT} />
+      <Pillars list={pillarList} height={3.6} band={lineColor} />
+      {/* 線路の向こうのかべ（白いタイル・線の色の帯） */}
+      {[-1, 1].map((sx) => (
+        <TileWall
+          key={sx}
+          size={[length, 4.85]}
+          position={[sx * wallX(sx), 1.18, 0]}
+          rotationY={(-sx * Math.PI) / 2}
+          band={lineColor}
+          bandY={3.25}
+        />
+      ))}
+      {/* はしのかべ */}
+      {[-1, 1].map((sz) => (
+        <TileWall
+          key={sz}
+          size={[width + 12, 4.85]}
+          position={[0, 1.18, (sz * length) / 2]}
+          rotationY={sz > 0 ? Math.PI : 0}
+          band={lineColor}
+          bandY={2.25}
+        />
+      ))}
+      {posters &&
+        [-1, 1].map((sx) => (
+          <PosterRow
+            key={sx}
+            kinds={
+              sx < 0
+                ? ["nexmax", "manner", "osaka", "nexmax", "cafe", "rush"]
+                : ["manner", "ginkgo", "nexmax", "cafe", "manner", "osaka"]
+            }
+            x={sx * (wallX(sx) - 0.02)}
+            y={1.35}
+            zs={posterZs}
+            rotationY={(-sx * Math.PI) / 2}
+          />
+        ))}
+      <LightStrips xs={[-1.6, 1.6]} y={3.48} from={-length / 2 + 0.5} to={length / 2 - 0.5} />
+      <LightStrips
+        xs={[-1, 1].filter((sx) => wallX(sx) > width / 2 + 1).map((sx) => sx * (wallX(sx) - 1.4))}
+        y={3.48}
+        from={-length / 2 + 0.5}
+        to={length / 2 - 0.5}
+      />
+    </>
+  );
 }
 
 /** 地下鉄の電車（外から見た形）。lineId の色の帯。z の向きに長い。 */
@@ -487,7 +603,78 @@ export function TrainInterior({
     <group>
       <mesh geometry={geo} material={FLAT} />
       <DoorScreen position={[0, 2.12, -len / 2 + 0.07]} next={next} lineId={lineId} />
+      <TrainAds len={len} />
     </group>
+  );
+}
+
+/**
+ * 電車の広告（中吊りと、窓の上のならび）と優先席のしるし。
+ * 中吊りは手前の半分だけにする（奥のドアの上の画面「つぎは」が見えるように）。
+ */
+function TrainAds({ len }: { len: number }) {
+  const kinds: PosterKind[] = ["nexmax", "cafe", "osaka", "ginkgo", "manner", "rush"];
+  const hanging = [1.5, -1.0, -3.5];
+  const above: number[] = [];
+  for (let z = -len / 2 + 1.6; z < len / 2 - 1; z += 1.05) above.push(z);
+  const strings = useMemo(
+    () =>
+      merge(
+        hanging.flatMap((z) => [
+          box(0.01, 0.18, 0.01, "#ccc", { pos: [-0.12, 2.27, z] }),
+          box(0.01, 0.18, 0.01, "#ccc", { pos: [0.12, 2.27, z] }),
+        ]),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  return (
+    <>
+      <mesh geometry={strings} material={FLAT} raycast={() => null} />
+      {hanging.map((z, i) => (
+        <group key={z} position={[0, 2.03, z]} scale={0.36}>
+          <Poster kind={kinds[i % kinds.length]!} position={[0, 0, 0.02]} />
+          <Poster
+            kind={kinds[(i + 3) % kinds.length]!}
+            position={[0, 0, -0.02]}
+            rotationY={Math.PI}
+          />
+        </group>
+      ))}
+      {[-1, 1].map((sx) =>
+        above.map((z, i) => (
+          <group
+            key={`${sx}${z}`}
+            position={[sx * 1.3, 2.04, z]}
+            rotation={[0, (-sx * Math.PI) / 2, 0]}
+            scale={0.26}
+          >
+            <Poster kind={kinds[(i + (sx > 0 ? 2 : 0)) % kinds.length]!} position={[0, 0, 0]} />
+          </group>
+        )),
+      )}
+      {[-1, 1].map((sx) => (
+        <CanvasPanel
+          key={sx}
+          width={0.5}
+          height={0.16}
+          ppm={600}
+          position={[sx * 1.29, 1.95, -len / 2 + 1.6]}
+          rotation={[0, (-sx * Math.PI) / 2, 0]}
+          fontText={t("sign.priority")}
+          draw={(ctx, w, h) => {
+            ctx.fillStyle = "#f08a24";
+            ctx.fillRect(0, 0, w, h);
+            drawRuby(ctx, t("sign.priority"), w / 2, h * 0.84, {
+              size: h * 0.48,
+              color: "#ffffff",
+              align: "center",
+              rubyColor: "#fff3c4",
+            });
+          }}
+        />
+      ))}
+    </>
   );
 }
 

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { playSfx } from "@/lib/audio";
 import { useGame, type AvatarConfig, type HairStyle } from "@/lib/store";
 import { t, type UiKey } from "@/lib/t";
-import { Avatar } from "@/three/Avatar";
+import { Chibi } from "@/three/Chibi";
 import { RubyText } from "@/ui/RubyText";
 import { IconCheck } from "@/ui/icons";
 
@@ -21,6 +21,7 @@ type Tab =
   | "figure"
   | "height"
   | "skin"
+  | "eyes"
   | "hair"
   | "hairStyle"
   | "glasses"
@@ -29,6 +30,13 @@ type Tab =
   | "shirt"
   | "coat"
   | "pants";
+
+const EYES: [AvatarConfig["eyes"], UiKey][] = [
+  ["round", "avatar.eyes.round"],
+  ["smile", "avatar.eyes.smile"],
+  ["sparkle", "avatar.eyes.sparkle"],
+  ["calm", "avatar.eyes.calm"],
+];
 
 const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["model", "avatar.hs.model"],
@@ -55,6 +63,7 @@ const LABEL: Record<Tab, UiKey> = {
   figure: "avatar.figure",
   height: "avatar.height",
   skin: "avatar.skin",
+  eyes: "avatar.eyes",
   hair: "avatar.hair",
   hairStyle: "avatar.hairStyle",
   glasses: "avatar.glasses",
@@ -67,18 +76,19 @@ const LABEL: Record<Tab, UiKey> = {
 
 /** タブごとのカメラの寄り（体の高さ・距離）。 */
 const FOCUS: Record<Tab, { y: number; d: number }> = {
-  outfit: { y: 0.95, d: 3.0 },
-  figure: { y: 0.95, d: 3.0 },
-  height: { y: 0.95, d: 3.2 },
-  skin: { y: 1.55, d: 1.2 },
-  hair: { y: 1.6, d: 1.15 },
-  hairStyle: { y: 1.55, d: 1.3 },
-  glasses: { y: 1.6, d: 0.9 },
-  suit: { y: 1.1, d: 2.2 },
-  tie: { y: 1.3, d: 1.3 },
-  shirt: { y: 1.3, d: 1.4 },
-  coat: { y: 1.15, d: 2.0 },
-  pants: { y: 0.6, d: 2.0 },
+  outfit: { y: 0.62, d: 2.2 },
+  figure: { y: 0.55, d: 2.2 },
+  height: { y: 0.62, d: 2.4 },
+  skin: { y: 0.9, d: 1.1 },
+  eyes: { y: 0.92, d: 0.95 },
+  hair: { y: 0.98, d: 1.15 },
+  hairStyle: { y: 0.9, d: 1.35 },
+  glasses: { y: 0.92, d: 1.0 },
+  suit: { y: 0.6, d: 1.8 },
+  tie: { y: 0.62, d: 1.2 },
+  shirt: { y: 0.62, d: 1.3 },
+  coat: { y: 0.6, d: 1.8 },
+  pants: { y: 0.35, d: 1.6 },
 };
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
@@ -137,6 +147,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         "bun",
       ]),
       height: 155 + Math.round(Math.random() * 30),
+      eyes: pick<AvatarConfig["eyes"]>(["round", "smile", "sparkle", "calm"]),
       skin: pick(SKINS),
       hair: pick(HAIRS),
       suit: pick(SUITS_OK),
@@ -188,7 +199,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           <directionalLight position={[2, 4, 3]} intensity={1.6} />
           <Suspense fallback={null}>
             <Turntable>
-              <Avatar config={avatar} />
+              <Chibi config={avatar} />
             </Turntable>
           </Suspense>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -264,6 +275,27 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 data-testid="avatar-height"
               />
               <span className="text-2xl font-extrabold">{avatar.height} cm</span>
+            </div>
+          )}
+          {tab === "eyes" && (
+            <div className="flex flex-wrap gap-3">
+              {EYES.map(([e, key]) => (
+                <button
+                  key={e}
+                  type="button"
+                  className={`btn ${avatar.eyes === e ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => set({ eyes: e })}
+                >
+                  <RubyText text={t(key)} />
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`btn ${avatar.blush ? "btn-primary" : "btn-ghost"}`}
+                onClick={() => set({ blush: !avatar.blush })}
+              >
+                <RubyText text={t("avatar.blush")} />
+              </button>
             </div>
           )}
           {tab === "hairStyle" && (

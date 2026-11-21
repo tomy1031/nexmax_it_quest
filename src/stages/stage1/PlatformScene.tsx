@@ -1,11 +1,12 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import placesJson from "@content/places.json";
 import type { PlacesFile } from "@/content/schema";
 import { t } from "@/lib/t";
 import { playSfx } from "@/lib/audio";
 import { onFx, questEvents } from "@/stages/events";
+import { block, box, FLAT, merge, stairs } from "@/factory/kit";
 import {
   HangingSign,
   LedBoard,
@@ -13,9 +14,10 @@ import {
   StationNameBoard,
   TrainExterior,
 } from "@/factory/station-parts";
-import { Prop } from "@/factory/street-parts";
+import { Many, Prop } from "@/factory/props";
+import { LINE } from "@/factory/signs";
 import { Interactable } from "@/three/Interactable";
-import { Crowd } from "@/three/Crowd";
+import { Crowd, Walkers } from "@/three/Crowd";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
 import { placePlayer, player } from "@/three/player";
 import { useLayout } from "@/three/layout";
@@ -37,7 +39,8 @@ export function PlatformScene({ placeId }: { placeId: string }) {
   useSceneLayout({
     anchors: {
       stairs: { pos: [0, 0, 15], yaw: Math.PI },
-      "train-door": { pos: [2.4, 0, 2], yaw: Math.PI },
+      // 着いたとき（阿波座）は、案内の看板の下にカメラが入らないよう、前の方のドアから降りる
+      "train-door": { pos: [2.4, 0, arrival ? -6 : 2], yaw: Math.PI },
     },
     walk: [
       {
@@ -103,7 +106,9 @@ export function PlatformScene({ placeId }: { placeId: string }) {
         width={WIDTH}
         length={LENGTH}
         tracks={arrival ? ["right"] : ["left", "right"]}
+        lineColor={LINE[place.line]?.color}
       />
+      <PlatformEnd lineId={place.line} />
       <WalkSurface size={[WIDTH, LENGTH]} />
       {place.tracks.map((tr) => {
         const sx = tr.side === "left" ? -1 : 1;
@@ -153,21 +158,84 @@ export function PlatformScene({ placeId }: { placeId: string }) {
           rows={led2.led.map((r) => ({ ...r, track: String(led2.track) }))}
         />
       )}
-      <Prop url="station/bench" position={[-1.6, 0, -10]} rotationY={Math.PI / 2} />
-      <Prop url="station/bench" position={[1.6, 0, -16]} rotationY={-Math.PI / 2} />
-      <Prop url="station/clock" position={[0, 0, -4]} />
+      <Prop url="station/bench" position={[-1.5, 0, -6]} rotationY={Math.PI / 2} />
+      <Prop url="station/bench" position={[1.5, 0, -14]} rotationY={-Math.PI / 2} />
+      <Prop url="station/bench" position={[-1.5, 0, -14]} rotationY={Math.PI / 2} />
+      <Prop url="station/clock" position={[0, 0, -10]} />
+      <Prop url="station/extinguisher" position={[-2.55, 0, -1.55]} rotationY={0} />
+      <Prop url="station/extinguisher" position={[2.55, 0, 10.45]} rotationY={0} />
+      <Prop url="station/wall-clock" position={[2.55, 0.6, -1.68]} />
+      <Prop url="station/wall-clock" position={[-2.55, 0.6, 9.68]} rotationY={Math.PI} />
+      <Many url="street/bin" at={[{ p: [0.9, 0, 9.6] }, { p: [-0.9, 0, -17.6] }]} />
       {!arrival && (
         <Crowd
           people={[
-            { pos: [-2.4, 0, -2], yaw: -Math.PI / 2 },
-            { pos: [-2.4, 0, -8], yaw: -Math.PI / 2 },
+            { pos: [-2.4, 0, -4.2], yaw: -Math.PI / 2 },
+            { pos: [-2.4, 0, -7.6], yaw: -Math.PI / 2 },
+            { pos: [-2.1, 0, 4.4], yaw: -Math.PI / 2, casual: true },
             { pos: [2.4, 0, -5], yaw: Math.PI / 2 },
-            { pos: [2.4, 0, -11], yaw: Math.PI / 2, model: "hoodie" },
-            { pos: [2.4, 0, 2.5], yaw: Math.PI / 2, model: "school" },
+            { pos: [2.4, 0, -12.6], yaw: Math.PI / 2, casual: true },
+            { pos: [2.4, 0, 2.5], yaw: Math.PI / 2, casual: true },
           ]}
         />
       )}
+      {/* 「8番出口」の、向こうから歩いてくる人のオマージュ（スーツの人が、ホームを行き来する） */}
+      <Walkers
+        people={[
+          {
+            from: [-1.0, -19],
+            to: [-1.0, 13],
+            speed: 0.85,
+            at: 0.35,
+            casual: false,
+            look: { hairStyle: "side", glasses: false, suit: "#4b505a", height: 176, eyes: "calm" },
+          },
+        ]}
+      />
       <Ready />
+    </>
+  );
+}
+
+/**
+ * ホームのはし（改札へ上がる階段）。上に黄色の「出口 8」の看板（「8番出口」のオマージュ）。
+ * 階段は歩ける所の外（z>19）にあり、見た目だけ。
+ */
+function PlatformEnd({ lineId }: { lineId: string }) {
+  const geo = useMemo(
+    () =>
+      merge([
+        stairs(12, 2.6, 0.3, 0.34, "#c9cdd3", { pos: [0, 0, 18.8], rot: [0, Math.PI, 0] }),
+        block(0.22, 3.6, 4.2, "#eeeeea", { pos: [-1.42, 0, 20.9] }),
+        block(0.22, 3.6, 4.2, "#eeeeea", { pos: [1.42, 0, 20.9] }),
+        box(0.06, 0.06, 4.2, "#b9bec6", { pos: [-1.25, 0.95, 20.9] }),
+        box(0.06, 0.06, 4.2, "#b9bec6", { pos: [1.25, 0.95, 20.9] }),
+      ]),
+    [],
+  );
+  return (
+    <>
+      <mesh geometry={geo} material={FLAT} />
+      <HangingSign
+        position={[0, 3.12, 20.4]}
+        width={2.4}
+        height={0.42}
+        spec={{
+          lines: [lineId],
+          text: t("sign.exit"),
+          en: "Exit",
+          arrow: "up",
+          tone: "yellow",
+          number: 8,
+        }}
+      />
+      <HangingSign
+        position={[0, 2.9, -12]}
+        width={2.2}
+        height={0.44}
+        spec={{ lines: [], text: t("sign.exit"), en: "Exit", tone: "yellow", number: 8 }}
+      />
+      <Prop url="station/exit-light" position={[0, 0.9, 22.0]} rotationY={Math.PI} />
     </>
   );
 }

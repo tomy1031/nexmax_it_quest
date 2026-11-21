@@ -21,6 +21,7 @@ export function CanvasPanel({
   position,
   rotation,
   doubleSide = false,
+  transparent = false,
 }: {
   width: number;
   height: number;
@@ -34,6 +35,8 @@ export function CanvasPanel({
   position?: [number, number, number];
   rotation?: [number, number, number];
   doubleSide?: boolean;
+  /** 透明なところを抜く（のれんの上の字など）。 */
+  transparent?: boolean;
 }) {
   const W = Math.round(width * ppm);
   const H = Math.round(height * ppm);
@@ -79,12 +82,16 @@ export function CanvasPanel({
         <meshBasicMaterial
           map={texture}
           toneMapped={false}
+          transparent={transparent}
+          alphaTest={transparent ? 0.05 : 0}
           side={doubleSide ? THREE.DoubleSide : THREE.FrontSide}
         />
       ) : (
         <meshStandardMaterial
           map={texture}
           roughness={0.7}
+          transparent={transparent}
+          alphaTest={transparent ? 0.05 : 0}
           side={doubleSide ? THREE.DoubleSide : THREE.FrontSide}
         />
       )}

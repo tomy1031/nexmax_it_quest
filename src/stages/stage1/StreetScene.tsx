@@ -5,6 +5,7 @@ import { t } from "@/lib/t";
 import { onFx } from "@/stages/events";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { block, box, cyl, FLAT, merge } from "@/factory/kit";
+import { Clouds, SkyDome } from "@/factory/props";
 import { drawLineBadge, drawRuby } from "@/factory/text-canvas";
 import {
   CarSignal,
@@ -16,6 +17,8 @@ import {
 } from "@/factory/street-parts";
 import { LINE } from "@/factory/signs";
 import { Interactable } from "@/three/Interactable";
+import { Walkers, type WalkerSpec } from "@/three/Crowd";
+import { Town } from "@/stages/stage1/town";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
 import { useLayout, type Rect } from "@/three/layout";
 
@@ -32,6 +35,19 @@ import { useLayout, type Rect } from "@/three/layout";
 const SIDEWALK: Rect = { minX: -2, maxX: 27.3, minZ: 0.5, maxZ: 2.9 };
 const CROSSING: Rect = { minX: 27.3, maxX: 37.2, minZ: 0.7, maxZ: 2.7 };
 const FAR_SIDE: Rect = { minX: 37.2, maxX: 44, minZ: 0.5, maxZ: 3.2 };
+
+/** 通りを行き来する人（朝の通勤・通学）。自分の歩く線（z=1.7）からは少しはなす。 */
+const WALKERS: WalkerSpec[] = [
+  { from: [-12, 0.55], to: [24, 0.55], speed: 1.0, at: 0.3 },
+  { from: [3, 2.85], to: [21, 2.85], speed: 1.25, at: 0.7 },
+  { from: [-16, 12.0], to: [26, 12.0], speed: 1.1, at: 0.2 },
+  { from: [-10, 12.7], to: [24, 12.7], speed: 0.9, at: 0.8, casual: true },
+  { from: [26.6, -30], to: [26.6, -1], speed: 1.15, at: 0.5 },
+  { from: [26.4, 14], to: [26.4, 34], speed: 1.0, at: 0.1, casual: true },
+  { from: [37.4, -26], to: [37.4, -1], speed: 1.2, at: 0.6 },
+  { from: [37.6, 4], to: [37.6, 30], speed: 1.0, at: 0.4 },
+  { from: [43, 2.6], to: [58, 2.6], speed: 0.95, at: 0.5, casual: true },
+];
 
 export function StreetScene() {
   useSceneLayout({
@@ -103,30 +119,10 @@ export function StreetScene() {
   const ground = useMemo(
     () =>
       merge([
-        box(120, 0.1, 80, "#c8c3b6", { pos: [10, -0.06, 0] }),
-        // 歩道（家の前〜交差点）
-        box(30, 0.14, 3.0, "#d8d2c4", { pos: [12.6, 0.0, 1.7] }),
-        box(30, 0.16, 0.15, "#9d9a92", { pos: [12.6, 0.02, 3.2] }),
-        // 並行の道
-        box(30, 0.04, 7.5, "#4a4b4f", { pos: [12.6, -0.02, 7.0] }),
-        box(30, 0.05, 0.12, "#f2f2f2", { pos: [12.6, 0.0, 7.0] }),
-        // 交差する道（x=28〜36）
-        box(8.6, 0.04, 80, "#45464a", { pos: [32, -0.02, 0] }),
-        box(0.12, 0.05, 30, "#f2f2f2", { pos: [32, 0.0, 22] }),
-        box(0.12, 0.05, 30, "#f2f2f2", { pos: [32, 0.0, -22] }),
-        // 停止線
-        box(4, 0.05, 0.3, "#f2f2f2", { pos: [30, 0.0, 4.6] }),
-        box(4, 0.05, 0.3, "#f2f2f2", { pos: [34, 0.0, -1.2] }),
-        // 向こうの歩道
-        box(10, 0.14, 3.6, "#d8d2c4", { pos: [41.5, 0.0, 1.7] }),
+        // 横断歩道
         ...Array.from({ length: 9 }, (_, i) =>
           box(0.5, 0.05, 2.2, "#f4f4f2", { pos: [28.4 + i * 0.95, 0.01, 1.7] }),
         ),
-        // 歩道と並行の道の間の柵
-        ...Array.from({ length: 6 }, (_, i) =>
-          block(0.05, 0.9, 0.05, "#7d8086", { pos: [4 + i * 4, 0.07, 3.0] }),
-        ),
-        box(22, 0.05, 0.05, "#7d8086", { pos: [14, 0.92, 3.0] }),
         // 押しボタンの柱（手前）
         cyl(0.07, 3.2, "#5d6168", { pos: [27.3, 1.6, 0.25] }),
       ]),
@@ -136,32 +132,15 @@ export function StreetScene() {
   return (
     <>
       <Lights preset="day" />
-      <color attach="background" args={["#bfe3ff"]} />
-      <fog attach="fog" args={["#d6ecff", 40, 110]} />
+      <color attach="background" args={["#cfe6f7"]} />
+      <fog attach="fog" args={["#dcecf7", 45, 175]} />
+      <SkyDome />
+      <Clouds />
       <mesh geometry={ground} material={FLAT} />
       <WalkSurface size={[60, 20]} center={[20, 2]} />
 
-      {/* 家の側 */}
-      <Prop url="street/apartment" position={[0, 0, -2.4]} />
-      <Prop url="street/vending" position={[7.4, 0, 0.0]} />
-      <Prop url="street/shop2" position={[10.5, 0, -2.4]} />
-      <Prop url="street/shop3" position={[14.5, 0, -2.4]} />
-      <Prop url="street/shop-wide" position={[20.5, 0, -2.4]} />
-      <Prop url="street/shop-corner" position={[25.0, 0, -2.4]} />
-      <Prop url="street/bike-rack" position={[9.0, 0, 0.7]} />
-      <Prop url="street/post-box" position={[17.0, 0, 0.6]} />
-      <Prop url="street/shrub" position={[3.5, 0, 0.5]} />
-      <Prop url="street/pole" position={[6, 0, 3.4]} rotationY={Math.PI / 2} />
-      <Prop url="street/pole" position={[18, 0, 3.4]} rotationY={Math.PI / 2} />
-      <Prop url="street/lamp" position={[12, 0, 3.3]} rotationY={Math.PI} />
-      <Prop url="street/mirror" position={[26.8, 0, 3.3]} rotationY={Math.PI} />
-      <Prop url="street/kei-van" position={[8, 0, 5.2]} rotationY={Math.PI / 2} />
-
-      {/* 向こう側 */}
-      <Prop url="street/konbini" position={[44.5, 0, -3.0]} />
-      <Prop url="street/shop2" position={[38.5, 0, -6.5]} />
-      <Prop url="street/shop3" position={[50, 0, -3]} />
-      <Prop url="street/lamp" position={[37.8, 0, 3.4]} rotationY={Math.PI} />
+      <Town />
+      <Walkers people={WALKERS} />
 
       <CrossTraffic light={car} />
 

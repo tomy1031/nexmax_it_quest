@@ -15,7 +15,7 @@ import {
 } from "@/factory/station-parts";
 import { CarSignal, PedSignal, PushButtonBox } from "@/factory/street-parts";
 import { TicketMachine } from "@/factory/TicketMachine";
-import { Avatar } from "@/three/Avatar";
+import { Chibi } from "@/three/Chibi";
 import { Lights } from "@/three/helpers";
 
 /**
@@ -53,13 +53,13 @@ export default function FactoryScreen() {
         <Lights preset="underground" />
         <Suspense fallback={null}>
           <group position={[-8, 0, 0]}>
-            <Avatar config={{ ...DEFAULT_AVATAR, outfit: "suit" }} />
+            <Chibi config={{ ...DEFAULT_AVATAR, outfit: "suit" }} />
           </group>
           <group position={[-6.8, 0, 0]}>
-            <Avatar config={{ ...DEFAULT_AVATAR, outfit: "suit", figure: "f", hair: "#3a2618" }} />
+            <Chibi config={{ ...DEFAULT_AVATAR, outfit: "suit", figure: "f", hair: "#3a2618" }} />
           </group>
           <group position={[-5.6, 0, 0]}>
-            <Avatar config={DEFAULT_AVATAR} />
+            <Chibi config={DEFAULT_AVATAR} />
           </group>
           <TicketMachineGray position={[-4, 0, 0]} />
           <TicketMachine position={[-3, 0, 0]} active />

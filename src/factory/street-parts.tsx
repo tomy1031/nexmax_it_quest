@@ -1,4 +1,3 @@
-import { useGLTF } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
 import { t } from "@/lib/t";
@@ -6,31 +5,8 @@ import { CanvasPanel } from "@/factory/CanvasPanel";
 import { box, cyl, FLAT, glowMaterial, merge } from "@/factory/kit";
 import { drawRuby } from "@/factory/text-canvas";
 
-const BASE = import.meta.env.BASE_URL;
-
-/** polyfork のモデルを置く（素材は共通の FLAT にそろえる）。 */
-export function Prop({
-  url,
-  position,
-  rotationY = 0,
-  scale = 1,
-}: {
-  url: string;
-  position: [number, number, number];
-  rotationY?: number;
-  scale?: number;
-}) {
-  const gltf = useGLTF(`${BASE}models/${url}.glb`);
-  const obj = useMemo(() => {
-    const o = gltf.scene.clone(true);
-    o.traverse((c) => {
-      const m = c as THREE.Mesh;
-      if (m.isMesh) m.material = FLAT;
-    });
-    return o;
-  }, [gltf]);
-  return <primitive object={obj} position={position} rotation={[0, rotationY, 0]} scale={scale} />;
-}
+/** polyfork の部品を置く道具は props.tsx へ移した（ここからも使えるように出しておく）。 */
+export { Prop } from "@/factory/props";
 
 export type CarLight = "green" | "yellow" | "red" | "red-arrow";
 

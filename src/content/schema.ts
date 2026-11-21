@@ -265,6 +265,8 @@ export const placesFile = z.object({
       en: z.string(),
       tone: signTone,
       arrow: arrowDir.optional(),
+      /** 出口の番号（黄色の看板の黒い四角）。 */
+      number: z.number().int().positive().optional(),
     }),
   ),
   trainNext: z.record(z.string(), z.array(learnerText)),
@@ -287,6 +289,8 @@ export const charactersFile = z.object({
         hairStyle: z.enum(["model", "spiky", "side", "bob", "long", "ponytail", "twin", "bun"]),
         glasses: z.boolean(),
         height: z.number().min(140).max(200),
+        eyes: z.enum(["round", "smile", "sparkle", "calm"]).optional(),
+        blush: z.boolean().optional(),
         suit: z.string(),
         shirt: z.string(),
         tie: z.string(),

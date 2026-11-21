@@ -8,8 +8,10 @@ import {
   StationNameBoard,
   TrainExterior,
 } from "@/factory/station-parts";
+import { LINE } from "@/factory/signs";
+import { Prop } from "@/factory/props";
 import { Interactable } from "@/three/Interactable";
-import { Crowd } from "@/three/Crowd";
+import { Crowd, Walkers } from "@/three/Crowd";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
 
 const PLACES = placesJson as PlacesFile;
@@ -47,7 +49,20 @@ export function HommachiScene() {
     <>
       <Lights preset="underground" />
       <color attach="background" args={["#cfd6df"]} />
-      <PlatformSlab width={8} length={44} tracks={["right"]} />
+      <PlatformSlab
+        width={8}
+        length={44}
+        tracks={["right"]}
+        lineColor={LINE.M?.color}
+        pillars={[-8, 0, 8].flatMap((z) => [
+          [-2.55, z] as [number, number],
+          [2.55, z] as [number, number],
+        ])}
+      />
+      <Prop url="station/bench" position={[-1.4, 0, 4]} rotationY={Math.PI / 2} />
+      <Prop url="station/extinguisher" position={[2.55, 0, 0.4]} />
+      <Prop url="station/lockers" position={[-3.65, 0, 11]} rotationY={Math.PI / 2} />
+      <Prop url="station/lockers" position={[-3.65, 0, 12]} rotationY={Math.PI / 2} />
       <mesh geometry={geo} material={FLAT} />
       <WalkSurface size={[8, 44]} />
       <group position={[5.6, -1.1, 0]}>
@@ -112,6 +127,7 @@ export function HommachiScene() {
               en: exit.en,
               arrow: exit.arrow,
               tone: exit.tone,
+              number: exit.number,
             }}
           />
           <mesh position={[0, 1.2, 16.5]}>
@@ -123,9 +139,22 @@ export function HommachiScene() {
       <Crowd
         people={[
           { pos: [-1.5, 0, -6], yaw: Math.PI },
-          { pos: [1.2, 0, -9], yaw: Math.PI, model: "casual-m" },
+          { pos: [1.2, 0, -9], yaw: Math.PI, casual: true },
           { pos: [-0.6, 0, 6], yaw: 0 },
-          { pos: [2.6, 0, 8], yaw: -Math.PI / 2, model: "worker" },
+          { pos: [2.6, 0, 9.4], yaw: -Math.PI / 2, casual: true },
+          { pos: [2.2, 0, -4], yaw: Math.PI / 2 },
+        ]}
+      />
+      <Walkers
+        people={[
+          { from: [0.6, -14], to: [0.6, 14], speed: 1.0, at: 0.6 },
+          {
+            from: [-1.0, 12],
+            to: [-1.0, -12],
+            speed: 0.85,
+            at: 0.2,
+            look: { hairStyle: "side", suit: "#4b505a", height: 176, eyes: "calm" },
+          },
         ]}
       />
       <Ready />

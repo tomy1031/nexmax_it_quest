@@ -14,8 +14,9 @@ import {
 } from "@/factory/station-parts";
 import { CarSignal, PedSignal, Prop, PushButtonBox } from "@/factory/street-parts";
 import { IcocaCard, Phone, Receipt } from "@/factory/small-parts";
+import { Noren, VSign } from "@/factory/town-parts";
 import { CanvasPanel } from "@/factory/CanvasPanel";
-import { Avatar } from "@/three/Avatar";
+import { Chibi } from "@/three/Chibi";
 import { Crowd } from "@/three/Crowd";
 import { Lights } from "@/three/helpers";
 import charactersJson from "@content/characters.json";
@@ -77,10 +78,10 @@ export const SHOTS: Record<string, ShotDef> = {
     scene: () => (
       <>
         <group position={[-0.45, 0, 0]} rotation={[0, 0.25, 0]}>
-          <Avatar config={{ ...DEFAULT_AVATAR, outfit: "suit", suit: "#232f52", tie: "#8a1c2b" }} />
+          <Chibi config={{ ...DEFAULT_AVATAR, outfit: "suit", suit: "#232f52", tie: "#8a1c2b" }} />
         </group>
         <group position={[0.45, 0, 0]} rotation={[0, -0.25, 0]}>
-          <Avatar
+          <Chibi
             config={{
               ...DEFAULT_AVATAR,
               outfit: "suit",
@@ -183,7 +184,7 @@ export const SHOTS: Record<string, ShotDef> = {
     ),
   },
   rush: {
-    camera: { pos: [0.15, 1.62, 3.4], look: [0, 1.45, -6], fov: 62 },
+    camera: { pos: [0.15, 1.32, 3.4], look: [0, 1.05, -6], fov: 62 },
     light: "train",
     scene: () => (
       <>
@@ -227,18 +228,21 @@ const STYLES: HairStyle[] = ["model", "spiky", "side", "bob", "long", "ponytail"
 
 /** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */
 SHOTS.avatars = {
-  camera: { pos: [0, 1.3, 6.2], look: [0, 0.95, 0], fov: 42 },
-  light: "room",
+  camera: { pos: [0.4, 0.95, 6.6], look: [0.4, 0.62, 0], fov: 42 },
+  light: "day",
   scene: () => (
     <>
       {STYLES.map((hs, i) => (
         <group key={hs} position={[-3.15 + i * 0.9, 0, 0]}>
-          <Avatar
+          <Chibi
             config={{
               ...DEFAULT_AVATAR,
               outfit: "suit",
               figure: i % 2 ? "f" : "m",
               hairStyle: hs,
+              suit: ["#2f3a5e", "#3a3d45", "#24283a", "#5b616c"][i % 4]!,
+              tie: ["#c23a4a", "#1f6fb8", "#2d8a4a", "#c9a227"][i % 4]!,
+              eyes: (["round", "smile", "sparkle", "calm"] as const)[i % 4]!,
               glasses: i === 3,
               height: 156 + i * 4,
               hair: i % 3 === 0 ? "#1d1612" : i % 3 === 1 ? "#3a2618" : "#5a3a22",
@@ -247,7 +251,7 @@ SHOTS.avatars = {
         </group>
       ))}
       <group position={[3.9, 0, 0]}>
-        <Avatar config={HENDY} />
+        <Chibi config={HENDY} />
       </group>
     </>
   ),
@@ -284,3 +288,30 @@ function ShotCamera({ def }: { def: ShotDef }) {
   });
   return null;
 }
+
+/** 見本（開発用）: 町の看板（かなの字）を近くで見る。/factory?shot=town-signs */
+SHOTS["town-signs"] = {
+  camera: { pos: [0, 2.0, 6.5], look: [0, 1.6, 0], fov: 50 },
+  light: "day",
+  scene: () => (
+    <>
+      <group rotation={[0, -Math.PI / 2, 0]} position={[-3, 0, 0]}>
+        <VSign position={[0, 1.6, 0]} text="town.soba" />
+      </group>
+      <group rotation={[0, -Math.PI / 2, 0]} position={[-1.8, 0, 0]}>
+        <VSign position={[0, 1.6, 0]} text="town.cafe" bg="#2f5d3a" fg="#f6f1e2" />
+      </group>
+      <group rotation={[0, -Math.PI / 2, 0]} position={[-0.6, 0, 0]}>
+        <VSign
+          position={[0, 1.6, 0]}
+          text="town.kusuri"
+          bg="#1f5fa8"
+          fg="#ffffff"
+          frame="#e8e8e8"
+        />
+      </group>
+      <Noren position={[1.2, 2.0, 0]} text="town.soba" />
+      <Noren position={[3.0, 2.0, 0]} text="town.yu" />
+    </>
+  ),
+};

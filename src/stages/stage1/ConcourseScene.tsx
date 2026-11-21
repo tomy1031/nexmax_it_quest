@@ -12,9 +12,11 @@ import {
   TicketMachineGray,
 } from "@/factory/station-parts";
 import { LINE } from "@/factory/signs";
+import { Many, Prop } from "@/factory/props";
+import { Poster, PosterRow } from "@/factory/subway-parts";
 import { TicketMachine } from "@/factory/TicketMachine";
 import { Interactable } from "@/three/Interactable";
-import { Crowd } from "@/three/Crowd";
+import { Crowd, Walkers } from "@/three/Crowd";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
 import { useLayout, type Rect } from "@/three/layout";
 import { walkTo } from "@/three/player";
@@ -101,6 +103,58 @@ export function ConcourseScene() {
       />
       <mesh geometry={extra} material={FLAT} />
       <WalkSurface size={[30, 16]} />
+
+      {/* 「8番出口」のような白いタイルの通路の空気: 同じポスターのならび・出口の黄色い看板・ロッカー */}
+      <PosterRow kinds={["nexmax", "manner"]} x={-14.97} zs={[2.4, 5.2]} rotationY={Math.PI / 2} />
+      <PosterRow
+        kinds={["cafe", "rush", "ginkgo", "manner"]}
+        x={14.97}
+        zs={[-0.8, 1.9, 4.6, 7.0]}
+        rotationY={-Math.PI / 2}
+      />
+      {[-13, -10.5, 9.5, 12.5].map((x, i) => (
+        <Poster
+          key={x}
+          kind={(["rush", "osaka", "cafe", "nexmax"] as const)[i]!}
+          position={[x, 1.55, 7.97]}
+          rotationY={Math.PI}
+        />
+      ))}
+      <Many
+        url="station/lockers"
+        at={[0, 1, 2].map((i) => ({
+          p: [-14.6, 0, -3.2 + i * 1.0] as [number, number, number],
+          r: Math.PI / 2,
+        }))}
+      />
+      <Many url="street/vending" at={[{ p: [8.7, 0, -7.55] }, { p: [9.85, 0, -7.55] }]} />
+      <Prop url="street/bin" position={[10.9, 0, -7.6]} />
+      <Prop url="station/extinguisher" position={[-9, 0, -1.6]} />
+      <Prop url="station/extinguisher" position={[9, 0, 4.4]} />
+      <Prop url="station/wall-clock" position={[0, 0.7, -2.62]} />
+      <Prop url="station/exit-light" position={[-14.9, 0.4, -4.2]} rotationY={Math.PI / 2} />
+      <HangingSign
+        position={[-10.2, 2.85, -5.6]}
+        rotationY={Math.PI / 2}
+        width={2.4}
+        height={0.42}
+        spec={{
+          lines: [],
+          text: t("sign.exit"),
+          en: "Exit",
+          arrow: "up",
+          tone: "yellow",
+          number: 8,
+        }}
+        doubleSide={false}
+      />
+      <Walkers
+        people={[
+          { from: [-11, -3.4], to: [12.5, -3.4], speed: 1.1, at: 0.2 },
+          { from: [12.8, -0.6], to: [-8, -0.6], speed: 1.25, at: 0.6, casual: true },
+          { from: [-12.5, -4.8], to: [-12.5, 0], speed: 0.9, at: 0.5 },
+        ]}
+      />
 
       <Interactable id="route-map" approach={[-7, -5.8]} marker={[-7, 3.0, -7.7]}>
         <RouteMapBoard position={[-7, 1.7, -7.85]} here="tennoji" />
@@ -193,8 +247,8 @@ export function ConcourseScene() {
           { pos: [-2, 0, -2], yaw: 0.4 },
           { pos: [4, 0, -3.5], yaw: -2.6 },
           { pos: [8, 0, -1], yaw: 2.2 },
-          { pos: [-10, 0, -1.5], yaw: 1.2, model: "casual-m" },
-          { pos: [10.5, 0, -5], yaw: -1.4, model: "hoodie" },
+          { pos: [-10, 0, -1.5], yaw: 1.2, casual: true },
+          { pos: [10.5, 0, -5], yaw: -1.4, casual: true },
           { pos: [-3.2, 0, 4], yaw: Math.PI },
         ]}
       />
