@@ -35,3 +35,12 @@ npm run dev                  # http://localhost:5173
 | `npm run shots`                                         | 豆知識の絵を撮る（開発サーバーを立ててから）                                  |
 
 開発中だけ、`/factory` でグラフィック工場の部品の見本を見られる。
+
+## 公開
+
+今は GitHub Pages に置いている（一時の公開先。先々 Cloudflare に移す）。
+リポジトリのふだんの枝（default branch）に push すると、`.github/workflows/pages.yml` がビルドして公開する。
+
+- URL: https://tomy1031.github.io/nexmax_it_quest/
+- はじめの1回だけ、リポジトリの Settings → Pages → Build and deployment の Source を「GitHub Actions」にする。
+- 移し方は [docs/design/00_全体設計.md](docs/design/00_全体設計.md) の「12. 公開」。

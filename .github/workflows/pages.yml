@@ -1,0 +1,53 @@
+# GitHub Pages に公開する（一時の公開先。先々 Cloudflare に移す。docs/design/00_全体設計.md「12. 公開」）。
+# 公開するのは、リポジトリのふだんの枝（default branch）に push したときだけ。手で動かすこともできる。
+# 公開の URL: https://<持ち主>.github.io/<リポジトリ名>/
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:content
+      - run: npm test
+      # URL の頭にリポジトリの名前が付く（/nexmax_it_quest/）
+      - run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+      # GitHub Pages は「ページが無い」ときに 404.html を返す。中身をアプリと同じにして、
+      # /nexmax_it_quest/stages のような URL を直接開いても動くようにする
+      - run: cp dist/index.html dist/404.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

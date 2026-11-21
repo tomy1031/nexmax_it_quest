@@ -12,3 +12,10 @@ export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 /** 開発・テストのときだけ使う道具（window.__quest）を出すか。 */
 export const isDevTools = env.DEV || env.MODE === "test" || env.VITE_E2E === "1";
+
+/**
+ * アプリを置く場所の頭（GitHub Pages なら "/nexmax_it_quest/"、Cloudflare なら "/"）。ビルドのときの VITE_BASE で決まる。
+ * ページの切りかえ（wouter）は、末尾の "/" を取ったものを使う。
+ */
+export const BASE_URL: string = env.BASE_URL;
+export const ROUTER_BASE: string = BASE_URL.replace(/\/$/, "");

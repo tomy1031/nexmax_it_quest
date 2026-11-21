@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Redirect, Route, Switch } from "wouter";
+import { Redirect, Route, Router, Switch } from "wouter";
 import { TitleScreen } from "@/app/TitleScreen";
 import { SettingsScreen } from "@/app/SettingsScreen";
 import { StoryScreen } from "@/app/StoryScreen";
 import { StageSelect } from "@/app/StageSelect";
 import { useSetupComplete } from "@/app/use-setup";
+import { ROUTER_BASE } from "@/lib/env";
 import { useSettings } from "@/lib/store";
 import { t } from "@/lib/t";
 
@@ -33,35 +34,40 @@ export function App() {
     document.documentElement.style.fontSize = `${16 * textScale}px`;
   }, [textScale]);
 
+  // GitHub Pages では URL の頭にリポジトリの名前が付く（/nexmax_it_quest/stages など）
   return (
-    <Suspense fallback={<Loading />}>
-      <Switch>
-        <Route path="/" component={TitleScreen} />
-        <Route path="/settings" component={SettingsScreen} />
-        <Route path="/story" component={StoryScreen} />
-        <Route path="/dive">
-          <NeedSetup>
-            <DiveScreen />
-          </NeedSetup>
-        </Route>
-        <Route path="/stages">
-          <NeedSetup>
-            <StageSelect />
-          </NeedSetup>
-        </Route>
-        <Route path="/stage/:id">
-          {(params) => (
+    <Router base={ROUTER_BASE}>
+      <Suspense fallback={<Loading />}>
+        <Switch>
+          <Route path="/" component={TitleScreen} />
+          <Route path="/settings" component={SettingsScreen} />
+          <Route path="/story" component={StoryScreen} />
+          <Route path="/dive">
             <NeedSetup>
-              <StageScreen stageId={params.id} />
+              <DiveScreen />
             </NeedSetup>
-          )}
-        </Route>
-        <Route path="/certificate/:id">{(params) => <CertificatePage stageId={params.id} />}</Route>
-        <Route path="/factory" component={FactoryScreen} />
-        <Route>
-          <Redirect to="/" />
-        </Route>
-      </Switch>
-    </Suspense>
+          </Route>
+          <Route path="/stages">
+            <NeedSetup>
+              <StageSelect />
+            </NeedSetup>
+          </Route>
+          <Route path="/stage/:id">
+            {(params) => (
+              <NeedSetup>
+                <StageScreen stageId={params.id} />
+              </NeedSetup>
+            )}
+          </Route>
+          <Route path="/certificate/:id">
+            {(params) => <CertificatePage stageId={params.id} />}
+          </Route>
+          <Route path="/factory" component={FactoryScreen} />
+          <Route>
+            <Redirect to="/" />
+          </Route>
+        </Switch>
+      </Suspense>
+    </Router>
   );
 }
