@@ -7,7 +7,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
  */
 
 export type Outfit = "suit" | "casual";
-export type HairStyle = "model" | "long" | "bob" | "ponytail" | "bun";
+export type HairStyle = "model" | "spiky" | "side" | "bob" | "long" | "ponytail" | "twin" | "bun";
 export type Figure = "m" | "f";
 
 export interface AvatarConfig {
@@ -17,6 +17,8 @@ export interface AvatarConfig {
   hair: string;
   hairStyle: HairStyle;
   glasses: boolean;
+  /** 身長（cm）。モデルの大きさを、この高さに合わせる。 */
+  height: number;
   suit: string;
   shirt: string;
   tie: string;
@@ -31,6 +33,7 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   hair: "#1d1612",
   hairStyle: "model",
   glasses: false,
+  height: 168,
   suit: "#262b38",
   shirt: "#f4f6f8",
   tie: "#1f3f7a",
@@ -119,8 +122,14 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "nexmax-it-quest:game",
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      // 版1 → 2: アバターに身長が増えた（無い人は決まった値）
+      migrate: (persisted, version) => {
+        const s = persisted as PersistedState;
+        if (version < 2 && s?.avatar) s.avatar = { ...DEFAULT_AVATAR, ...s.avatar };
+        return s;
+      },
       partialize: (s): PersistedState => ({
         profile: s.profile,
         avatar: s.avatar,

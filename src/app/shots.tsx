@@ -18,6 +18,8 @@ import { CanvasPanel } from "@/factory/CanvasPanel";
 import { Avatar } from "@/three/Avatar";
 import { Crowd } from "@/three/Crowd";
 import { Lights } from "@/three/helpers";
+import charactersJson from "@content/characters.json";
+import type { AvatarConfig, HairStyle } from "@/lib/store";
 
 const PLACES = placesJson as PlacesFile;
 const north = PLACES.platforms[0]!.tracks[1]!;
@@ -218,6 +220,37 @@ export const SHOTS: Record<string, ShotDef> = {
       </>
     ),
   },
+};
+
+const HENDY = charactersJson.characters[0]!.look as AvatarConfig;
+const STYLES: HairStyle[] = ["model", "spiky", "side", "bob", "long", "ponytail", "twin", "bun"];
+
+/** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */
+SHOTS.avatars = {
+  camera: { pos: [0, 1.3, 6.2], look: [0, 0.95, 0], fov: 42 },
+  light: "room",
+  scene: () => (
+    <>
+      {STYLES.map((hs, i) => (
+        <group key={hs} position={[-3.15 + i * 0.9, 0, 0]}>
+          <Avatar
+            config={{
+              ...DEFAULT_AVATAR,
+              outfit: "suit",
+              figure: i % 2 ? "f" : "m",
+              hairStyle: hs,
+              glasses: i === 3,
+              height: 156 + i * 4,
+              hair: i % 3 === 0 ? "#1d1612" : i % 3 === 1 ? "#3a2618" : "#5a3a22",
+            }}
+          />
+        </group>
+      ))}
+      <group position={[3.9, 0, 0]}>
+        <Avatar config={HENDY} />
+      </group>
+    </>
+  ),
 };
 
 /** 撮影台の中身。数フレーム描いてから、撮ってよい合図（window.__shotReady）を出す。 */

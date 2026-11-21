@@ -270,3 +270,29 @@ export const placesFile = z.object({
   trainNext: z.record(z.string(), z.array(learnerText)),
 });
 export type PlacesFile = z.infer<typeof placesFile>;
+
+// ── 主要キャラの見た目 ─────────────────────────────────
+
+export const charactersFile = z.object({
+  $comment: z.string().optional(),
+  characters: z.array(
+    z.object({
+      id: z.string(),
+      name: learnerText,
+      look: z.object({
+        outfit: z.enum(["suit", "casual"]),
+        figure: z.enum(["m", "f"]),
+        skin: z.string(),
+        hair: z.string(),
+        hairStyle: z.enum(["model", "spiky", "side", "bob", "long", "ponytail", "twin", "bun"]),
+        glasses: z.boolean(),
+        height: z.number().min(140).max(200),
+        suit: z.string(),
+        shirt: z.string(),
+        tie: z.string(),
+        coat: z.string(),
+        pants: z.string(),
+      }),
+    }),
+  ),
+});

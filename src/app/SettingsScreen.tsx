@@ -80,6 +80,12 @@ export function SettingsScreen() {
             </div>
           )}
         </div>
+        <a
+          href={`${import.meta.env.BASE_URL}credits.txt`}
+          className="self-center text-sm text-white/60 underline"
+        >
+          <RubyText text={t("title.credits")} />
+        </a>
       </div>
     </main>
   );

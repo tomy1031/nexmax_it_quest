@@ -19,6 +19,7 @@ import { IconCheck } from "@/ui/icons";
 type Tab =
   | "outfit"
   | "figure"
+  | "height"
   | "skin"
   | "hair"
   | "hairStyle"
@@ -31,9 +32,12 @@ type Tab =
 
 const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["model", "avatar.hs.model"],
+  ["spiky", "avatar.hs.spiky"],
+  ["side", "avatar.hs.side"],
   ["bob", "avatar.hs.bob"],
   ["long", "avatar.hs.long"],
   ["ponytail", "avatar.hs.ponytail"],
+  ["twin", "avatar.hs.twin"],
   ["bun", "avatar.hs.bun"],
 ];
 
@@ -49,6 +53,7 @@ const PANTS = ["#3a3d44", "#2a3550", "#6b5a45", "#20232a"];
 const LABEL: Record<Tab, UiKey> = {
   outfit: "avatar.outfit",
   figure: "avatar.figure",
+  height: "avatar.height",
   skin: "avatar.skin",
   hair: "avatar.hair",
   hairStyle: "avatar.hairStyle",
@@ -64,6 +69,7 @@ const LABEL: Record<Tab, UiKey> = {
 const FOCUS: Record<Tab, { y: number; d: number }> = {
   outfit: { y: 0.95, d: 3.0 },
   figure: { y: 0.95, d: 3.0 },
+  height: { y: 0.95, d: 3.2 },
   skin: { y: 1.55, d: 1.2 },
   hair: { y: 1.6, d: 1.15 },
   hairStyle: { y: 1.55, d: 1.3 },
@@ -85,8 +91,30 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
   const tabs: Tab[] =
     avatar.outfit === "suit"
-      ? ["outfit", "figure", "skin", "hairStyle", "hair", "glasses", "suit", "tie", "shirt"]
-      : ["outfit", "figure", "skin", "hairStyle", "hair", "glasses", "coat", "shirt", "pants"];
+      ? [
+          "outfit",
+          "figure",
+          "height",
+          "skin",
+          "hairStyle",
+          "hair",
+          "glasses",
+          "suit",
+          "tie",
+          "shirt",
+        ]
+      : [
+          "outfit",
+          "figure",
+          "height",
+          "skin",
+          "hairStyle",
+          "hair",
+          "glasses",
+          "coat",
+          "shirt",
+          "pants",
+        ];
 
   const set = (a: Partial<AvatarConfig>) => {
     playSfx("click");
@@ -98,7 +126,17 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
   const random = () => {
     set({
       figure: pick(["m", "f"]),
-      hairStyle: pick<HairStyle>(["model", "bob", "long", "ponytail", "bun"]),
+      hairStyle: pick<HairStyle>([
+        "model",
+        "spiky",
+        "side",
+        "bob",
+        "long",
+        "ponytail",
+        "twin",
+        "bun",
+      ]),
+      height: 155 + Math.round(Math.random() * 30),
       skin: pick(SKINS),
       hair: pick(HAIRS),
       suit: pick(SUITS_OK),
@@ -211,6 +249,21 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <RubyText text={t(f === "m" ? "avatar.figureM" : "avatar.figureF")} />
                 </button>
               ))}
+            </div>
+          )}
+          {tab === "height" && (
+            <div className="flex flex-wrap items-center gap-4">
+              <input
+                type="range"
+                min={150}
+                max={190}
+                step={1}
+                value={avatar.height}
+                onChange={(e) => set({ height: Number(e.target.value) })}
+                className="w-64 accent-cyan-400"
+                data-testid="avatar-height"
+              />
+              <span className="text-2xl font-extrabold">{avatar.height} cm</span>
             </div>
           )}
           {tab === "hairStyle" && (

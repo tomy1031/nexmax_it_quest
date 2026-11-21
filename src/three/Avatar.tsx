@@ -89,7 +89,9 @@ export function Avatar({
     mixer.update(Math.min(dt, 0.1));
   });
 
-  return <primitive object={root} />;
+  // polyfork の人は 約1.71m で作られている。身長に合わせて全体の大きさを変える（骨の動きはそのまま）
+  const scale = (config.height ?? 171) / 171;
+  return <primitive object={root} scale={scale} />;
 }
 
 for (const url of Object.values(MODEL_URL)) useGLTF.preload(`${BASE}${url}`);

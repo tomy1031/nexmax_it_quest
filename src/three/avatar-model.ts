@@ -206,6 +206,37 @@ function hairShape(style: AvatarConfig["hairStyle"], color: string): THREE.Buffe
     case "bob":
       parts.push(back(1.44), side(1.47, -1), side(1.47, 1));
       break;
+    case "spiky":
+      for (let i = 0; i < 7; i += 1) {
+        const x = -0.09 + i * 0.03;
+        parts.push(
+          box(0.035, 0.06, 0.05, color, {
+            pos: [x, HEAD.y1 + 0.015, 0.03 - (i % 2) * 0.05],
+            rot: [0.2, 0, (i - 3) * 0.12],
+          }),
+        );
+      }
+      break;
+    case "side":
+      parts.push(
+        box(HEAD.x * 2 + 0.02, 0.05, 0.05, color, {
+          pos: [0.01, HEAD.y1 - 0.045, HEAD.z1 + 0.005],
+          rot: [0, 0, -0.25],
+        }),
+      );
+      parts.push(box(0.03, 0.12, 0.13, color, { pos: [-(HEAD.x + 0.008), 1.62, -0.01] }));
+      break;
+    case "twin":
+      for (const sx of [-1, 1]) {
+        parts.push(box(0.06, 0.06, 0.06, color, { pos: [sx * (HEAD.x + 0.02), 1.64, -0.04] }));
+        parts.push(
+          box(0.05, 0.2, 0.05, color, {
+            pos: [sx * (HEAD.x + 0.045), 1.52, -0.05],
+            rot: [0, 0, sx * 0.2],
+          }),
+        );
+      }
+      break;
     case "ponytail":
       parts.push(box(0.07, 0.07, 0.06, color, { pos: [0, 1.6, HEAD.z0 - 0.03] }));
       parts.push(

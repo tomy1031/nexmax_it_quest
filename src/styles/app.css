@@ -18,6 +18,8 @@
   --color-sun: #ffc93c;
   --color-coral: #ff7a6b;
   --color-ink: #12305a;
+  /* タイトルの画面だけは、ボタンのイメージと同じ角ゴシック */
+  --font-title: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 html,
@@ -183,4 +185,67 @@ input:focus-visible {
 }
 .input::placeholder {
   color: rgb(18 48 90 / 0.45);
+}
+
+/*
+ * タイトルのボタン（ボタンのイメージに合わせる）。
+ * スタート: 青のグラデーションの地・明るいシアンの縁・外へ光る。ストーリーと設定: 濃い紺の半透明の地・細いシアンの縁。
+ */
+.title-btn {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+.title-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+}
+.title-btn:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.4) brightness(0.75);
+  opacity: 0.55;
+  box-shadow: none;
+}
+.title-btn-start {
+  border-radius: 1.1cqw;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 48, 124, 0.92) 0%,
+    rgba(10, 82, 172, 0.9) 55%,
+    rgba(18, 122, 218, 0.88) 100%
+  );
+  border: 0.26cqw solid #f0feff;
+  box-shadow:
+    0 0 0.3cqw 0.2cqw rgba(140, 238, 255, 1),
+    0 0 1.3cqw 0.55cqw rgba(56, 200, 255, 0.9),
+    0 0 3cqw 0.6cqw rgba(56, 160, 255, 0.5),
+    inset 0 0 0.6cqw 0.15cqw rgba(120, 230, 255, 0.75);
+  text-shadow: 0 0 0.5cqw rgba(160, 240, 255, 0.55);
+}
+.title-btn-start:hover:not(:disabled) {
+  box-shadow:
+    0 0 0.9cqw 0.18cqw rgba(56, 225, 255, 1),
+    0 0 2.6cqw rgba(56, 225, 255, 0.75),
+    inset 0 0 1.3cqw rgba(120, 235, 255, 0.7);
+}
+.title-btn-sub {
+  border-radius: 0.85cqw;
+  background: linear-gradient(180deg, rgba(10, 46, 118, 0.8), rgba(8, 38, 102, 0.84));
+  border: 0.13cqw solid #74d8ff;
+  box-shadow:
+    0 0 0.45cqw rgba(80, 210, 255, 0.6),
+    inset 0 0 0.6cqw rgba(56, 170, 255, 0.28);
+}
+.title-btn-sub:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(14, 64, 140, 0.9), rgba(10, 52, 124, 0.9));
+  box-shadow: 0 0 0.9cqw rgba(56, 210, 255, 0.6);
+}
+/* はじめての人に「設定」を気づかせる（スタートを押せない間だけ） */
+.title-btn-highlight {
+  box-shadow:
+    0 0 0.7cqw 0.12cqw rgba(255, 216, 77, 0.9),
+    0 0 1.6cqw rgba(255, 216, 77, 0.45);
+  border-color: #ffe38a;
 }
