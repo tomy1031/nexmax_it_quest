@@ -309,6 +309,7 @@ export function Hall({
   floor = "#d9d4c8",
   band = "#e5171f",
   pillars = [],
+  hole,
 }: {
   width: number;
   depth: number;
@@ -316,10 +317,29 @@ export function Hall({
   floor?: string;
   band?: string;
   pillars?: [number, number][];
+  /** 床にあける穴（下りの階段の入口）。 */
+  hole?: { minX: number; maxX: number; minZ: number; maxZ: number };
 }) {
+  const holeKey = hole ? `${hole.minX},${hole.maxX},${hole.minZ},${hole.maxZ}` : "";
   const geo = useMemo(() => {
+    const W2 = width / 2;
+    const D2 = depth / 2;
+    // 床（穴があれば、穴のまわりの4枚に分ける）
+    const floorParts: THREE.BufferGeometry[] = [];
+    const slab = (x0: number, x1: number, z0: number, z1: number) => {
+      if (x1 - x0 <= 0 || z1 - z0 <= 0) return;
+      floorParts.push(
+        box(x1 - x0, 0.1, z1 - z0, floor, { pos: [(x0 + x1) / 2, -0.05, (z0 + z1) / 2] }),
+      );
+    };
+    if (hole) {
+      slab(-W2, hole.minX, -D2, D2);
+      slab(hole.maxX, W2, -D2, D2);
+      slab(hole.minX, hole.maxX, -D2, hole.minZ);
+      slab(hole.minX, hole.maxX, hole.maxZ, D2);
+    } else slab(-W2, W2, -D2, D2);
     const p: THREE.BufferGeometry[] = [
-      box(width, 0.1, depth, floor, { pos: [0, -0.05, 0] }),
+      ...floorParts,
       box(width, 0.1, depth, "#eceef0", { pos: [0, height, 0] }),
       // かべの下の幅木
       box(width, 0.16, 0.06, "#9aa0a8", { pos: [0, 0.08, -depth / 2 + 0.03] }),
@@ -327,13 +347,27 @@ export function Hall({
       box(0.06, 0.16, depth, "#9aa0a8", { pos: [-width / 2 + 0.03, 0.08, 0] }),
       box(0.06, 0.16, depth, "#9aa0a8", { pos: [width / 2 - 0.03, 0.08, 0] }),
     ];
-    // 床のタイルの線
-    for (let x = -width / 2 + 1; x < width / 2; x += 1)
-      p.push(box(0.025, 0.004, depth, shade(floor, 0.9), { pos: [x, 0.002, 0] }));
-    for (let z = -depth / 2 + 1; z < depth / 2; z += 1)
-      p.push(box(width, 0.004, 0.025, shade(floor, 0.9), { pos: [0, 0.002, z] }));
+    // 床のタイルの線（穴の上には引かない）
+    const line = shade(floor, 0.9);
+    const segZ = (x: number, z0: number, z1: number) =>
+      z1 > z0 && p.push(box(0.025, 0.004, z1 - z0, line, { pos: [x, 0.002, (z0 + z1) / 2] }));
+    const segX = (z: number, x0: number, x1: number) =>
+      x1 > x0 && p.push(box(x1 - x0, 0.004, 0.025, line, { pos: [(x0 + x1) / 2, 0.002, z] }));
+    for (let x = -W2 + 1; x < W2; x += 1) {
+      if (hole && x > hole.minX && x < hole.maxX) {
+        segZ(x, -D2, hole.minZ);
+        segZ(x, hole.maxZ, D2);
+      } else segZ(x, -D2, D2);
+    }
+    for (let z = -D2 + 1; z < D2; z += 1) {
+      if (hole && z > hole.minZ && z < hole.maxZ) {
+        segX(z, -W2, hole.minX);
+        segX(z, hole.maxX, W2);
+      } else segX(z, -W2, W2);
+    }
     return merge(p);
-  }, [width, depth, floor, height]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, depth, floor, height, holeKey]);
   return (
     <>
       <mesh geometry={geo} material={FLAT} />

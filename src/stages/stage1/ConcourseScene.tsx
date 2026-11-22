@@ -19,7 +19,7 @@ import { Interactable } from "@/three/Interactable";
 import { Crowd, Walkers } from "@/three/Crowd";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
 import { useLayout, type Rect } from "@/three/layout";
-import { walkTo } from "@/three/player";
+import { cameraAim, walkTo } from "@/three/player";
 
 /**
  * 天王寺駅の地下（改札の外）。路線図・券売機（グレーはきっぷだけ、ピンクが定期券）・改札（御堂筋線と谷町線）・JR へののりかえ口。
@@ -31,7 +31,9 @@ import { walkTo } from "@/three/player";
 const UNPAID: Rect = { minX: -13.5, maxX: 13.8, minZ: -7.0, maxZ: 0.3 };
 /** 御堂筋線の改札の通り道（改札を通るときだけ歩ける）。 */
 const GATE_LANE: Rect = { minX: -5.4, maxX: -3.8, minZ: -0.6, maxZ: 0.6 };
-const PAID_M: Rect = { minX: -7.3, maxX: -2.7, minZ: 0.3, maxZ: 6.4 };
+const PAID_M: Rect = { minX: -7.3, maxX: -2.7, minZ: 0.3, maxZ: 4.3 };
+/** ホームへ下りる階段の穴（改札の中の南がわ）。 */
+const STAIR_HOLE = { minX: -6.4, maxX: -3.6, minZ: 4.6, maxZ: 7.95 };
 
 export function ConcourseScene() {
   useSceneLayout({
@@ -66,6 +68,8 @@ export function ConcourseScene() {
           // （一度入ったら外へもどれない。tomy さん 2026-11-22）
           useLayout.setState({ walk: [GATE_LANE, PAID_M] });
           walkTo(-4.6, 2.6, () => useLayout.setState({ walk: [PAID_M] }));
+          // 改札を通ったら、正面（南）のホームへの階段と案内板が見える向きにする
+          cameraAim.yaw = 0;
         }
       }),
     [],
@@ -83,7 +87,27 @@ export function ConcourseScene() {
         // 御堂筋線と谷町線の改札の中を分けるかべ
         block(0.25, 3.4, 7, "#e3e6ea", { pos: [1, 0, 4.6] }),
         // ホームへの階段
-        stairs(8, 3.0, -0.25, 0.4, "#c9cdd3", { pos: [-5, 0, 6.2], rot: [0, Math.PI, 0] }),
+        // ホームへ下りる階段（床の穴の中を、南へ下りていく。tomy さん 2026-11-22「階段が登りしかない」）
+        ...Array.from({ length: 10 }, (_, i) =>
+          block(2.8, 3.4 - 0.3 * (i + 1), 0.335, i % 2 ? "#c3c7cd" : "#cfd3d9", {
+            pos: [-5, -3.4, STAIR_HOLE.minZ + 0.17 + i * 0.335],
+          }),
+        ),
+        // 階段の両がわと奥のかべ（床より下）
+        box(0.1, 3.4, 3.4, "#e6e8ea", { pos: [STAIR_HOLE.minX - 0.05, -1.7, 6.27] }),
+        box(0.1, 3.4, 3.4, "#e6e8ea", { pos: [STAIR_HOLE.maxX + 0.05, -1.7, 6.27] }),
+        box(2.9, 3.4, 0.1, "#e6e8ea", { pos: [-5, -1.7, STAIR_HOLE.maxZ] }),
+        // 穴のまわりの低いかべ（横）と、下りる手すり
+        block(0.14, 1.0, 3.4, "#d4d8de", { pos: [STAIR_HOLE.minX - 0.07, 0, 6.27] }),
+        block(0.14, 1.0, 3.4, "#d4d8de", { pos: [STAIR_HOLE.maxX + 0.07, 0, 6.27] }),
+        box(0.06, 0.06, 4.6, "#b9bec6", {
+          pos: [-6.2, -0.75, 6.27],
+          rot: [Math.atan2(3.0, 3.35), 0, 0],
+        }),
+        box(0.06, 0.06, 4.6, "#b9bec6", {
+          pos: [-3.8, -0.75, 6.27],
+          rot: [Math.atan2(3.0, 3.35), 0, 0],
+        }),
         // JR へののりかえ口（東のかべの通路）
         box(0.3, 2.6, 3, "#5a6170", { pos: [14.85, 1.3, -4] }),
       ]),
@@ -99,6 +123,7 @@ export function ConcourseScene() {
       <Hall
         width={30}
         depth={16}
+        hole={STAIR_HOLE}
         pillars={[
           [-9, -2],
           [0, -3],
@@ -263,15 +288,23 @@ export function ConcourseScene() {
         width={3}
         spec={{ lines: [], text: t("sign.jr"), en: "JR Lines", arrow: "right", tone: "yellow" }}
       />
+      {/* 階段の上の案内: 御堂筋線 ホーム ↓（改札を通ると正面に見える） */}
       <HangingSign
-        position={[-5, 2.85, 5.2]}
-        width={3}
-        spec={{ lines: ["M"], text: t("sign.track"), en: "Platform", arrow: "down", tone: "navy" }}
+        position={[-5, 2.9, 4.5]}
+        width={3.2}
+        height={0.5}
+        spec={{
+          lines: ["M"],
+          text: `${LINE.M?.name ?? ""} ${t("sign.platform")}`,
+          en: "To platforms",
+          arrow: "down",
+          tone: "navy",
+        }}
       />
 
-      <Interactable id="platform-stairs" approach={[-5, 5.4]} marker={[-5, 1.6, 6.6]}>
-        <mesh position={[-5, 0.5, 6.9]}>
-          <boxGeometry args={[3, 1, 1.4]} />
+      <Interactable id="platform-stairs" approach={[-5, 4.1]} marker={[-5, 0.9, 5.6]}>
+        <mesh position={[-5, -0.6, 6.27]}>
+          <boxGeometry args={[2.8, 1.6, 3.3]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       </Interactable>
@@ -283,7 +316,7 @@ export function ConcourseScene() {
           { pos: [8, 0, -1], yaw: 2.2 },
           { pos: [-10, 0, -1.5], yaw: 1.2, casual: true },
           { pos: [10.5, 0, -5], yaw: -1.4, casual: true },
-          { pos: [-3.2, 0, 4], yaw: Math.PI },
+          { pos: [-6.7, 0, 3.4], yaw: Math.PI / 2 },
         ]}
       />
       <Ready />
