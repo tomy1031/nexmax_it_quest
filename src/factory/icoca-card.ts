@@ -45,7 +45,8 @@ export function passPrice(months = 3): number {
 /** 券面に出る字（字体の読みこみ待ちに使う）。 */
 export function passFontText(info: PassInfo): string {
   return [
-    t("pass.kind"),
+    t("pass.cardKind", { n: 3 }),
+    t("pass.issuer"),
     t("pass.via"),
     t("pass.from"),
     t("pass.until"),
@@ -59,76 +60,92 @@ export function passFontText(info: PassInfo): string {
   ].join("");
 }
 
+/** 券面の日付（2026.11.22。1けたの月・日は「-2」のように前に「-」を付ける。本物の券面の書き方）。 */
+function dot(d: Date): string {
+  const pad = (n: number) => (n < 10 ? `-${n}` : String(n));
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
+}
+
+/**
+ * 券面。tomy さんの見本（JR 西日本の ICOCA 定期券の券面。2026-11-22）の並びに合わせる:
+ *   左上に下線つきの券の種類（通勤3箇月）・右上に番号／大きく区間（天王寺 ↔ 阿波座）／経由／
+ *   とても大きく有効期限（2027.-2.21 まで）／左下に金額と発行日／下のまん中に発行した会社・駅と名前。
+ *   地は水色、外わくだけの大きな「ICOCA」の字。キャラクターの絵は描かない。
+ */
 export function drawIcocaCard(ctx: CanvasRenderingContext2D, w: number, h: number, info: PassInfo) {
   const months = info.months ?? 3;
-  // 地（水色）と右はしの灰色の帯
+  // 地（水色）と右はしの灰色の帯・うすい灰色のふち
   ctx.save();
-  roundRect(ctx, 0, 0, w, h, h * 0.07);
+  roundRect(ctx, 0, 0, w, h, h * 0.06);
   ctx.clip();
-  const g = ctx.createLinearGradient(0, 0, w, h);
-  g.addColorStop(0, "#5fd3ea");
-  g.addColorStop(1, "#2fb8d6");
-  ctx.fillStyle = g;
+  ctx.fillStyle = "#5cc7e3";
   ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = "#cfd4d9";
-  ctx.fillRect(w * 0.94, 0, w * 0.06, h);
+  ctx.fillStyle = "#d9dee2";
+  ctx.fillRect(w * 0.955, 0, w * 0.045, h);
   // 左上の小さな三角（カードの向きのしるし）
-  ctx.fillStyle = "#1d6fb8";
+  ctx.fillStyle = "#e8f8fd";
   ctx.beginPath();
-  ctx.moveTo(w * 0.035, h * 0.06);
-  ctx.lineTo(w * 0.065, h * 0.035);
-  ctx.lineTo(w * 0.065, h * 0.085);
+  ctx.moveTo(w * 0.018, h * 0.05);
+  ctx.lineTo(w * 0.045, h * 0.025);
+  ctx.lineTo(w * 0.045, h * 0.075);
   ctx.closePath();
   ctx.fill();
-  // 大きく薄い ICOCA の字
-  ctx.fillStyle = "rgba(255,255,255,0.38)";
-  ctx.font = `italic 900 ${h * 0.44}px ${FONT_FAMILY}`;
+  // 外わくだけの大きな ICOCA の字
+  ctx.font = `800 ${h * 0.36}px ${FONT_FAMILY}`;
   ctx.textAlign = "center";
-  ctx.fillText("ICOCA", w * 0.48, h * 0.72);
+  ctx.lineWidth = h * 0.012;
+  ctx.strokeStyle = "rgba(235,250,255,0.85)";
+  ctx.strokeText("ICOCA", w * 0.5, h * 0.66);
   ctx.textAlign = "left";
   ctx.restore();
+  ctx.lineWidth = h * 0.006;
+  ctx.strokeStyle = "#c3ccd2";
+  roundRect(ctx, h * 0.003, h * 0.003, w - h * 0.006, h - h * 0.006, h * 0.06);
+  ctx.stroke();
 
-  if (!info.pass) {
-    ctx.fillStyle = NAVY;
-    ctx.font = `900 ${h * 0.1}px sans-serif`;
-    ctx.fillText("ICOCA", w * 0.07, h * 0.2);
-    return;
-  }
+  if (!info.pass) return;
 
-  const ruby = { color: NAVY, rubyColor: NAVY };
-  // 会社名・券の種類・金額
+  const ink = { color: NAVY, rubyColor: NAVY, weight: 500 };
+  // 左上: 券の種類（下線つき）・右上: 番号
+  const kind = t("pass.cardKind", { n: months });
+  const kw = drawRuby(ctx, kind, w * 0.07, h * 0.2, { size: h * 0.058, ...ink });
   ctx.fillStyle = NAVY;
-  ctx.font = `800 ${h * 0.085}px sans-serif`;
-  ctx.fillText("Osaka Metro", w * 0.06, h * 0.16);
-  drawRuby(ctx, t("pass.kind"), w * 0.06, h * 0.29, { size: h * 0.065, ...ruby });
-  drawRuby(ctx, `${passPrice(months)} ${t("tm.yen")}`, w * 0.9, h * 0.29, {
-    size: h * 0.075,
-    align: "right",
-    ...ruby,
-  });
+  ctx.fillRect(w * 0.07, h * 0.215, kw, h * 0.006);
+  ctx.font = `500 ${h * 0.058}px ${FONT_FAMILY}`;
+  ctx.textAlign = "right";
+  ctx.fillText("00000", w * 0.92, h * 0.12);
+  ctx.textAlign = "left";
   // 区間（大きく）
   const from = STATION.tennoji?.name ?? "";
   const to = STATION.awaza?.name ?? "";
-  drawRuby(ctx, from, w * 0.06, h * 0.49, { size: h * 0.13, ...ruby });
-  ctx.fillStyle = NAVY;
-  ctx.fillRect(w * 0.4, h * 0.435, w * 0.1, h * 0.012);
-  drawRuby(ctx, to, w * 0.55, h * 0.49, { size: h * 0.13, ...ruby });
+  drawRuby(ctx, `${from} \u2194 ${to}`, w * 0.06, h * 0.42, { size: h * 0.13, ...ink });
   // 経由
-  drawRuby(ctx, t("pass.via"), w * 0.06, h * 0.6, { size: h * 0.05, ...ruby });
-  // 通用期間: 「〜から」と大きく「〜まで」
+  drawRuby(ctx, t("pass.via"), w * 0.06, h * 0.52, { size: h * 0.048, ...ink });
+  // 有効期限（とても大きく）と「まで」
   const { from: d0, until: d1 } = passPeriod(info.start, months);
-  drawRuby(ctx, `${ymd(d0)}${t("pass.from")}`, w * 0.06, h * 0.73, { size: h * 0.045, ...ruby });
-  drawRuby(ctx, `${ymd(d1)}${t("pass.until")}`, w * 0.36, h * 0.75, { size: h * 0.085, ...ruby });
-  // 発行日・名前・しるし
-  drawRuby(ctx, ymd(d0), w * 0.06, h * 0.86, { size: h * 0.045, ...ruby });
-  drawRuby(ctx, `${info.name || "-"} ${t("pass.sama")}`, w * 0.36, h * 0.93, {
-    size: h * 0.055,
-    ...ruby,
-  });
+  const [yy, ...md] = dot(d1).split(".");
   ctx.fillStyle = NAVY;
-  for (let i = 0; i < 4; i += 1) {
-    ctx.beginPath();
-    ctx.arc(w * (0.78 + i * 0.035), h * 0.915, h * 0.014, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.font = `400 ${h * 0.13}px ${FONT_FAMILY}`;
+  ctx.fillText(`${yy}.`, w * 0.06, h * 0.77);
+  const yw = ctx.measureText(`${yy}.`).width;
+  ctx.font = `400 ${h * 0.25}px ${FONT_FAMILY}`;
+  ctx.fillText(md.join("."), w * 0.06 + yw, h * 0.77);
+  drawRuby(ctx, t("pass.until"), w * 0.84, h * 0.77, { size: h * 0.048, ...ink });
+  // 左下: 金額・発行日
+  ctx.font = `500 ${h * 0.062}px ${FONT_FAMILY}`;
+  ctx.fillText(`\u00a5${passPrice(months).toLocaleString()}`, w * 0.06, h * 0.87);
+  ctx.font = `500 ${h * 0.05}px ${FONT_FAMILY}`;
+  ctx.fillText(dot(d0), w * 0.06, h * 0.955);
+  // 下のまん中: 発行した会社・駅と、名前
+  drawRuby(
+    ctx,
+    `${t("pass.issuer")}  ${STATION.tennoji?.name ?? ""}${t("sign.station")}#1`,
+    w * 0.4,
+    h * 0.87,
+    { size: h * 0.048, ...ink },
+  );
+  drawRuby(ctx, `${info.name || "-"}${t("pass.sama")}  *00`, w * 0.46, h * 0.955, {
+    size: h * 0.05,
+    ...ink,
+  });
 }

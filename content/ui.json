@@ -256,6 +256,8 @@
     "pass.from": "から",
     "pass.until": "まで",
     "pass.sama": "様",
+    "pass.cardKind": "通勤%n%箇月",
+    "pass.issuer": "オオサカメトロ",
     "pass.date": "%y%年%m%月%d%日",
     "pass.sampleName": "ソク ピセット",
 
