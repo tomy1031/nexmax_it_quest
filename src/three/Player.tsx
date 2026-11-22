@@ -8,6 +8,8 @@ import { Chibi, type ChibiMotion } from "@/three/Chibi";
 import { insideWalk, useLayout } from "@/three/layout";
 import { placePlayer, player } from "@/three/player";
 import { cameraYaw } from "@/three/CameraRig";
+import type { Expression } from "@/three/chibi";
+import { expressionOf } from "@/three/expression";
 
 const SPEED = 2.1; // m/s（実際の歩く速さの 1.5 倍くらい。操作と操作の間の歩きを短くする）
 
@@ -19,6 +21,16 @@ export function Player() {
   const spawn = usePlay((s) => s.spawn);
   const sceneKey = usePlay((s) => s.sceneKey);
   const showPlayer = useLayout((s) => s.showPlayer);
+  // 自分のセリフに合わせた表情（びっくり・考える・にこにこ）。判定で「不正解」のときは考える顔
+  const line = usePlay((s) => s.line);
+  const verdict = usePlay((s) => s.verdict);
+  const expression: Expression = verdict
+    ? verdict.ok
+      ? "happy"
+      : "thinking"
+    : line?.who === "me"
+      ? expressionOf(line.text)
+      : "normal";
   const keys = useRef(new Set<string>());
   const inside = useRef(new Set<string>());
 
@@ -142,7 +154,7 @@ export function Player() {
   return (
     <group ref={group} visible={showPlayer}>
       <Suspense fallback={null}>
-        <Chibi config={avatar} motionRef={motion} />
+        <Chibi config={avatar} motionRef={motion} expression={expression} />
       </Suspense>
     </group>
   );

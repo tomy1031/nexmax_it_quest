@@ -438,9 +438,16 @@ const faceCache = new Map<string, THREE.CanvasTexture>();
  * 顔の絵。球の貼り方では、絵の横 1/4 の所が顔の正面（+z）になる。
  * 目・まゆ・口・ほっぺ。open=false はまばたき（目を閉じた絵）。
  */
-export function faceTexture(cfg: AvatarConfig, open: boolean): THREE.CanvasTexture {
+/** 表情（Codex の参考の絵の4つ: ふつう・にこにこ・びっくり・考える）。 */
+export type Expression = "normal" | "happy" | "surprised" | "thinking";
+
+export function faceTexture(
+  cfg: AvatarConfig,
+  open: boolean,
+  expr: Expression = "normal",
+): THREE.CanvasTexture {
   const eyes = (cfg.eyes ?? "round") as EyeStyle;
-  const key = `${cfg.skin}|${cfg.hair}|${eyes}|${cfg.blush ?? true}|${cfg.figure}|${open}`;
+  const key = `${cfg.skin}|${cfg.hair}|${eyes}|${cfg.blush ?? true}|${cfg.figure}|${open}|${expr}`;
   const hit = faceCache.get(key);
   if (hit) return hit;
   const W = 1024;
@@ -470,9 +477,17 @@ export function faceTexture(cfg: AvatarConfig, open: boolean): THREE.CanvasTextu
   ctx.lineCap = "round";
   ctx.lineWidth = W * 0.005;
   for (const sx of [-1, 1]) {
+    // びっくり: まゆを上げる。考える: 右のまゆだけ上げて、ななめに
+    const lift = expr === "surprised" ? -H * 0.035 : expr === "thinking" && sx > 0 ? -H * 0.03 : 0;
+    const tilt = expr === "thinking" ? sx * H * 0.012 : 0;
     ctx.beginPath();
-    ctx.moveTo(cx + sx * gap - W * 0.014, H * 0.405);
-    ctx.quadraticCurveTo(cx + sx * gap, H * 0.39, cx + sx * gap + W * 0.014, H * 0.405);
+    ctx.moveTo(cx + sx * gap - W * 0.014, H * 0.405 + lift - tilt);
+    ctx.quadraticCurveTo(
+      cx + sx * gap,
+      H * 0.39 + lift,
+      cx + sx * gap + W * 0.014,
+      H * 0.405 + lift + tilt,
+    );
     ctx.stroke();
   }
   // 目
@@ -481,7 +496,7 @@ export function faceTexture(cfg: AvatarConfig, open: boolean): THREE.CanvasTextu
   ctx.lineWidth = W * 0.009;
   for (const sx of [-1, 1]) {
     const x = cx + sx * gap;
-    if (!open || eyes === "smile") {
+    if (!open || eyes === "smile" || expr === "happy") {
       ctx.beginPath();
       ctx.arc(x, ey + H * 0.02, W * 0.022, Math.PI * 1.1, Math.PI * 1.9);
       ctx.stroke();
@@ -496,23 +511,32 @@ export function faceTexture(cfg: AvatarConfig, open: boolean): THREE.CanvasTextu
       ctx.fillStyle = ink;
       continue;
     }
-    const rx = eyes === "sparkle" ? W * 0.028 : W * 0.025;
-    const ry = eyes === "sparkle" ? H * 0.085 : H * 0.078;
+    // びっくり: 少し小さく まるい目。考える: 黒目が上を見る
+    const big = expr === "surprised" ? 0.85 : 1;
+    const rx = (eyes === "sparkle" ? W * 0.028 : W * 0.025) * big;
+    const ry = (eyes === "sparkle" ? H * 0.085 : H * 0.078) * big;
+    const lookUp = expr === "thinking" ? -H * 0.012 : 0;
     // 黒目（こげ茶のふち＋黒）
     ctx.beginPath();
-    ctx.ellipse(x, ey, rx, ry, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, ey + lookUp, rx, ry, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#4a2e22";
     ctx.beginPath();
-    ctx.ellipse(x, ey + ry * 0.35, rx * 0.7, ry * 0.45, 0, 0, Math.PI);
+    ctx.ellipse(x, ey + lookUp + ry * 0.35, rx * 0.7, ry * 0.45, 0, 0, Math.PI);
     ctx.fill();
     // 光（大きい光と小さい光の2つ）
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
-    ctx.ellipse(x - rx * 0.28, ey - ry * 0.38, rx * 0.36, ry * 0.3, 0, 0, Math.PI * 2);
+    ctx.ellipse(x - rx * 0.28, ey + lookUp - ry * 0.38, rx * 0.36, ry * 0.3, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(x + rx * 0.32, ey + ry * 0.3, rx * (eyes === "sparkle" ? 0.24 : 0.16), 0, Math.PI * 2);
+    ctx.arc(
+      x + rx * 0.32,
+      ey + lookUp + ry * 0.3,
+      rx * (eyes === "sparkle" ? 0.24 : 0.16),
+      0,
+      Math.PI * 2,
+    );
     ctx.fill();
     // まつげ（女性の顔は、目の外がわに小さく）
     if (cfg.figure === "f") {
@@ -525,12 +549,36 @@ export function faceTexture(cfg: AvatarConfig, open: boolean): THREE.CanvasTextu
     }
     ctx.fillStyle = ink;
   }
-  // 口（小さな にっこり）
+  // 口
   ctx.strokeStyle = "#5a2b24";
   ctx.lineWidth = W * 0.006;
-  ctx.beginPath();
-  ctx.arc(cx, H * 0.63, W * 0.013, Math.PI * 0.15, Math.PI * 0.85);
-  ctx.stroke();
+  if (expr === "happy") {
+    // 大きく笑った口（赤い口と、したの ピンク）
+    ctx.fillStyle = "#8a2f2a";
+    ctx.beginPath();
+    ctx.arc(cx, H * 0.625, W * 0.02, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#ff8f8f";
+    ctx.beginPath();
+    ctx.ellipse(cx, H * 0.66, W * 0.011, H * 0.012, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (expr === "surprised") {
+    ctx.fillStyle = "#8a2f2a";
+    ctx.beginPath();
+    ctx.ellipse(cx, H * 0.645, W * 0.009, H * 0.026, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (expr === "thinking") {
+    // 小さく むっと した口
+    ctx.beginPath();
+    ctx.moveTo(cx - W * 0.012, H * 0.645);
+    ctx.quadraticCurveTo(cx, H * 0.635, cx + W * 0.012, H * 0.645);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.arc(cx, H * 0.63, W * 0.013, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.stroke();
+  }
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;

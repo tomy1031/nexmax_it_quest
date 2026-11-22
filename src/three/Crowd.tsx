@@ -108,6 +108,7 @@ function Npc({ spec, index, stare }: { spec: NpcSpec; index: number; stare: bool
           motion={stare ? "surprised" : still}
           phase={(index * 0.37) % 1}
           holding={stare && holding === "phone" ? undefined : holding}
+          expression={stare ? "surprised" : "normal"}
         />
       </Suspense>
       {stare && <Exclaim />}

@@ -38,3 +38,17 @@ describe("名前はカタカナ", () => {
     expect(isKatakanaName(n)).toBe(false),
   );
 });
+
+import { expressionOf } from "@/three/expression";
+
+describe("セリフの文から表情を決める", () => {
+  it.each([
+    ["あっ、点滅して いる！", "surprised"],
+    ["あれ？ ずっと 赤の ままだ。", "surprised"],
+    ["うーん…… 何の 音？", "thinking"],
+    ["7時だ。今日は 大事な 日！", "happy"],
+    ["地下の 駅だ。", "normal"],
+  ])("%s → %s", (text, want) => {
+    expect(expressionOf(text)).toBe(want);
+  });
+});

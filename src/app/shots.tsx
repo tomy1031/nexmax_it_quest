@@ -364,3 +364,28 @@ SHOTS["avatars-ref"] = {
     </>
   ),
 };
+
+/** 見本（開発用）: 表情4つ（ふつう・にこにこ・びっくり・考える）。/factory?shot=faces */
+SHOTS.faces = {
+  camera: { pos: [0, 0.95, 2.6], look: [0, 0.85, 0], fov: 34 },
+  light: "day",
+  scene: () => (
+    <>
+      {(["normal", "happy", "surprised", "thinking"] as const).map((e, i) => (
+        <group key={e} position={[-1.05 + i * 0.7, 0, 0]}>
+          <Chibi
+            config={{
+              ...DEFAULT_AVATAR,
+              outfit: "suit",
+              figure: i % 2 ? "f" : "m",
+              hairStyle: i % 2 ? "bob" : "side",
+              hair: "#4a3326",
+            }}
+            expression={e}
+            phase={0.3}
+          />
+        </group>
+      ))}
+    </>
+  ),
+};

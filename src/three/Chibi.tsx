@@ -9,6 +9,7 @@ import {
   CHIBI_JOINTS,
   faceTexture,
   HEAD,
+  type Expression,
 } from "@/three/chibi";
 import { useSettings } from "@/lib/store";
 
@@ -37,12 +38,15 @@ export function Chibi({
   motionRef,
   phase = 0,
   holding,
+  expression = "normal",
 }: {
   config: AvatarConfig;
   motion?: ChibiMotion;
   motionRef?: React.RefObject<ChibiMotion>;
   phase?: number;
   holding?: ChibiHolding;
+  /** 表情（セリフや場面に合わせて変える）。 */
+  expression?: Expression;
 }) {
   const key = JSON.stringify(config);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,8 +58,11 @@ export function Chibi({
     [parts],
   );
 
-  const faceOpen = useMemo(() => faceTexture(config, true), [config]);
-  const faceClosed = useMemo(() => faceTexture(config, false), [config]);
+  const faceOpen = useMemo(() => faceTexture(config, true, expression), [config, expression]);
+  const faceClosed = useMemo(
+    () => faceTexture(config, false, expression === "happy" ? "happy" : "normal"),
+    [config, expression],
+  );
   const faceMat = useMemo(
     () => new THREE.MeshToonMaterial({ map: faceOpen, gradientMap: chibiMaterial().gradientMap }),
     [faceOpen],
