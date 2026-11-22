@@ -33,10 +33,12 @@ const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"]
 const STYLES: AvatarConfig["hairStyle"][] = [
   "model",
   "bob",
+  "wavy",
   "spiky",
   "long",
   "side",
   "ponytail",
+  "curly",
   "bun",
   "twin",
 ];

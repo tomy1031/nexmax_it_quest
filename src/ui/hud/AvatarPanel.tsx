@@ -31,7 +31,8 @@ type Tab =
   | "coat"
   | "pants"
   | "accessory"
-  | "bag";
+  | "bag"
+  | "shoes";
 
 const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["round", "avatar.eyes.round"],
@@ -44,6 +45,8 @@ const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["model", "avatar.hs.model"],
   ["spiky", "avatar.hs.spiky"],
   ["side", "avatar.hs.side"],
+  ["wavy", "avatar.hs.wavy"],
+  ["curly", "avatar.hs.curly"],
   ["bob", "avatar.hs.bob"],
   ["long", "avatar.hs.long"],
   ["ponytail", "avatar.hs.ponytail"],
@@ -66,6 +69,8 @@ const TIES = ["#1f3f7a", "#8a1c2b", "#2d5e3a", "#5a3e8a", "#c9a227", "#222222"];
 const SHIRTS = ["#f4f6f8", "#dfefff", "#fff2f7"];
 const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"];
 const PANTS = ["#3a3d44", "#2a3550", "#6b5a45", "#20232a"];
+const SHOES_SUIT = ["#24201f", "#4a2e20", "#2a2f3a"];
+const SHOES_CASUAL = ["#f4f4f2", "#24201f", "#d94b4b", "#3b6ea5", "#e8c547"];
 
 const LABEL: Record<Tab, UiKey> = {
   outfit: "avatar.outfit",
@@ -83,6 +88,7 @@ const LABEL: Record<Tab, UiKey> = {
   pants: "avatar.pants",
   accessory: "avatar.accessory",
   bag: "avatar.bag",
+  shoes: "avatar.shoes",
 };
 
 /** タブごとのカメラの寄り（体の高さ・距離）。 */
@@ -102,6 +108,7 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
   pants: { y: 0.35, d: 1.6 },
   accessory: { y: 0.95, d: 1.6 },
   bag: { y: 0.6, d: 1.9 },
+  shoes: { y: 0.12, d: 1.4 },
 };
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
@@ -126,6 +133,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "suit",
           "tie",
           "shirt",
+          "shoes",
         ]
       : [
           "outfit",
@@ -138,6 +146,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "glasses",
           "coat",
           "pants",
+          "shoes",
           "bag",
         ];
 
@@ -155,6 +164,8 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         "model",
         "spiky",
         "side",
+        "wavy",
+        "curly",
         "bob",
         "long",
         "ponytail",
@@ -380,6 +391,8 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           {tab === "shirt" && swatches(SHIRTS, "shirt")}
           {tab === "coat" && swatches(COATS, "coat")}
           {tab === "pants" && swatches(PANTS, "pants")}
+          {tab === "shoes" &&
+            swatches(avatar.outfit === "suit" ? SHOES_SUIT : SHOES_CASUAL, "shoes")}
         </div>
         {warn && (
           <p

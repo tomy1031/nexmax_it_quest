@@ -7,7 +7,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
  */
 
 export type Outfit = "suit" | "casual";
-export type HairStyle = "model" | "spiky" | "side" | "bob" | "long" | "ponytail" | "twin" | "bun";
+export type HairStyle =
+  "model" | "spiky" | "side" | "wavy" | "curly" | "bob" | "long" | "ponytail" | "twin" | "bun";
 export type Figure = "m" | "f";
 
 export interface AvatarConfig {
@@ -27,6 +28,8 @@ export interface AvatarConfig {
   accessory?: "none" | "flower" | "ribbon";
   /** ふだんの服のときのリュック。 */
   bag?: boolean;
+  /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
+  shoes?: string;
   suit: string;
   shirt: string;
   tie: string;

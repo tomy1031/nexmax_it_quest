@@ -180,7 +180,7 @@ export function buildChibi(cfg: AvatarConfig): ChibiParts {
   const skirt = suit && female;
   const top = suit ? cfg.suit : cfg.coat;
   const bottom = suit ? cfg.suit : cfg.pants;
-  const shoe = suit ? "#24201f" : "#f4f4f2";
+  const shoe = cfg.shoes ?? (suit ? "#24201f" : "#f4f4f2");
   const sole = suit ? "#111" : "#b9bcc2";
   const stockings = "#3b302c";
 
@@ -340,6 +340,51 @@ export function buildChibi(cfg: AvatarConfig): ChibiParts {
       );
       extras.push(lock(0.75, 0.95, 0.1, 0.06));
       extras.push(sphere(0.11, hair, [-0.06, R * 0.97, 0.06], [1.4, 0.6, 1]));
+      break;
+    case "wavy":
+      // ふわっとした くせ毛（参考の絵の男の人）。毛先が いろいろな向きに はねる
+      extras.push(crown(1.13), backHair(0.64), shineSpot());
+      extras.push(
+        lock(0.6, -1.0, 0.11, 0.075),
+        lock(0.52, -0.55, 0.14, 0.085),
+        lock(0.5, -0.05, 0.15, 0.09),
+        lock(0.53, 0.45, 0.13, 0.085),
+        lock(0.62, 0.95, 0.11, 0.075),
+        lock(0.85, 1.35, 0.1, 0.06),
+        lock(0.85, -1.35, 0.1, 0.06),
+      );
+      for (let i = 0; i < 7; i += 1) {
+        const a = (i / 7) * Math.PI * 2;
+        extras.push(
+          sphere(
+            0.07,
+            hair,
+            [Math.sin(a) * 0.15, R * 0.93 + (i % 2) * 0.02, Math.cos(a) * 0.12 - 0.02],
+            [1.1, 0.7, 1],
+          ),
+        );
+      }
+      extras.push(sphere(0.05, hair, [0.1, R * 1.02, 0.12], [0.8, 1.3, 0.7]));
+      break;
+    case "curly":
+      // まき毛（小さな まるい毛の かたまりを、頭の上と横に たくさん）
+      extras.push(crown(1.02), backHair(0.6));
+      for (let ring = 0; ring < 4; ring += 1) {
+        const theta = 0.12 + ring * 0.27;
+        const n = 5 + ring * 4;
+        for (let i = 0; i < n; i += 1) {
+          const phi = (i / n) * Math.PI * 2 + ring * 0.3;
+          if (ring >= 2 && Math.cos(phi) > 0.5) continue; // 顔の前は あける
+          const p0 = surf(theta, phi, 1.1);
+          const tone = i % 3 === 0 ? lighter(hair, 0.1) : hair;
+          extras.push(sphere(0.068, tone, [p0.x, p0.y, p0.z]));
+        }
+      }
+      // 額の上の小さな まき毛
+      for (let i = 0; i < 5; i += 1) {
+        const p0 = surf(0.62, -0.9 + i * 0.45, 1.06);
+        extras.push(sphere(0.05, hair, [p0.x, p0.y, p0.z]));
+      }
       break;
     case "bob":
       extras.push(crown(1.12), ...bangs(), shineSpot());

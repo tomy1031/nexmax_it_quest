@@ -235,16 +235,27 @@ export const SHOTS: Record<string, ShotDef> = {
 };
 
 const HENDY = charactersJson.characters[0]!.look as AvatarConfig;
-const STYLES: HairStyle[] = ["model", "spiky", "side", "bob", "long", "ponytail", "twin", "bun"];
+const STYLES: HairStyle[] = [
+  "model",
+  "spiky",
+  "side",
+  "wavy",
+  "curly",
+  "bob",
+  "long",
+  "ponytail",
+  "twin",
+  "bun",
+];
 
 /** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */
 SHOTS.avatars = {
-  camera: { pos: [0.4, 0.95, 6.6], look: [0.4, 0.62, 0], fov: 42 },
+  camera: { pos: [0.45, 0.95, 7.8], look: [0.45, 0.62, 0], fov: 42 },
   light: "day",
   scene: () => (
     <>
       {STYLES.map((hs, i) => (
-        <group key={hs} position={[-3.15 + i * 0.9, 0, 0]}>
+        <group key={hs} position={[-4.05 + i * 0.9, 0, 0]}>
           <Chibi
             config={{
               ...DEFAULT_AVATAR,
@@ -261,7 +272,7 @@ SHOTS.avatars = {
           />
         </group>
       ))}
-      <group position={[3.9, 0, 0]}>
+      <group position={[4.95, 0, 0]}>
         <Chibi config={HENDY} />
       </group>
     </>
@@ -384,6 +395,27 @@ SHOTS.faces = {
             expression={e}
             phase={0.3}
           />
+        </group>
+      ))}
+    </>
+  ),
+};
+
+/** 見本（開発用）: ふわふわ・くるくるの髪と、くつの色。/factory?shot=hair-new */
+SHOTS["hair-new"] = {
+  camera: { pos: [0, 0.8, 3.0], look: [0, 0.6, 0], fov: 38 },
+  light: "day",
+  scene: () => (
+    <>
+      {(
+        [
+          { hairStyle: "wavy", outfit: "casual", shoes: "#d94b4b" },
+          { hairStyle: "curly", outfit: "casual", figure: "f", shoes: "#3b6ea5" },
+          { hairStyle: "wavy", outfit: "suit", hair: "#5e4030" },
+        ] as const
+      ).map((c, i) => (
+        <group key={i} position={[-0.75 + i * 0.75, 0, 0]} rotation={[0, (i - 1) * -0.3, 0]}>
+          <Chibi config={{ ...DEFAULT_AVATAR, hair: "#4a3326", ...c }} phase={0.2 + i * 0.25} />
         </group>
       ))}
     </>
