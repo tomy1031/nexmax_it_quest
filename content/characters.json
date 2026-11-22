@@ -1,5 +1,5 @@
 {
-  "$comment": "主要キャラの見た目（学生のアバターと同じ形の設定。身長も変えられる）。モブ（まわりの人）は polyfork のモデルのまま、色だけ変える。ヘンディさんは academy の設定画（紺のスーツ・紺のネクタイ・黒い短い髪）に合わせた。",
+  "$comment": "主要キャラの見た目（学生のアバターと同じ形の設定。ちびキャラ工場で作る）。ヘンディさんは academy の設定画（紺のスーツ・紺のネクタイ・黒い短い髪）に合わせ、よこわけの髪にした。",
   "characters": [
     {
       "id": "hendy",
@@ -8,15 +8,18 @@
         "outfit": "suit",
         "figure": "m",
         "skin": "#c68e64",
-        "hair": "#1d1612",
-        "hairStyle": "spiky",
+        "hair": "#241b17",
+        "hairStyle": "side",
         "glasses": false,
         "height": 174,
         "suit": "#232f52",
         "shirt": "#f4f6f8",
         "tie": "#1f3f7a",
         "coat": "#8a8f98",
-        "pants": "#3a3d44"
+        "pants": "#3a3d44",
+        "eyes": "calm",
+        "blush": true,
+        "accessory": "none"
       }
     }
   ]

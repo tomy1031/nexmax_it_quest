@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { DEFAULT_AVATAR, useSettings, type AvatarConfig } from "@/lib/store";
-import { Chibi, type ChibiMotion } from "@/three/Chibi";
+import { Chibi, type ChibiHolding, type ChibiMotion } from "@/three/Chibi";
 
 /**
  * まわりの人（ちびキャラ。色・髪型・身長をばらけさせる）。
@@ -15,6 +15,14 @@ export interface NpcSpec {
   casual?: boolean;
   look?: Partial<AvatarConfig>;
   motion?: ChibiMotion;
+  /** 手に持つ物。null なら何も持たない。無ければ、人ごとに決まった物を持つ。 */
+  holding?: ChibiHolding | null;
+}
+
+/** 人ごとに決まる、持ち物（スーツの人はカバン・ふだんの服の人はスマホかコーヒー）。 */
+export function npcHolding(i: number, outfit: "suit" | "casual"): ChibiHolding | undefined {
+  if (outfit === "suit") return i % 3 === 0 ? "briefcase" : i % 5 === 1 ? "phone" : undefined;
+  return i % 2 === 0 ? "phone" : i % 5 === 3 ? "coffee" : undefined;
 }
 
 const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b"];
@@ -48,6 +56,8 @@ export function npcLook(i: number, outfit: "suit" | "casual"): AvatarConfig {
     suit: SUITS[(i * 3) % SUITS.length]!,
     tie: ["#7a1c2b", "#1f3f7a", "#2d5e3a", "#444"][i % 4]!,
     coat: COATS[(i * 5) % COATS.length]!,
+    accessory: i % 3 === 1 ? (["none", "flower", "ribbon"] as const)[(i * 7) % 3]! : "none",
+    bag: i % 4 !== 2,
   };
 }
 
@@ -69,6 +79,10 @@ function Npc({ spec, index, stare }: { spec: NpcSpec; index: number; stare: bool
     const base = npcLook(index, spec.casual || index % 4 === 3 ? "casual" : "suit");
     return { ...base, ...spec.look };
   }, [index, spec.casual, spec.look]);
+  const holding =
+    spec.holding === null ? undefined : (spec.holding ?? npcHolding(index, cfg.outfit));
+  // スマホを持っている人は、立っている間スマホを見る
+  const still: ChibiMotion = spec.motion ?? (holding === "phone" ? "phone" : "idle");
   const baseYaw = spec.yaw ?? 0;
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
@@ -91,8 +105,9 @@ function Npc({ spec, index, stare }: { spec: NpcSpec; index: number; stare: bool
       <Suspense fallback={null}>
         <Chibi
           config={cfg}
-          motion={stare ? "surprised" : (spec.motion ?? "idle")}
+          motion={stare ? "surprised" : still}
           phase={(index * 0.37) % 1}
+          holding={stare && holding === "phone" ? undefined : holding}
         />
       </Suspense>
       {stare && <Exclaim />}
@@ -140,6 +155,13 @@ export interface WalkerSpec {
   at?: number;
   casual?: boolean;
   look?: Partial<AvatarConfig>;
+  holding?: ChibiHolding | null;
+}
+
+/** 歩く人の持ち物（歩きスマホはしない。カバンかコーヒーだけ）。 */
+function walkerHolding(i: number, outfit: "suit" | "casual"): ChibiHolding | undefined {
+  if (outfit === "suit") return i % 2 === 0 ? "briefcase" : undefined;
+  return i % 3 === 1 ? "coffee" : undefined;
 }
 
 export function Walkers({ people, seed = 0 }: { people: WalkerSpec[]; seed?: number }) {
@@ -191,7 +213,14 @@ function Walker({ spec, index }: { spec: WalkerSpec; index: number }) {
   return (
     <group ref={group} position={[spec.from[0], 0, spec.from[1]]}>
       <Suspense fallback={null}>
-        <Chibi config={cfg} motion="walk" phase={(index * 0.29) % 1} />
+        <Chibi
+          config={cfg}
+          motion="walk"
+          phase={(index * 0.29) % 1}
+          holding={
+            spec.holding === null ? undefined : (spec.holding ?? walkerHolding(index, cfg.outfit))
+          }
+        />
       </Suspense>
     </group>
   );

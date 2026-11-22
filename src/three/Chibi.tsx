@@ -13,7 +13,19 @@ import {
 import { useSettings } from "@/lib/store";
 
 export type ChibiMotion =
-  "idle" | "walk" | "run" | "sitting" | "talking" | "agree" | "bow" | "surprised" | "sleep";
+  | "idle"
+  | "walk"
+  | "run"
+  | "sitting"
+  | "talking"
+  | "agree"
+  | "bow"
+  | "surprised"
+  | "sleep"
+  | "phone";
+
+/** 手に持つ物（まわりの人の くらしの様子）。 */
+export type ChibiHolding = "phone" | "briefcase" | "coffee";
 
 /**
  * ちびキャラ（自分・主要キャラ・まわりの人）。骨を使わず、体・頭・腕・足の部品を回して動かす。
@@ -24,11 +36,13 @@ export function Chibi({
   motion = "idle",
   motionRef,
   phase = 0,
+  holding,
 }: {
   config: AvatarConfig;
   motion?: ChibiMotion;
   motionRef?: React.RefObject<ChibiMotion>;
   phase?: number;
+  holding?: ChibiHolding;
 }) {
   const key = JSON.stringify(config);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,6 +126,14 @@ export function Chibi({
         aL = 0.05;
         aR = -0.05;
         break;
+      case "phone":
+        // スマホを見る: 右手を胸の前に上げ、下を向く
+        aRx = -1.25;
+        aR = 0.25;
+        aLx = -0.35;
+        headPitch = 0.28;
+        bodyY = Math.sin(tt * 2.2) * 0.006;
+        break;
       case "sleep":
         // 寝ている: 手と足をまっすぐ、ゆっくり息をする
         aL = 0.08;
@@ -185,6 +207,7 @@ export function Chibi({
           </group>
           <group ref={armR} position={[-SHOULDER.x, SHOULDER.y, 0]}>
             {part(parts.armR, mat)}
+            {holding && <Held kind={holding} />}
           </group>
         </group>
       </group>
@@ -194,6 +217,57 @@ export function Chibi({
       <group ref={legR} position={[-HIP.x, HIP.y, 0]}>
         {part(parts.legR, mat)}
       </group>
+    </group>
+  );
+}
+
+const heldGeo = {
+  phone: new THREE.BoxGeometry(0.07, 0.012, 0.13),
+  screen: new THREE.PlaneGeometry(0.058, 0.11),
+  case: new THREE.BoxGeometry(0.2, 0.15, 0.05),
+  handle: new THREE.TorusGeometry(0.03, 0.007, 6, 12, Math.PI),
+  cup: new THREE.CylinderGeometry(0.03, 0.024, 0.08, 14),
+  lid: new THREE.CylinderGeometry(0.032, 0.032, 0.012, 14),
+};
+const heldMat = {
+  dark: new THREE.MeshToonMaterial({ color: "#23262d" }),
+  screen: new THREE.MeshBasicMaterial({ color: "#8fd6ff" }),
+  leather: new THREE.MeshToonMaterial({ color: "#3a2a20" }),
+  cup: new THREE.MeshToonMaterial({ color: "#f4efe6" }),
+  sleeve: new THREE.MeshToonMaterial({ color: "#8a5a36" }),
+};
+
+/** 右手に持つ物（手の位置は、肩から 約0.19m 下）。 */
+function Held({ kind }: { kind: ChibiHolding }) {
+  if (kind === "phone")
+    return (
+      <group position={[0, -0.2, 0.06]} rotation={[0.5, 0, 0]}>
+        <mesh geometry={heldGeo.phone} material={heldMat.dark} />
+        <mesh
+          geometry={heldGeo.screen}
+          material={heldMat.screen}
+          position={[0, 0.007, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        />
+      </group>
+    );
+  if (kind === "briefcase")
+    return (
+      <group position={[0, -0.3, 0.01]}>
+        <mesh geometry={heldGeo.case} material={heldMat.leather} rotation={[0, Math.PI / 2, 0]} />
+        <mesh
+          geometry={heldGeo.handle}
+          material={heldMat.dark}
+          position={[0, 0.075, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+        />
+      </group>
+    );
+  return (
+    <group position={[0, -0.21, 0.05]}>
+      <mesh geometry={heldGeo.cup} material={heldMat.cup} />
+      <mesh geometry={heldGeo.cup} material={heldMat.sleeve} scale={[1.04, 0.45, 1.04]} />
+      <mesh geometry={heldGeo.lid} material={heldMat.dark} position={[0, 0.045, 0]} />
     </group>
   );
 }
