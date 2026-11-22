@@ -342,3 +342,25 @@ SHOTS.nexmax = {
     </>
   ),
 };
+
+/** 見本（開発用）: Codex の参考の絵とならべる、スーツの男女とふだんの服。/factory?shot=avatars-ref */
+SHOTS["avatars-ref"] = {
+  camera: { pos: [0, 0.8, 4.2], look: [0, 0.6, 0], fov: 38 },
+  light: "day",
+  scene: () => (
+    <>
+      {(
+        [
+          { outfit: "suit", figure: "m", hairStyle: "side", tie: "#c23a4a" },
+          { outfit: "suit", figure: "f", hairStyle: "bun", tie: "#1f2a5a", accessory: "flower" },
+          { outfit: "casual", figure: "m", hairStyle: "side" },
+          { outfit: "casual", figure: "f", hairStyle: "bun", accessory: "flower" },
+        ] as const
+      ).map((c, i) => (
+        <group key={i} position={[-1.35 + i * 0.9, 0, 0]} rotation={[0, i % 2 ? -0.25 : 0.25, 0]}>
+          <Chibi config={{ ...DEFAULT_AVATAR, suit: "#262d4a", ...c }} phase={0.15 + i * 0.2} />
+        </group>
+      ))}
+    </>
+  ),
+};

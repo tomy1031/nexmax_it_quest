@@ -2,7 +2,15 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { AvatarConfig } from "@/lib/store";
-import { buildChibi, chibiMaterial, CHIBI_JOINTS, faceTexture, HEAD } from "@/three/chibi";
+import {
+  buildChibi,
+  chibiMaterial,
+  chibiOutlineMaterial,
+  CHIBI_JOINTS,
+  faceTexture,
+  HEAD,
+} from "@/three/chibi";
+import { useSettings } from "@/lib/store";
 
 export type ChibiMotion =
   "idle" | "walk" | "run" | "sitting" | "talking" | "agree" | "bow" | "surprised" | "sleep";
@@ -150,6 +158,15 @@ export function Chibi({
   });
 
   const mat = chibiMaterial();
+  // ふちの線（「かるい」設定では描かない）
+  const lowQuality = useSettings((st) => st.quality) === "low";
+  const ol = lowQuality ? null : chibiOutlineMaterial();
+  const part = (g: THREE.BufferGeometry, m: THREE.Material) => (
+    <>
+      <mesh geometry={g} material={m} />
+      {ol && <mesh geometry={g} material={ol} raycast={() => null} />}
+    </>
+  );
   const { SHOULDER, HIP } = CHIBI_JOINTS;
   const scale = (config.height ?? 168) / 168;
 
@@ -158,24 +175,24 @@ export function Chibi({
       {/* 腰を中心に曲げる（おじぎ）ため、体は腰の高さに置き、中身を下げる */}
       <group ref={body} position={[0, HIP.y, 0]}>
         <group position={[0, -HIP.y, 0]}>
-          <mesh geometry={parts.body} material={mat} />
+          {part(parts.body, mat)}
           <group ref={head} position={[0, HEAD.y, 0]}>
-            <mesh geometry={parts.head} material={faceMat} />
-            <mesh geometry={parts.headExtras} material={mat} />
+            {part(parts.head, faceMat)}
+            {part(parts.headExtras, mat)}
           </group>
           <group ref={armL} position={[SHOULDER.x, SHOULDER.y, 0]}>
-            <mesh geometry={parts.armL} material={mat} />
+            {part(parts.armL, mat)}
           </group>
           <group ref={armR} position={[-SHOULDER.x, SHOULDER.y, 0]}>
-            <mesh geometry={parts.armR} material={mat} />
+            {part(parts.armR, mat)}
           </group>
         </group>
       </group>
       <group ref={legL} position={[HIP.x, HIP.y, 0]}>
-        <mesh geometry={parts.legL} material={mat} />
+        {part(parts.legL, mat)}
       </group>
       <group ref={legR} position={[-HIP.x, HIP.y, 0]}>
-        <mesh geometry={parts.legR} material={mat} />
+        {part(parts.legR, mat)}
       </group>
     </group>
   );

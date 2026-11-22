@@ -23,6 +23,10 @@ export interface AvatarConfig {
   eyes: "round" | "smile" | "sparkle" | "calm";
   /** ほっぺの赤み。 */
   blush: boolean;
+  /** 髪のかざり。 */
+  accessory?: "none" | "flower" | "ribbon";
+  /** ふだんの服のときのリュック。 */
+  bag?: boolean;
   suit: string;
   shirt: string;
   tie: string;
@@ -34,12 +38,14 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   outfit: "casual",
   figure: "m",
   skin: "#c68e64",
-  hair: "#1d1612",
+  hair: "#3a2820",
   hairStyle: "model",
   glasses: false,
   height: 168,
   eyes: "round",
   blush: true,
+  accessory: "none",
+  bag: true,
   suit: "#2f3a5e",
   shirt: "#f4f6f8",
   tie: "#1f3f7a",
