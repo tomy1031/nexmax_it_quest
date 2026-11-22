@@ -38,7 +38,7 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   outfit: "casual",
   figure: "m",
   skin: "#c68e64",
-  hair: "#3a2820",
+  hair: "#4a3326",
   hairStyle: "model",
   glasses: false,
   height: 168,

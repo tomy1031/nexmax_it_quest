@@ -29,7 +29,9 @@ type Tab =
   | "tie"
   | "shirt"
   | "coat"
-  | "pants";
+  | "pants"
+  | "accessory"
+  | "bag";
 
 const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["round", "avatar.eyes.round"],
@@ -49,8 +51,15 @@ const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["bun", "avatar.hs.bun"],
 ];
 
+const ACCESSORIES: [NonNullable<AvatarConfig["accessory"]>, UiKey][] = [
+  ["none", "avatar.acc.none"],
+  ["flower", "avatar.acc.flower"],
+  ["ribbon", "avatar.acc.ribbon"],
+];
+
 const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b", "#6b4430"];
-const HAIRS = ["#1d1612", "#3a2618", "#5a3a22", "#7a5230", "#a3a3a3", "#2c3e70"];
+// 髪の色は、参考の絵（codex_out/）のような明るめのこげ茶を多めに
+const HAIRS = ["#2e211b", "#4a3326", "#5e4030", "#7a5236", "#9a7452", "#a3a3a3", "#2c3e70"];
 const SUITS_OK = ["#1c1e24", "#232f52", "#3a3d45", "#5b616c"];
 const SUITS_LOUD = ["#b8312f", "#e8e8e8", "#3f7f4f"];
 const TIES = ["#1f3f7a", "#8a1c2b", "#2d5e3a", "#5a3e8a", "#c9a227", "#222222"];
@@ -72,6 +81,8 @@ const LABEL: Record<Tab, UiKey> = {
   shirt: "avatar.shirt",
   coat: "avatar.coat",
   pants: "avatar.pants",
+  accessory: "avatar.accessory",
+  bag: "avatar.bag",
 };
 
 /** タブごとのカメラの寄り（体の高さ・距離）。 */
@@ -85,10 +96,12 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
   hairStyle: { y: 0.9, d: 1.35 },
   glasses: { y: 0.92, d: 1.0 },
   suit: { y: 0.6, d: 1.8 },
-  tie: { y: 0.62, d: 1.2 },
+  tie: { y: 0.66, d: 1.3 },
   shirt: { y: 0.62, d: 1.3 },
   coat: { y: 0.6, d: 1.8 },
   pants: { y: 0.35, d: 1.6 },
+  accessory: { y: 0.95, d: 1.6 },
+  bag: { y: 0.6, d: 1.9 },
 };
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
@@ -108,6 +121,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "skin",
           "hairStyle",
           "hair",
+          "accessory",
           "glasses",
           "suit",
           "tie",
@@ -120,10 +134,11 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "skin",
           "hairStyle",
           "hair",
+          "accessory",
           "glasses",
           "coat",
-          "shirt",
           "pants",
+          "bag",
         ];
 
   const set = (a: Partial<AvatarConfig>) => {
@@ -155,6 +170,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
       shirt: pick(SHIRTS),
       coat: pick(COATS),
       pants: pick(PANTS),
+      accessory: pick<NonNullable<AvatarConfig["accessory"]>>(["none", "none", "flower", "ribbon"]),
     });
   };
 
@@ -198,7 +214,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           <hemisphereLight args={["#ffffff", "#556677", 1.8]} />
           <directionalLight position={[2, 4, 3]} intensity={1.6} />
           <Suspense fallback={null}>
-            <Turntable>
+            <Turntable back={tab === "bag"}>
               <Chibi config={avatar} />
             </Turntable>
           </Suspense>
@@ -227,7 +243,9 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
               onClick={() => setTab(tb)}
               data-testid={`avatar-tab-${tb}`}
             >
-              <RubyText text={t(LABEL[tb])} />
+              <RubyText
+                text={t(tb === "tie" && avatar.figure === "f" ? "avatar.ribbon" : LABEL[tb])}
+              />
             </button>
           ))}
         </div>
@@ -326,6 +344,35 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
               ))}
             </div>
           )}
+          {tab === "accessory" && (
+            <div className="flex flex-wrap gap-3">
+              {ACCESSORIES.map(([a, key]) => (
+                <button
+                  key={a}
+                  type="button"
+                  className={`btn ${(avatar.accessory ?? "none") === a ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => set({ accessory: a })}
+                  data-testid={`avatar-acc-${a}`}
+                >
+                  <RubyText text={t(key)} />
+                </button>
+              ))}
+            </div>
+          )}
+          {tab === "bag" && (
+            <div className="flex flex-wrap gap-3">
+              {([true, false] as const).map((b) => (
+                <button
+                  key={String(b)}
+                  type="button"
+                  className={`btn ${(avatar.bag ?? true) === b ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => set({ bag: b })}
+                >
+                  <RubyText text={t(b ? "settings.on" : "settings.off")} />
+                </button>
+              ))}
+            </div>
+          )}
           {tab === "skin" && swatches(SKINS, "skin")}
           {tab === "hair" && swatches(HAIRS, "hair")}
           {tab === "suit" && swatches([...SUITS_OK, ...SUITS_LOUD], "suit")}
@@ -357,14 +404,20 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
   );
 }
 
-function Turntable({ children }: { children: React.ReactNode }) {
+/**
+ * 見本の台。ふだんは正面を中心に左右へゆっくりゆれる（いつも顔が見える）。
+ * ドラッグで回した向きは、はなすと ゆっくり正面へもどる。リュックのタブでは背中を見せる。
+ */
+function Turntable({ children, back = false }: { children: React.ReactNode; back?: boolean }) {
   const ref = useRef<THREE.Group>(null);
-  const drag = useRef<{ on: boolean; x: number; v: number }>({ on: false, x: 0, v: 0 });
-  useFrame((_, dt) => {
+  const drag = useRef<{ on: boolean; x: number; offset: number }>({ on: false, x: 0, offset: 0 });
+  useFrame((s, dt) => {
     const g = ref.current;
     if (!g) return;
-    if (!drag.current.on) g.rotation.y += dt * 0.35 + drag.current.v;
-    drag.current.v *= 0.92;
+    if (!drag.current.on) drag.current.offset *= 1 - Math.min(1, dt * 0.8);
+    const base = (back ? Math.PI * 0.85 : 0) + Math.sin(s.clock.elapsedTime * 0.6) * 0.45;
+    const want = base + drag.current.offset;
+    g.rotation.y += (want - g.rotation.y) * Math.min(1, dt * 4);
   });
   return (
     <group
@@ -376,11 +429,10 @@ function Turntable({ children }: { children: React.ReactNode }) {
       onPointerUp={() => (drag.current.on = false)}
       onPointerLeave={() => (drag.current.on = false)}
       onPointerMove={(e) => {
-        if (!drag.current.on || !ref.current) return;
+        if (!drag.current.on) return;
         const dx = e.clientX - drag.current.x;
         drag.current.x = e.clientX;
-        ref.current.rotation.y += dx * 0.01;
-        drag.current.v = dx * 0.002;
+        drag.current.offset += dx * 0.01;
       }}
     >
       {children}

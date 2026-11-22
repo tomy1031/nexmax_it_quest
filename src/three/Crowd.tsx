@@ -18,7 +18,7 @@ export interface NpcSpec {
 }
 
 const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b"];
-const HAIRS = ["#2e211b", "#3a2820", "#4a3020", "#5c4033", "#6a6a6a", "#241b17"];
+const HAIRS = ["#2e211b", "#4a3326", "#5e4030", "#6b4a36", "#6a6a6a", "#3a2820"];
 const SUITS = ["#1c1e24", "#232f52", "#3a3d45", "#4b505a"];
 const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"];
 
