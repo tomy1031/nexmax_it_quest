@@ -5,15 +5,11 @@
   "chapters": [
     {
       "no": 1,
-      "title": "朝の 家"
+      "title": "家から 会社の 駅まで"
     },
     {
       "no": 2,
-      "title": "駅まで・定期券"
-    },
-    {
-      "no": 3,
-      "title": "電車で 会社へ"
+      "title": "会社に 着いてから（入社式）"
     }
   ],
   "words": [
@@ -55,6 +51,10 @@
           "id": "alarm"
         },
         {
+          "t": "focus",
+          "target": "alarm"
+        },
+        {
           "t": "say",
           "who": "me",
           "text": "うーん…… 何の 音？"
@@ -63,11 +63,18 @@
           "t": "objective",
           "text": "目覚まし時計を 止めよう",
           "target": "alarm",
-          "hints": ["ベッドの 横に 時計が あります。", "光って いる 時計を クリックしましょう。"]
+          "hints": [
+            "光って いる 時計を クリックしましょう。",
+            "時計の 上の 光る ところを クリックしても 止まります。"
+          ]
         },
         {
           "t": "wait",
           "event": "click:alarm"
+        },
+        {
+          "t": "sfx",
+          "id": "alarm-stop"
         },
         {
           "t": "fx",
@@ -80,6 +87,9 @@
           "t": "say",
           "who": "me",
           "text": "7時だ。今日は 大事な 日！"
+        },
+        {
+          "t": "unfocus"
         },
         {
           "t": "say",
@@ -250,11 +260,17 @@
     },
     {
       "id": "s04-crossing",
-      "chapter": 2,
+      "chapter": 1,
       "title": "押しボタンの 信号",
       "scene": "street",
       "spawn": "home-door",
       "beats": [
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "家から いちばん 近い 駅は、天王寺駅です。"
+        },
         {
           "t": "say",
           "who": "nexmax",
@@ -338,7 +354,7 @@
           "t": "objective",
           "text": "ボタンを 押そう",
           "target": "push-button",
-          "hints": ["白い 箱の ボタンを クリックしましょう。"]
+          "hints": ["黄色い 箱の 赤い ボタンを クリックしましょう。"]
         },
         {
           "t": "wait",
@@ -425,16 +441,23 @@
           "t": "objective",
           "text": "横断歩道を わたろう",
           "target": "across",
-          "hints": ["道の 向こうに メトロの 入口が あります。"]
+          "hints": ["わたった 先の まっすぐ 前に メトロの 入口が あります。"]
         },
         {
           "t": "wait",
           "event": "reach:across"
         },
         {
+          "t": "focus",
+          "target": "metro"
+        },
+        {
           "t": "say",
           "who": "me",
           "text": "メトロの 入口だ。"
+        },
+        {
+          "t": "unfocus"
         },
         {
           "t": "objective",
@@ -453,7 +476,7 @@
     },
     {
       "id": "s05-routemap",
-      "chapter": 2,
+      "chapter": 1,
       "title": "路線図",
       "scene": "tennoji-concourse",
       "spawn": "stairs-bottom",
@@ -461,7 +484,7 @@
         {
           "t": "say",
           "who": "me",
-          "text": "地下の 駅だ。人が 多い！"
+          "text": "天王寺駅に 着いた。人が 多い！"
         },
         {
           "t": "say",
@@ -517,7 +540,7 @@
     },
     {
       "id": "s06-ticket",
-      "chapter": 2,
+      "chapter": 1,
       "title": "定期券を 買う",
       "scene": "tennoji-concourse",
       "spawn": "route-map",
@@ -633,7 +656,17 @@
           "t": "say",
           "who": "nexmax",
           "pose": "guide",
-          "text": "お店でも 使えるように、チャージも しましょう。"
+          "text": "ICOCAに お金を 入れて おくと、買い物にも 使えます。"
+        },
+        {
+          "t": "tip",
+          "id": "icoca"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "では、チャージを しましょう。"
         },
         {
           "t": "objective",
@@ -648,16 +681,12 @@
         },
         {
           "t": "unfocus"
-        },
-        {
-          "t": "tip",
-          "id": "icoca"
         }
       ]
     },
     {
       "id": "s07-gate",
-      "chapter": 3,
+      "chapter": 1,
       "title": "改札",
       "scene": "tennoji-concourse",
       "spawn": "pass-machine",
@@ -677,7 +706,8 @@
             "上の 看板を 見ましょう。",
             "路線図で 御堂筋線の 色と マークを 思い出しましょう。",
             "御堂筋線は 赤い「M」の マークです。"
-          ]
+          ],
+          "lines": ["M"]
         },
         {
           "t": "wait",
@@ -707,6 +737,32 @@
                 "who": "nexmax",
                 "pose": "book",
                 "text": "今日は メトロに 乗ります。"
+              }
+            ],
+            "click:pass-machine": [
+              {
+                "t": "say",
+                "who": "me",
+                "text": "定期券は もう 持って いる。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "guide",
+                "text": "御堂筋線の 改札へ 行きましょう。"
+              }
+            ],
+            "click:ticket-machine": [
+              {
+                "t": "say",
+                "who": "me",
+                "text": "定期券は もう 持って いる。"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "guide",
+                "text": "御堂筋線の 改札へ 行きましょう。"
               }
             ]
           }
@@ -748,7 +804,7 @@
     },
     {
       "id": "s08-platform",
-      "chapter": 3,
+      "chapter": 1,
       "title": "ホーム",
       "scene": "tennoji-platform",
       "spawn": "stairs",
@@ -832,7 +888,7 @@
     },
     {
       "id": "s09-train",
-      "chapter": 3,
+      "chapter": 1,
       "title": "電車の 中",
       "scene": "train-midosuji",
       "spawn": "inside",
@@ -969,7 +1025,7 @@
     },
     {
       "id": "s10-hommachi",
-      "chapter": 3,
+      "chapter": 1,
       "title": "本町で 乗りかえ",
       "scene": "hommachi",
       "spawn": "train-door",
@@ -995,7 +1051,8 @@
             "上の 看板を 見ましょう。",
             "中央線は 緑の「C」の マークです。",
             "緑の「C」の 看板の 階段です。"
-          ]
+          ],
+          "lines": ["C"]
         },
         {
           "t": "wait",
@@ -1041,7 +1098,7 @@
     },
     {
       "id": "s11-chuo",
-      "chapter": 3,
+      "chapter": 1,
       "title": "中央線の ホーム",
       "scene": "hommachi-chuo",
       "spawn": "stairs",
@@ -1121,7 +1178,7 @@
     },
     {
       "id": "s12-train-chuo",
-      "chapter": 3,
+      "chapter": 1,
       "title": "中央線の 中",
       "scene": "train-chuo",
       "spawn": "inside",
@@ -1163,7 +1220,7 @@
     },
     {
       "id": "s13-awaza",
-      "chapter": 3,
+      "chapter": 1,
       "title": "阿波座に 着いた",
       "scene": "awaza",
       "spawn": "train-door",

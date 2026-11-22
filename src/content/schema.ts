@@ -61,7 +61,15 @@ export const nexmaxPose = z.enum(["guide", "hello", "cheer", "listen", "book", "
 
 type BeatShape =
   | { t: "say"; who: SpeakerId; text: string; pose?: z.infer<typeof nexmaxPose> }
-  | { t: "objective"; text: string; target?: string; arrow?: boolean; hints?: string[] }
+  | {
+      t: "objective";
+      text: string;
+      target?: string;
+      arrow?: boolean;
+      hints?: string[];
+      /** 文の前に出す線のマーク（御堂筋線なら ["M"]）。 */
+      lines?: string[];
+    }
   | { t: "clear-objective" }
   | { t: "wait"; event: string; else?: Record<string, BeatShape[]> }
   | { t: "tip"; id: string }
@@ -98,6 +106,7 @@ export const beat: z.ZodType<BeatShape> = z.lazy(() =>
       target: z.string().optional(),
       arrow: z.boolean().optional(),
       hints: z.array(learnerText).max(3).optional(),
+      lines: z.array(z.string()).optional(),
     }),
     z.object({ t: z.literal("clear-objective") }),
     z.object({
@@ -270,6 +279,17 @@ export const placesFile = z.object({
     }),
   ),
   trainNext: z.record(z.string(), z.array(learnerText)),
+  /** 定期券の値段（docs/research/大阪メトロ.md で確かめたもの）。 */
+  passFare: z.object({
+    $comment: z.string().optional(),
+    from: z.string(),
+    to: z.string(),
+    via: z.string(),
+    oneWay: z.number(),
+    commute: z.record(z.string(), z.number()),
+    deposit: z.number(),
+    checked: z.string(),
+  }),
 });
 export type PlacesFile = z.infer<typeof placesFile>;
 

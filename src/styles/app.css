@@ -40,7 +40,7 @@ body {
 /* ふりがなの色は、いつも文字と同じ色（色の面でふりがなだけ沈まない。academy 2026-08-18） */
 rt {
   color: currentColor;
-  opacity: 0.85;
+  opacity: 1;
   font-size: 0.5em;
   font-weight: 700;
   letter-spacing: 0;

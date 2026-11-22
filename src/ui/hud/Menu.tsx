@@ -19,6 +19,8 @@ import { RouteMap } from "@/ui/hud/RouteMap";
 import { MemoEditor } from "@/ui/hud/MemoPanel";
 import { AvatarEditor } from "@/ui/hud/AvatarPanel";
 import { TIPS, TipView } from "@/ui/hud/Hud";
+import { SettingsScreen } from "@/app/SettingsScreen";
+import { IcocaPassImage } from "@/ui/IcocaPassImage";
 
 type View = "list" | "nmchat" | "routemap" | "memo" | "items" | "tips" | "avatar";
 
@@ -30,6 +32,7 @@ export function Menu({ onClose }: { onClose: () => void }) {
   const balance = useGame((s) => s.icocaBalance);
   const tipsSeen = useGame((s) => s.tipsSeen);
   const [openTip, setOpenTip] = useState<string | null>(null);
+  const [settings, setSettings] = useState(false);
 
   const back = () => (view === "list" ? onClose() : setView("list"));
 
@@ -38,6 +41,12 @@ export function Menu({ onClose }: { onClose: () => void }) {
       className="bg-deep/60 pointer-events-auto absolute inset-0 z-30 grid place-items-center p-3"
       data-testid="menu"
     >
+      {/* 設定は、ページを移らず上に重ねて開く（閉じたら同じ場面にもどる） */}
+      {settings && (
+        <div className="absolute inset-0 z-40" data-testid="menu-settings">
+          <SettingsScreen onClose={() => setSettings(false)} />
+        </div>
+      )}
       <div className="glass pop flex max-h-full w-full max-w-4xl flex-col gap-4 overflow-hidden rounded-3xl p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-extrabold">
@@ -90,7 +99,7 @@ export function Menu({ onClose }: { onClose: () => void }) {
               <Tile
                 icon={<IconGear className="h-8 w-8" />}
                 label={t("menu.settings")}
-                onClick={() => navigate("/settings")}
+                onClick={() => setSettings(true)}
               />
               <Tile
                 icon={<IconExit className="h-8 w-8" />}
@@ -110,23 +119,21 @@ export function Menu({ onClose }: { onClose: () => void }) {
           {view === "items" && (
             <div className="flex flex-col gap-3">
               {inventory.length === 0 && (
-                <p className="text-white/70">
+                <p className="text-white">
                   <RubyText text={t("menu.empty")} />
                 </p>
               )}
               {inventory.includes("icoca-pass") && (
                 <div className="flex items-center gap-4 rounded-2xl bg-white/10 p-4">
-                  <div className="grid h-16 w-24 place-items-center rounded-lg bg-[linear-gradient(135deg,#7ad7ff,#2a6cff)] text-sm font-black text-white shadow">
-                    ICOCA
-                  </div>
+                  <IcocaPassImage className="w-56 shrink-0 rounded-xl shadow-lg sm:w-72" />
                   <div className="flex flex-col">
                     <span className="text-lg font-extrabold">
                       <RubyText text={t("item.icoca-pass")} />
                     </span>
-                    <span className="text-white/80">
+                    <span className="text-white">
                       <RubyText text={t("item.icoca-pass.detail")} />
                     </span>
-                    <span className="text-white/80">
+                    <span className="text-white">
                       <RubyText text={t("item.balance")} />: {balance.toLocaleString()}
                       <RubyText text={t("tm.yen")} />
                     </span>
@@ -143,7 +150,7 @@ export function Menu({ onClose }: { onClose: () => void }) {
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {tipsSeen.length === 0 && (
-                  <p className="text-white/70">
+                  <p className="text-white">
                     <RubyText text={t("menu.empty")} />
                   </p>
                 )}
@@ -185,7 +192,7 @@ function Tile({
       {icon}
       <RubyText text={label} />
       {note && (
-        <span className="text-xs font-bold text-white/60">
+        <span className="text-xs font-bold text-white">
           <RubyText text={note} />
         </span>
       )}

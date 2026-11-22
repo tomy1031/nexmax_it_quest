@@ -71,7 +71,7 @@ export default function StageScreen({ stageId }: { stageId: string }) {
     <main className="bg-deep relative h-full w-full overflow-hidden">
       <World />
       <Hud />
-      <p className="pointer-events-none absolute bottom-1 left-2 z-0 text-[10px] font-bold text-white/70 drop-shadow">
+      <p className="pointer-events-none absolute bottom-1 left-2 z-0 text-[10px] font-bold text-white drop-shadow">
         <RubyText text={t("hud.disclaimer")} />
       </p>
     </main>

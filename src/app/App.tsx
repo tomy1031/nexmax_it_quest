@@ -16,7 +16,7 @@ const FactoryScreen = lazy(() => import("@/app/FactoryScreen"));
 
 function Loading() {
   return (
-    <div className="grid h-full place-items-center text-cyan-200">
+    <div className="grid h-full place-items-center text-white">
       <p className="animate-pulse text-lg font-bold">{t("loading")}</p>
     </div>
   );
@@ -40,7 +40,9 @@ export function App() {
       <Suspense fallback={<Loading />}>
         <Switch>
           <Route path="/" component={TitleScreen} />
-          <Route path="/settings" component={SettingsScreen} />
+          <Route path="/settings">
+            <SettingsScreen />
+          </Route>
           <Route path="/story" component={StoryScreen} />
           <Route path="/dive">
             <NeedSetup>

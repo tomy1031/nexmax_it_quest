@@ -105,16 +105,18 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
           await page.getByTestId("avatar-done").click();
           break;
         case "routemap-quiz":
-          await page.getByTestId("station-namba").click();
+          await expect(page.getByTestId("quiz-problem")).toBeVisible();
+          // ① まず 何線？（まちがえる → 不正解 → 正解）
+          await page.getByTestId("line-T").click();
           await page.waitForTimeout(300);
           await page.screenshot({ path: `${SHOTS}/panel-routemap-wrong.png` });
-          await page.getByTestId("station-tennoji").click();
-          await page.waitForTimeout(1300);
           await page.getByTestId("line-M").click();
           await page.waitForTimeout(1300);
-          await page.getByTestId("station-awaza").click();
-          await page.waitForTimeout(1300);
+          // ② どこで 乗りかえる？
           await page.getByTestId("station-hommachi").click();
+          await page.waitForTimeout(1300);
+          // ③ 本町駅で 何線？
+          await page.getByTestId("line-C").click();
           await page.waitForTimeout(1300);
           await page.screenshot({ path: `${SHOTS}/panel-routemap-done.png` });
           await page.getByTestId("quiz-close").click();

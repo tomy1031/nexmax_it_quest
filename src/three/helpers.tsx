@@ -1,14 +1,12 @@
-import { useTexture } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { questEvents } from "@/stages/events";
 import { usePlay } from "@/stages/play-store";
 import { isDrag } from "@/three/Interactable";
 import { emptyLayout, useLayout, type Layout } from "@/three/layout";
 import { player, walkTo } from "@/three/player";
-
-const BASE = import.meta.env.BASE_URL;
+import { NexmaxModel, type NexmaxFace, type NexmaxMotion } from "@/three/Nexmax";
 
 /**
  * 場面の地図を書く。useLayoutEffect は、子の部品の useEffect（クリックできる物が自分の位置を足す）より先に動くので、
@@ -154,30 +152,35 @@ function GroundBeacon({ x, z }: { x: number; z: number }) {
   );
 }
 
-/** ネクマックス（いつも自分の近くに浮かぶ。話すときは絵が変わる）。絵は academy の絵を板に貼る。 */
+/**
+ * ネクマックス（いつも自分の近くに浮かぶ）。3D のモデルは tomy1031/lab の nexmax.glb（src/three/Nexmax.tsx）。
+ * 台本の pose で動きと表情を変える（hello＝手をふる・cheer＝ジャンプ・ほかは待機）。いつもカメラの方を向く。
+ */
+const POSE_MOTION: Record<string, { motion: NexmaxMotion; face: NexmaxFace }> = {
+  hello: { motion: "wave", face: "happy" },
+  cheer: { motion: "jump", face: "happy" },
+  guide: { motion: "idle", face: "happy" },
+  book: { motion: "idle", face: "determined" },
+  listen: { motion: "idle", face: "determined" },
+  build: { motion: "idle", face: "determined" },
+};
+const COMPANION_SCALE = 0.42;
+
 export function Companion() {
   const line = usePlay((s) => s.line);
-  const pose = line?.who === "nexmax" ? (line.pose ?? "guide") : "guide";
-  const textures = useTexture({
-    guide: `${BASE}img/nexmax/guide.webp`,
-    hello: `${BASE}img/nexmax/hello.webp`,
-    cheer: `${BASE}img/nexmax/cheer.webp`,
-    book: `${BASE}img/nexmax/book.webp`,
-    listen: `${BASE}img/nexmax/listen.webp`,
-    build: `${BASE}img/nexmax/build.webp`,
-  });
-  useMemo(
-    () => Object.values(textures).forEach((tx) => (tx.colorSpace = THREE.SRGBColorSpace)),
-    [textures],
-  );
-  const ref = useRef<THREE.Sprite>(null);
+  // アップ（券売機・時計・信号など）の間は出さない。前に出て、見たい物をかくしてしまうため（tomy さん 2026-11-22）
+  const focus = usePlay((s) => s.focus);
+  const pose = line?.who === "nexmax" ? (line.pose ?? "guide") : null;
+  const ref = useRef<THREE.Group>(null);
   const pos = useRef(new THREE.Vector3());
   const showPlayer = useLayout((s) => s.showPlayer);
+  const walking = useRef(false);
+  const [moving, setMoving] = useState(false);
 
   useFrame((s, dt) => {
-    const sp = ref.current;
-    if (!sp) return;
-    const side = new THREE.Vector3(0.65, 1.45, 0.2).applyAxisAngle(
+    const g = ref.current;
+    if (!g) return;
+    const side = new THREE.Vector3(0.7, 0.72, 0.2).applyAxisAngle(
       new THREE.Vector3(0, 1, 0),
       player.yaw,
     );
@@ -189,18 +192,33 @@ export function Companion() {
       want
         .copy(cam.position)
         .add(fwd.multiplyScalar(2.2))
-        .add(new THREE.Vector3(0.9, -0.35, 0).applyQuaternion(cam.quaternion));
+        .add(new THREE.Vector3(0.9, -0.6, 0).applyQuaternion(cam.quaternion));
     }
     pos.current.lerp(want, Math.min(1, dt * 3));
-    sp.position.copy(pos.current);
-    sp.position.y += Math.sin(s.clock.elapsedTime * 2) * 0.05;
+    g.position.copy(pos.current);
+    g.position.y += Math.sin(s.clock.elapsedTime * 2) * 0.04;
+    // カメラの方を向く
+    const to = s.camera.position.clone().sub(g.position);
+    const yaw = Math.atan2(to.x, to.z);
+    let diff = yaw - g.rotation.y;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    g.rotation.y += diff * Math.min(1, dt * 5);
+    if (player.moving !== walking.current) {
+      walking.current = player.moving;
+      setMoving(player.moving);
+    }
   });
 
-  const map = textures[pose as keyof typeof textures] ?? textures.guide;
+  const pm = pose ? (POSE_MOTION[pose] ?? POSE_MOTION.guide!) : null;
+  const motion: NexmaxMotion = pm ? pm.motion : moving ? "walk" : "idle";
+  const face: NexmaxFace = pm ? pm.face : "happy";
   return (
-    <sprite ref={ref} scale={[0.62, 0.62, 0.62]} raycast={() => null}>
-      <spriteMaterial map={map} transparent depthWrite={false} toneMapped={false} />
-    </sprite>
+    <group ref={ref} scale={COMPANION_SCALE} visible={!focus}>
+      <Suspense fallback={null}>
+        <NexmaxModel motion={motion} face={face} />
+      </Suspense>
+    </group>
   );
 }
 

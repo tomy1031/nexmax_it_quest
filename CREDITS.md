@@ -5,7 +5,7 @@
 ## polyfork（https://polyfork.dev/）
 
 メッシュのファイル（GLB）は CC BY 4.0。下のクレジットを付けて置いている。
-人の動き（public/models/clips/）は polyfork が配る CC0 の動き（Quaternius Universal Animation Library）。
+人（自分・まわりの人）はプログラムで作る（src/three/chibi.ts）。
 
 - Air-Con Unit by Polyfork (https://polyfork.dev/asset/air-con-unit-9fadc2), CC BY 4.0
 - Apartment Block by Polyfork (https://polyfork.dev/asset/apartment-block-6445af), CC BY 4.0
@@ -62,3 +62,7 @@
 - Wide Shophouse by Polyfork (https://polyfork.dev/asset/wide-shophouse-089f20), CC BY 4.0
 - Wooden Bench by Polyfork (https://polyfork.dev/asset/wooden-bench-661da4), CC BY 4.0
 - Woven Storage Basket by Polyfork (https://polyfork.dev/asset/woven-storage-basket-983d80), CC BY 4.0
+
+## そのほか
+
+- ネクマックス 3D モデル（public/models/nexmax/nexmax.glb）: https://github.com/tomy1031/lab/tree/97c6823/yokohama-roll/nexmax — ネクストメイクのキャラクター。持ち主（tomy さん）の lab リポジトリの「ハマころ！」のモデルを、持ち主の指示（2026-11-22）で使う。

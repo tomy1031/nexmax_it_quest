@@ -2,7 +2,8 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { t } from "@/lib/t";
-import { onFx } from "@/stages/events";
+import { onFx, questEvents } from "@/stages/events";
+import { cameraAim, player } from "@/three/player";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { block, box, cyl, FLAT, merge } from "@/factory/kit";
 import { Clouds, SkyDome } from "@/factory/props";
@@ -15,7 +16,7 @@ import {
   type CarLight,
   type PedLight,
 } from "@/factory/street-parts";
-import { LINE } from "@/factory/signs";
+import { LINE, STATION } from "@/factory/signs";
 import { Interactable } from "@/three/Interactable";
 import { Walkers, type WalkerSpec } from "@/three/Crowd";
 import { Town } from "@/stages/stage1/town";
@@ -32,9 +33,15 @@ import { useLayout, type Rect } from "@/three/layout";
  * 実際の押しボタンの信号に矢印が付くのはめずらしい。教材として「家の近くの交差点」にまとめた（docs/design/01_ステージ1.md）。
  */
 
+/** 家の駅（天王寺）。入口の看板に出す。 */
+const HOME_STATION = STATION.tennoji?.name ?? "";
+
+/** メトロの入口のまん中（横断歩道を渡った先の正面。入口は -x を向く）。 */
+const ENTRANCE = { x: 44.7, z: 1.7 };
+
 const SIDEWALK: Rect = { minX: -2, maxX: 27.3, minZ: 0.5, maxZ: 2.9 };
 const CROSSING: Rect = { minX: 27.3, maxX: 37.2, minZ: 0.7, maxZ: 2.7 };
-const FAR_SIDE: Rect = { minX: 37.2, maxX: 44, minZ: 0.5, maxZ: 3.2 };
+const FAR_SIDE: Rect = { minX: 37.2, maxX: 42.4, minZ: 0.5, maxZ: 3.2 };
 
 /** 通りを行き来する人（朝の通勤・通学）。自分の歩く線（z=1.7）からは少しはなす。 */
 const WALKERS: WalkerSpec[] = [
@@ -46,7 +53,7 @@ const WALKERS: WalkerSpec[] = [
   { from: [26.4, 14], to: [26.4, 34], speed: 1.0, at: 0.1, casual: true },
   { from: [37.4, -26], to: [37.4, -1], speed: 1.2, at: 0.6 },
   { from: [37.6, 4], to: [37.6, 30], speed: 1.0, at: 0.4 },
-  { from: [43, 2.6], to: [58, 2.6], speed: 0.95, at: 0.5, casual: true },
+  { from: [48, 2.4], to: [58, 2.4], speed: 0.95, at: 0.5, casual: true },
 ];
 
 export function StreetScene() {
@@ -59,8 +66,10 @@ export function StreetScene() {
     walk: [SIDEWALK],
     shots: {
       "ped-signal": { pos: [25.2, 1.9, 2.4], look: [36.9, 2.9, 0.25], fov: 26 },
-      "push-button": { pos: [26.55, 1.3, 0.75], look: [27.25, 1.12, 0.25], fov: 34 },
+      "push-button": { pos: [26.62, 1.24, 0.58], look: [27.18, 1.14, 0.25], fov: 30 },
       "car-signal": { pos: [31.5, 3.6, 13], look: [34.2, 4.6, 4.6], fov: 40 },
+      // 渡り終えたら、正面のメトロの入口を見せる
+      metro: { pos: [37.6, 1.9, 3.1], look: [43.2, 2.3, 1.7], fov: 48 },
     },
     triggers: [
       { id: "crosswalk-stop", x: 26.4, z: 1.7, r: 1.3 },
@@ -110,6 +119,17 @@ export function StreetScene() {
     [],
   );
 
+  // 横断歩道を渡り終えたら、正面（+x）のメトロの入口が見える向きにする
+  useEffect(
+    () =>
+      questEvents.on((name) => {
+        if (name !== "reach:across") return;
+        player.yaw = Math.PI / 2;
+        cameraAim.yaw = Math.PI / 2;
+      }),
+    [],
+  );
+
   useEffect(() => {
     if (ped !== "blink") return;
     const timer = window.setInterval(() => setBlinkOn((b) => !b), 300);
@@ -154,8 +174,8 @@ export function StreetScene() {
       />
       <PedSignal position={[27.3, 0, 0.25]} rotationY={Math.PI / 2} light={ped} blinkOn={blinkOn} />
 
-      <Interactable id="push-button" marker={[27.25, 1.55, 0.25]}>
-        <PushButtonBox position={[27.25, 1.15, 0.25]} rotationY={-Math.PI / 2} waiting={waiting} />
+      <Interactable id="push-button" marker={[27.17, 1.45, 0.25]}>
+        <PushButtonBox position={[27.18, 1.15, 0.25]} rotationY={-Math.PI / 2} waiting={waiting} />
       </Interactable>
 
       <MetroEntrance />
@@ -166,51 +186,72 @@ export function StreetScene() {
 
 /** メトロの入口（階段で地下へ）。会社のロゴは描かず、線のマークと「地下鉄」の文字だけにする。 */
 function MetroEntrance() {
+  // 入口の形は、まん中を原点・入口が +z を向く形で作り、横断歩道を渡った先の正面（道なりにまっすぐ）に置く。
+  // 入口と看板は、渡ってくる人の方（-x）を向く（tomy さん 2026-11-22「位置が分かりにくい」）。
   const geo = useMemo(
     () =>
       merge([
-        block(3.2, 0.12, 4.2, "#9aa1ab", { pos: [41.5, 0, -1.6] }),
-        block(0.25, 2.6, 4.2, "#d9dde3", { pos: [40.0, 0, -1.6] }),
-        block(0.25, 2.6, 4.2, "#d9dde3", { pos: [43.0, 0, -1.6] }),
-        box(3.6, 0.2, 4.6, "#3c4250", { pos: [41.5, 2.7, -1.6] }),
-        box(3.2, 0.08, 4.0, "#2a2e36", { pos: [41.5, 0.1, -1.6] }),
+        block(3.2, 0.12, 4.2, "#9aa1ab", { pos: [0, 0, 0] }),
+        block(0.25, 2.6, 4.2, "#d9dde3", { pos: [-1.5, 0, 0] }),
+        block(0.25, 2.6, 4.2, "#d9dde3", { pos: [1.5, 0, 0] }),
+        block(3.2, 2.6, 0.25, "#d9dde3", { pos: [0, 0, -2.0] }),
+        box(3.6, 0.2, 4.6, "#3c4250", { pos: [0, 2.7, 0] }),
+        box(3.2, 0.08, 4.0, "#2a2e36", { pos: [0, 0.1, 0] }),
+        // 手すり
+        box(0.06, 0.06, 3.6, "#b9bec6", { pos: [-1.3, 0.95, 0] }),
+        box(0.06, 0.06, 3.6, "#b9bec6", { pos: [1.3, 0.95, 0] }),
         ...Array.from({ length: 6 }, (_, i) =>
-          box(2.7, 0.05, 0.3, "#d0d4da", { pos: [41.5, 0.08 - i * 0.18, -0.3 - i * 0.4] }),
+          box(2.7, 0.05, 0.3, "#d0d4da", { pos: [0, 0.08 - i * 0.18, 1.3 - i * 0.4] }),
         ),
       ]),
     [],
   );
   const m = LINE.M;
   return (
-    <Interactable id="metro-entrance" approach={[41.5, 0.9]} marker={[41.5, 3.6, 0.6]}>
-      <mesh geometry={geo} material={FLAT} />
-      <CanvasPanel
-        width={3.0}
-        height={0.6}
-        ppm={300}
-        position={[41.5, 3.15, 0.72]}
-        emissive
-        fontText={t("sign.metro")}
-        draw={(ctx, w, h) => {
-          ctx.fillStyle = "#16264d";
-          ctx.fillRect(0, 0, w, h);
-          if (m) drawLineBadge(ctx, h * 0.6, h / 2, h * 0.32, m.letter, m.color);
-          const tt = LINE.T;
-          if (tt) drawLineBadge(ctx, h * 1.4, h / 2, h * 0.32, tt.letter, tt.color);
-          drawRuby(ctx, t("sign.metro"), h * 2.0, h * 0.72, {
-            size: h * 0.42,
-            color: "#fff",
-            rubyColor: "#5ff3ff",
-          });
-          ctx.font = `700 ${h * 0.22}px sans-serif`;
-          ctx.fillStyle = "#cfe0ff";
-          ctx.fillText("Subway", w - h * 1.8, h * 0.62);
-        }}
-      />
-      <mesh position={[41.5, 1.3, -1.6]}>
-        <boxGeometry args={[3, 2.6, 4]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+    <Interactable
+      id="metro-entrance"
+      approach={[ENTRANCE.x - 2.4, ENTRANCE.z]}
+      marker={[ENTRANCE.x - 2.2, 3.6, ENTRANCE.z]}
+    >
+      <group position={[ENTRANCE.x, 0, ENTRANCE.z]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh geometry={geo} material={FLAT} />
+        <CanvasPanel
+          width={3.0}
+          height={0.6}
+          ppm={300}
+          position={[0, 3.15, 2.32]}
+          emissive
+          fontText={t("sign.metro") + HOME_STATION + t("sign.station")}
+          draw={(ctx, w, h) => {
+            // 入口の看板: 線のマーク・駅の名前（天王寺駅）・「地下鉄 Subway」。字とふりがなは白（濃い背景のルール）
+            ctx.fillStyle = "#16264d";
+            ctx.fillRect(0, 0, w, h);
+            if (m) drawLineBadge(ctx, h * 0.6, h / 2, h * 0.32, m.letter, m.color);
+            const tt = LINE.T;
+            if (tt) drawLineBadge(ctx, h * 1.4, h / 2, h * 0.32, tt.letter, tt.color);
+            drawRuby(ctx, `${HOME_STATION}${t("sign.station")}`, h * 2.0, h * 0.76, {
+              size: h * 0.44,
+              color: "#fff",
+              rubyColor: "#fff",
+            });
+            drawRuby(ctx, t("sign.metro"), w - h * 0.25, h * 0.5, {
+              size: h * 0.2,
+              color: "#fff",
+              rubyColor: "#fff",
+              align: "right",
+            });
+            ctx.font = `700 ${h * 0.17}px sans-serif`;
+            ctx.fillStyle = "#fff";
+            ctx.textAlign = "right";
+            ctx.fillText("Subway", w - h * 0.25, h * 0.84);
+            ctx.textAlign = "left";
+          }}
+        />
+        <mesh position={[0, 1.3, 0]}>
+          <boxGeometry args={[3, 2.6, 4]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      </group>
     </Interactable>
   );
 }

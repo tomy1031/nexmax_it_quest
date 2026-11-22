@@ -134,7 +134,7 @@ export function Noren({
         transparent
         fontText={label}
         draw={(ctx, w, h) => {
-          ctx.fillStyle = "#f4f1e8";
+          ctx.fillStyle = "#ffffff";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           const chars = [...label];

@@ -38,7 +38,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
         <p className="mb-2 text-lg font-black tracking-wide">
           <RubyText text={t("chat.title")} />
         </p>
-        <p className="text-xs font-bold text-white/60">
+        <p className="text-xs font-bold text-white">
           <RubyText text={t("chat.channels")} />
         </p>
         {CHAT.channels.map((c) => {

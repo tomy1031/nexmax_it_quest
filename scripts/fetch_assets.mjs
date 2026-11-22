@@ -87,11 +87,17 @@ const lines = [
   "## polyfork（https://polyfork.dev/）",
   "",
   "メッシュのファイル（GLB）は CC BY 4.0。下のクレジットを付けて置いている。",
-  "人の動き（public/models/clips/）は polyfork が配る CC0 の動き（Quaternius Universal Animation Library）。",
+  "人（自分・まわりの人）はプログラムで作る（src/three/chibi.ts）。",
   "",
   ...[...credits.values()]
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((c) => `- ${c.credit}`),
+  "",
+  "## そのほか",
+  "",
+  ...(manifest.others ?? []).map(
+    (o) => `- ${o.title}（public/models/${o.file}）: ${o.source} — ${o.note}`,
+  ),
   "",
 ];
 await writeFile(join(ROOT, "CREDITS.md"), lines.join("\n"));

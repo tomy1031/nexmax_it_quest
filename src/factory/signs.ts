@@ -122,7 +122,7 @@ export function drawStationName(
   ctx.textAlign = "center";
   ctx.fillText(st.en, W / 2, H * 0.66);
   ctx.textAlign = "left";
-  const small = { size: H * 0.1, color: "#fff", rubyColor: "#e8fbff" };
+  const small = { size: H * 0.1, color: "#fff", rubyColor: "#fff" };
   if (prev && STATION[prev]) drawRuby(ctx, `← ${STATION[prev]!.name}`, W * 0.03, H * 0.95, small);
   if (next && STATION[next])
     drawRuby(ctx, `${STATION[next]!.name} →`, W * 0.97, H * 0.95, { ...small, align: "right" });
@@ -135,7 +135,7 @@ export interface LedRow {
   track: string;
 }
 
-/** 電光掲示板（黒い地にオレンジの文字）。ふりがなはシアン（ネクマックスの AR 表示）。 */
+/** 電光掲示板（黒い地に白い字。ふりがなも白。濃い背景の字は白のルール）。 */
 export function drawLed(
   ctx: CanvasRenderingContext2D,
   W: number,
@@ -161,10 +161,10 @@ export function drawLed(
     const y = H * 0.22 + rowH * (i + 0.78);
     const size = rowH * 0.42;
     const tag = i === 0 ? labels.first : labels.second;
-    drawRuby(ctx, tag, W * 0.03, y, { size: size * 0.8, color: "#9ef08a", rubyColor: AR_RUBY });
-    drawRuby(ctx, r.kind, W * 0.17, y, { size, color: "#ff9d2e", rubyColor: AR_RUBY });
+    drawRuby(ctx, tag, W * 0.03, y, { size: size * 0.8, color: "#ffffff", rubyColor: AR_RUBY });
+    drawRuby(ctx, r.kind, W * 0.17, y, { size, color: "#ffffff", rubyColor: AR_RUBY });
     ctx.font = `800 ${size}px monospace`;
-    ctx.fillStyle = "#ff9d2e";
+    ctx.fillStyle = "#ffffff";
     ctx.fillText(r.time, W * 0.33, y);
     // 行き先が長いとき（コスモスクエア など）は、番線の字にかからないよう小さくする
     const dest = `${r.dest} ${labels.bound}`;
@@ -173,7 +173,7 @@ export function drawLed(
     const fit = Math.min(1, room / Math.max(1, ctx.measureText(dest).width));
     drawRuby(ctx, dest, W * 0.52, y, {
       size: size * fit,
-      color: "#ff9d2e",
+      color: "#ffffff",
       rubyColor: AR_RUBY,
     });
     drawRuby(ctx, `${r.track}${labels.track}`, W * 0.97, y, {

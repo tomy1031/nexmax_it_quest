@@ -5,14 +5,15 @@ import { useSettings } from "@/lib/store";
 
 /**
  * 看板工場: 文字を Canvas に描き、3D に貼る。ふりがなは画面と同じ読み方のデータから付ける
- * （AGENTS.md 必ず守るルール2。本物の看板にふりがなは無いので、ネクマックスの「AR 表示」としてシアンで重ねる）。
+ * （AGENTS.md 必ず守るルール2）。濃い背景の上では、字もふりがなも白（tomy さん 2026-11-22）。明るい背景では、ふりがなは青。
  *
  * 文字は画像に焼かずデータから描くので、VR でも読める・直せば全部の看板が直る。
  * フォントは読みこみを待ってから描く（待たないと別の字体がテクスチャに焼き付く）。
  */
 
 export const FONT_FAMILY = `"M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif`;
-export const AR_RUBY = "#5ff3ff";
+/** 濃い背景の上のふりがなの色（白）。 */
+export const AR_RUBY = "#ffffff";
 
 const loaded = new Set<string>();
 export async function ensureFont(text: string): Promise<void> {

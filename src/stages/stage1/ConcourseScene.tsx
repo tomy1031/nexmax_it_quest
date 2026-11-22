@@ -11,7 +11,7 @@ import {
   RouteMapBoard,
   TicketMachineGray,
 } from "@/factory/station-parts";
-import { LINE } from "@/factory/signs";
+import { LINE, STATION } from "@/factory/signs";
 import { Many, Prop } from "@/factory/props";
 import { Poster, PosterRow } from "@/factory/subway-parts";
 import { TicketMachine } from "@/factory/TicketMachine";
@@ -29,6 +29,8 @@ import { walkTo } from "@/three/player";
  */
 
 const UNPAID: Rect = { minX: -13.5, maxX: 13.8, minZ: -7.0, maxZ: 0.3 };
+/** 御堂筋線の改札の通り道（改札を通るときだけ歩ける）。 */
+const GATE_LANE: Rect = { minX: -5.4, maxX: -3.8, minZ: -0.6, maxZ: 0.6 };
 const PAID_M: Rect = { minX: -7.3, maxX: -2.7, minZ: 0.3, maxZ: 6.4 };
 
 export function ConcourseScene() {
@@ -36,7 +38,9 @@ export function ConcourseScene() {
     anchors: {
       "stairs-bottom": { pos: [-12, 0, -5.5], yaw: Math.PI / 2 },
       "route-map": { pos: [-7, 0, -5.8], yaw: Math.PI },
-      "pass-machine": { pos: [3.2, 0, -6.2], yaw: 0 },
+      // 券売機の前（まちがえた電車のあとの「券売機の 前から やり直し」もここ）。
+      // 西を向いて立つと、カメラから券売機（右）と改札（左）の両方が見える
+      "pass-machine": { pos: [3.2, 0, -6.2], yaw: -Math.PI / 2 },
     },
     walk: [UNPAID],
     shots: {
@@ -58,8 +62,10 @@ export function ConcourseScene() {
         if (id === "gate-pass") {
           setGateOpen(true);
           playSfx("pi");
-          useLayout.setState((s) => ({ walk: [...s.walk, PAID_M] }));
-          walkTo(-4.6, 2.6);
+          // 改札を通るあいだだけ、改札の通り道も歩けるようにする。通りぬけたら、改札の中だけにする
+          // （一度入ったら外へもどれない。tomy さん 2026-11-22）
+          useLayout.setState({ walk: [GATE_LANE, PAID_M] });
+          walkTo(-4.6, 2.6, () => useLayout.setState({ walk: [PAID_M] }));
         }
       }),
     [],
@@ -156,6 +162,19 @@ export function ConcourseScene() {
         ]}
       />
 
+      {/* ここが天王寺駅だと分かるように、路線図の上と階段の下に駅の名前 */}
+      <HangingSign
+        position={[-11.2, 2.9, -3.6]}
+        rotationY={Math.PI / 2}
+        width={2.6}
+        height={0.46}
+        spec={{
+          lines: ["M", "T"],
+          text: `${STATION.tennoji?.name ?? ""}${t("sign.station")}`,
+          en: "Tennoji Station",
+          tone: "navy",
+        }}
+      />
       <Interactable id="route-map" approach={[-7, -5.8]} marker={[-7, 3.0, -7.7]}>
         <RouteMapBoard position={[-7, 1.7, -7.85]} here="tennoji" />
       </Interactable>
@@ -190,6 +209,21 @@ export function ConcourseScene() {
         }}
       />
 
+      {/* 案内の表示: 券売機の前（西を向いて立つ）から見える所に「御堂筋線 改札 ←」。表示を見て改札へ行けるように */}
+      <HangingSign
+        position={[-1.4, 2.95, -5.3]}
+        rotationY={Math.PI / 2}
+        width={2.8}
+        height={0.46}
+        doubleSide={false}
+        spec={{
+          lines: ["M"],
+          text: `${LINE.M?.name ?? ""} ${t("sign.gate")}`,
+          en: "Midosuji Line",
+          arrow: "left",
+          tone: "navy",
+        }}
+      />
       <Interactable id="gate-M" approach={[-4.6, 0.0]} marker={[-5, 1.6, 1]}>
         <GateRow position={[-5, 0, 1]} open={gateOpen} />
       </Interactable>

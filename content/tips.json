@@ -76,9 +76,9 @@
     {
       "id": "icoca",
       "title": "ICOCAで 買い物",
-      "text": "ICOCAは コンビニや 自動販売機でも 使えます。",
-      "more": "チャージは 20,000円まで できます。",
-      "en": "You can pay with ICOCA at convenience stores and vending machines.",
+      "text": "ICOCAは コンビニや 自動販売機、いろいろな お店で 使えます。",
+      "more": "ABA Payと 同じくらい かんたんに、タッチだけで 買い物が できます。",
+      "en": "You can use ICOCA at convenience stores, vending machines and many shops. It is as easy as ABA Pay: you only touch the card to the reader (no QR code).",
       "image": "/img/tips/icoca.webp",
       "pose": "cheer"
     },

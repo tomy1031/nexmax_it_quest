@@ -6,23 +6,29 @@ import { RubyText } from "@/ui/RubyText";
 import { RouteMap } from "@/ui/hud/RouteMap";
 
 /**
- * 路線図で調べる（企画メモ「あなたの家の駅はどこ？・何線？・ネクストメイクの駅はどこ？・乗り換えの駅はどこ？」）。
+ * 路線図で調べる。はじめに「天王寺から 阿波座まで」を問題として出し、
+ * ①まず 何線に 乗るか ②どこで 乗りかえるか ③本町駅で 何線に 乗るか、の順に聞く（tomy さん 2026-11-22）。
  * 読む・調べる確認なので、選ぶ形（駅をクリック・線をえらぶ）でよい（必ず守るルール3）。
  * まちがえたら「不正解。」とヒントを出し、もう一度えらぶ。
  */
-type Q = { key: UiKey; hint: UiKey; kind: "station" | "line"; answer: string };
+type Q =
+  | { key: UiKey; hint: UiKey; kind: "station"; answer: string }
+  | { key: UiKey; hint: UiKey; kind: "line"; answer: string; options: string[] };
 
 const QUESTIONS: Q[] = [
-  { key: "quiz.q1", hint: "quiz.q1hint", kind: "station", answer: "tennoji" },
-  { key: "quiz.q4", hint: "quiz.q4hint", kind: "line", answer: "M" },
-  { key: "quiz.q2", hint: "quiz.q2hint", kind: "station", answer: "awaza" },
-  { key: "quiz.q3", hint: "quiz.q3hint", kind: "station", answer: "hommachi" },
+  { key: "quiz.q1", hint: "quiz.q1hint", kind: "line", answer: "M", options: ["M", "T"] },
+  { key: "quiz.q2", hint: "quiz.q2hint", kind: "station", answer: "hommachi" },
+  { key: "quiz.q3", hint: "quiz.q3hint", kind: "line", answer: "C", options: ["M", "C", "Y"] },
 ];
+
+/** 問題の出発と到着（路線図に、はじめから印を付けておく）。 */
+const FROM = "tennoji";
+const TO = "awaza";
 
 export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
   const [result, setResult] = useState<"ok" | "ng" | null>(null);
-  const [marks, setMarks] = useState<Record<string, "ok" | "ng">>({});
+  const [marks, setMarks] = useState<Record<string, "ok" | "ng">>({ [FROM]: "ok", [TO]: "ok" });
   const q = QUESTIONS[i];
   const done = i >= QUESTIONS.length;
 
@@ -58,6 +64,15 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
       <h2 className="text-xl font-extrabold">
         <RubyText text={t("quiz.title")} />
       </h2>
+      {/* 問題: 天王寺から 阿波座まで */}
+      <div
+        className="bg-navy flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-white"
+        data-testid="quiz-problem"
+      >
+        <span className="text-xl leading-loose font-extrabold">
+          <RubyText text={t("quiz.problem")} />
+        </span>
+      </div>
       {!done && q && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-sky-50 px-4 py-3">
           <span className="bg-navy rounded-full px-3 py-1 text-sm font-extrabold text-white">
@@ -81,7 +96,7 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
       {!done && q?.kind === "line" && (
         <div className="flex flex-wrap gap-3">
           {METRO.lines
-            .filter((l) => l.stations.includes("tennoji"))
+            .filter((l) => q.options.includes(l.id))
             .map((l) => (
               <button
                 key={l.id}

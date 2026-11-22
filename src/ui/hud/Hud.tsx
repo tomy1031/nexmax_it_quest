@@ -8,6 +8,7 @@ import { RubyText } from "@/ui/RubyText";
 import { IconBulb, IconCheck, IconClose, IconMenu } from "@/ui/icons";
 import { usePhotoUrl } from "@/ui/use-photo";
 import { Menu } from "@/ui/hud/Menu";
+import { LineMark } from "@/ui/LineMark";
 import { Panels } from "@/ui/hud/Panels";
 
 const TIPS = (tipsJson.tips as Tip[]).reduce<Record<string, Tip>>(
@@ -44,9 +45,10 @@ export function Hud() {
   return (
     <div className="pointer-events-none absolute inset-0 z-10 select-none">
       <ObjectiveBar />
+      {/* メニューは、問題・パネル・豆知識が出ている間も押せる（その上に出す。閉じたら問題にもどる。tomy さん 2026-11-22） */}
       <button
         type="button"
-        className="btn btn-ghost pointer-events-auto absolute top-3 right-3 px-3"
+        className="btn btn-ghost pointer-events-auto absolute top-3 right-3 z-[25] px-3"
         onClick={() => setMenu(true)}
         data-testid="hud-menu"
       >
@@ -77,6 +79,9 @@ function ObjectiveBar() {
       <span className="bg-cyan text-ink shrink-0 rounded-full px-2.5 py-0.5 text-xs font-extrabold">
         <RubyText text={t("hud.objective")} />
       </span>
+      {objective.lines.map((id) => (
+        <LineMark key={id} id={id} />
+      ))}
       <span className="text-lg font-extrabold">
         <RubyText text={objective.text} />
       </span>
@@ -112,7 +117,7 @@ function ChapterBanner() {
   return (
     <div className="bg-deep/40 absolute inset-0 grid place-items-center">
       <div className="pop glass rounded-3xl px-12 py-6 text-center" data-testid="chapter-banner">
-        <p className="text-cyan text-sm font-bold tracking-widest">{stageId.toUpperCase()}</p>
+        <p className="text-sm font-bold tracking-widest text-white">{stageId.toUpperCase()}</p>
         <p className="text-4xl font-extrabold">
           <RubyText text={t("hud.chapter", { no })} />
         </p>
@@ -158,7 +163,7 @@ function Dialogue() {
           />
         ) : null}
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className={`text-sm font-extrabold ${announce ? "text-sun" : "text-cyan"}`}>
+          <span className="text-sm font-extrabold text-white">
             <RubyText text={speakerName(line.who, nickname)} />
           </span>
           <span className="text-2xl leading-[2.4] font-bold sm:text-[1.7rem]">

@@ -13,8 +13,16 @@
           "direction": "なかもず・あびこ 方面",
           "en": "for Nakamozu / Abiko",
           "led": [
-            { "kind": "普通", "time": "8:12", "dest": "なかもず" },
-            { "kind": "普通", "time": "8:16", "dest": "あびこ" }
+            {
+              "kind": "普通",
+              "time": "8:12",
+              "dest": "なかもず"
+            },
+            {
+              "kind": "普通",
+              "time": "8:16",
+              "dest": "あびこ"
+            }
           ]
         },
         {
@@ -23,8 +31,16 @@
           "direction": "なんば・梅田・新大阪 方面",
           "en": "for Namba / Umeda / Shin-Osaka",
           "led": [
-            { "kind": "普通", "time": "8:13", "dest": "千里中央" },
-            { "kind": "普通", "time": "8:17", "dest": "新大阪" }
+            {
+              "kind": "普通",
+              "time": "8:13",
+              "dest": "千里中央"
+            },
+            {
+              "kind": "普通",
+              "time": "8:17",
+              "dest": "新大阪"
+            }
           ]
         }
       ]
@@ -42,8 +58,16 @@
           "direction": "森ノ宮・長田 方面",
           "en": "for Morinomiya / Nagata",
           "led": [
-            { "kind": "普通", "time": "8:31", "dest": "長田" },
-            { "kind": "普通", "time": "8:35", "dest": "長田" }
+            {
+              "kind": "普通",
+              "time": "8:31",
+              "dest": "長田"
+            },
+            {
+              "kind": "普通",
+              "time": "8:35",
+              "dest": "長田"
+            }
           ]
         },
         {
@@ -52,8 +76,16 @@
           "direction": "阿波座・コスモスクエア 方面",
           "en": "for Awaza / Cosmosquare",
           "led": [
-            { "kind": "普通", "time": "8:32", "dest": "コスモスクエア" },
-            { "kind": "普通", "time": "8:36", "dest": "夢洲" }
+            {
+              "kind": "普通",
+              "time": "8:32",
+              "dest": "コスモスクエア"
+            },
+            {
+              "kind": "普通",
+              "time": "8:36",
+              "dest": "夢洲"
+            }
           ]
         }
       ]
@@ -71,8 +103,16 @@
           "direction": "九条・コスモスクエア 方面",
           "en": "for Kujo / Cosmosquare",
           "led": [
-            { "kind": "普通", "time": "8:34", "dest": "コスモスクエア" },
-            { "kind": "普通", "time": "8:38", "dest": "夢洲" }
+            {
+              "kind": "普通",
+              "time": "8:34",
+              "dest": "コスモスクエア"
+            },
+            {
+              "kind": "普通",
+              "time": "8:38",
+              "dest": "夢洲"
+            }
           ]
         }
       ]
@@ -108,5 +148,19 @@
   "trainNext": {
     "midosuji": ["動物園前", "大国町", "なんば", "心斎橋", "本町"],
     "chuo": ["阿波座"]
+  },
+  "passFare": {
+    "$comment": "天王寺〜阿波座（御堂筋線・本町・中央線）の大阪メトロの運賃。2026-11-22 に乗換案内（駅探）で確かめた。docs/research/大阪メトロ.md。",
+    "from": "tennoji",
+    "to": "awaza",
+    "via": "本町",
+    "oneWay": 240,
+    "commute": {
+      "1": 9480,
+      "3": 27020,
+      "6": 51200
+    },
+    "deposit": 500,
+    "checked": "2026-11-22"
   }
 }

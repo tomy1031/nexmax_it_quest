@@ -222,5 +222,13 @@
       "id": "wall-clock-05f8ff"
     }
   ],
-  "clips": []
+  "clips": [],
+  "others": [
+    {
+      "file": "nexmax/nexmax.glb",
+      "title": "ネクマックス 3D モデル",
+      "source": "https://github.com/tomy1031/lab/tree/97c6823/yokohama-roll/nexmax",
+      "note": "ネクストメイクのキャラクター。持ち主（tomy さん）の lab リポジトリの「ハマころ！」のモデルを、持ち主の指示（2026-11-22）で使う。"
+    }
+  ]
 }

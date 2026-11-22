@@ -6,7 +6,10 @@ import { t } from "@/lib/t";
 import { RubyText } from "@/ui/RubyText";
 import { IconCheck, IconPlay } from "@/ui/icons";
 
-/** ステージ選択。ステージ1は遊べる。ステージ2（入社式）は準備中。 */
+/**
+ * ステージ選択。ステージ1「入社初日」は、第1章（家から会社の駅まで）が遊べる。
+ * 第2章（会社に着いてから・入社式）は準備中（tomy さん 2026-11-22「第二章は会社ついてから」）。
+ */
 export function StageSelect() {
   const [, navigate] = useLocation();
   const progress = useGame((s) => s.stages.stage1);
@@ -30,7 +33,7 @@ export function StageSelect() {
           </button>
         </header>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="mx-auto grid w-full max-w-2xl gap-6">
           <article
             className="glass pop flex flex-col overflow-hidden rounded-3xl"
             data-testid="stage-card-1"
@@ -55,7 +58,7 @@ export function StageSelect() {
               <h2 className="text-xl leading-relaxed font-extrabold">
                 <RubyText text={stage1.title} />
               </h2>
-              <p className="text-white/80">
+              <p className="text-white">
                 <RubyText text={stage1.subtitle} />
               </p>
               <div className="mt-auto flex flex-wrap gap-2 pt-2">
@@ -117,40 +120,23 @@ export function StageSelect() {
                       <button
                         key={c.no}
                         type="button"
-                        className="btn btn-ghost justify-start"
+                        className="btn btn-ghost justify-start disabled:opacity-60"
                         onClick={() => first && go(first.id)}
+                        disabled={!first}
+                        data-testid={`chapter-${c.no}`}
                       >
                         <RubyText text={t("hud.chapter", { no: c.no })} />
                         <RubyText text={c.title} />
+                        {!first && (
+                          <span className="ml-auto rounded-full bg-white/15 px-2 py-0.5 text-sm">
+                            <RubyText text={t("select.soon")} />
+                          </span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
               )}
-            </div>
-          </article>
-
-          <article className="glass flex flex-col overflow-hidden rounded-3xl opacity-70">
-            <div className="relative h-44 bg-[linear-gradient(135deg,#ffb7d5_0%,#8f7bff_55%,#1f3f9a_100%)]">
-              <img
-                src={`${import.meta.env.BASE_URL}img/nexmax/hello.webp`}
-                alt=""
-                className="absolute right-4 bottom-0 h-40 w-40 grayscale-[30%]"
-              />
-              <div className="text-ink absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1 text-sm font-extrabold">
-                <RubyText text={t("select.stage")} /> 2
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col gap-3 p-5">
-              <h2 className="text-xl font-extrabold">
-                <RubyText text={t("select.stage2")} />
-              </h2>
-              <p className="text-white/80">
-                <RubyText text={t("select.stage2sub")} />
-              </p>
-              <span className="mt-auto self-start rounded-full bg-white/15 px-3 py-1 font-bold">
-                <RubyText text={t("select.soon")} />
-              </span>
             </div>
           </article>
         </div>

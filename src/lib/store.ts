@@ -71,6 +71,8 @@ interface PersistedState {
   tipsSeen: string[];
   /** 修了証の 報告の 文（学生が書いた文）。 */
   reportText: string;
+  /** 定期券を買った日（YYYY-MM-DD）。券面の「〜から〜まで」に使う。 */
+  passStart?: string;
 }
 
 interface GameState extends PersistedState {
@@ -85,6 +87,7 @@ interface GameState extends PersistedState {
   setMemo: (memo: string) => void;
   seeTip: (id: string) => void;
   setReport: (text: string) => void;
+  setPassStart: (date: string) => void;
 }
 
 export const useGame = create<GameState>()(
@@ -98,6 +101,7 @@ export const useGame = create<GameState>()(
       memo: "",
       tipsSeen: [],
       reportText: "",
+      setPassStart: (date) => set({ passStart: date }),
       setProfile: (p) => set((s) => ({ profile: { ...s.profile, ...p } })),
       setAvatar: (a) => set((s) => ({ avatar: { ...s.avatar, ...a } })),
       setSection: (stageId, section) =>
@@ -146,6 +150,7 @@ export const useGame = create<GameState>()(
         memo: s.memo,
         tipsSeen: s.tipsSeen,
         reportText: s.reportText,
+        passStart: s.passStart,
       }),
     },
   ),

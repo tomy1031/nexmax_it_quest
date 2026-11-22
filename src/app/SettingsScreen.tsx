@@ -14,8 +14,10 @@ import { IconCamera, IconCheck } from "@/ui/icons";
 /**
  * 設定。名前（カタカナ）・ニックネーム・顔写真・Google ログイン・Gemini のキー・画面の設定。
  * 入れたものはその場で保存する（「保存」を押し忘れて消えないように）。
+ * onClose を渡すと、ステージの上に重ねて開く形になり、「もどる」で同じ場面にもどる
+ * （メニューから開いたとき。タイトルへ移ると、ステージがやり直しになるため。tomy さん 2026-11-22）。
  */
-export function SettingsScreen() {
+export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
   const [, navigate] = useLocation();
   const ready = useSetupComplete();
   const profile = useGame((s) => s.profile);
@@ -29,8 +31,13 @@ export function SettingsScreen() {
           <h1 className="text-3xl font-extrabold">
             <RubyText text={t("settings.title")} />
           </h1>
-          <button type="button" className="btn btn-ghost" onClick={() => navigate("/")}>
-            <RubyText text={t("settings.toTitle")} />
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => (onClose ? onClose() : navigate("/"))}
+            data-testid="settings-back"
+          >
+            <RubyText text={onClose ? t("settings.back") : t("settings.toTitle")} />
           </button>
         </header>
 
@@ -74,15 +81,19 @@ export function SettingsScreen() {
           <RubyText text={ready ? t("settings.ready") : t("settings.notReady")} />
           {ready && (
             <div className="mt-3">
-              <button type="button" className="btn btn-primary" onClick={() => navigate("/")}>
-                <RubyText text={t("settings.toTitle")} />
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => (onClose ? onClose() : navigate("/"))}
+              >
+                <RubyText text={onClose ? t("settings.back") : t("settings.toTitle")} />
               </button>
             </div>
           )}
         </div>
         <a
           href={`${import.meta.env.BASE_URL}credits.txt`}
-          className="self-center text-sm text-white/60 underline"
+          className="self-center text-sm text-white underline"
         >
           <RubyText text={t("title.credits")} />
         </a>
@@ -94,7 +105,7 @@ export function SettingsScreen() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="glass rounded-2xl p-5">
-      <h2 className="text-cyan mb-3 text-xl font-extrabold">
+      <h2 className="mb-3 text-xl font-extrabold text-white">
         <RubyText text={title} />
       </h2>
       <div className="flex flex-col gap-4">{children}</div>
@@ -126,7 +137,7 @@ function Field({
         )}
       </span>
       {help && (
-        <span className="text-sm text-white/75">
+        <span className="text-sm text-white">
           <RubyText text={help} />
         </span>
       )}
@@ -161,7 +172,7 @@ function PhotoField() {
           <RubyText text={t("settings.optional")} />
         </span>
       </span>
-      <span className="text-sm text-white/75">
+      <span className="text-sm text-white">
         <RubyText text={t("settings.photoHelp")} />
       </span>
       <div className="flex flex-wrap items-center gap-4">
@@ -202,7 +213,7 @@ function PhotoField() {
           />
         </div>
       </div>
-      <p className="text-xs text-white/60">
+      <p className="text-xs text-white">
         <RubyText text={t("settings.photoNote")} />
       </p>
       {camera && <CameraModal onClose={() => setCamera(false)} onShot={store} />}
@@ -281,7 +292,7 @@ function LoginSection() {
   return (
     <Section title={t("settings.loginTitle")}>
       {!isSupabaseConfigured ? (
-        <p className="text-white/80">
+        <p className="text-white">
           <RubyText text={t("settings.loginDemo")} />
         </p>
       ) : session ? (
@@ -290,7 +301,7 @@ function LoginSection() {
             <IconCheck className="h-5 w-5" />
             <RubyText text={t("settings.loggedIn")} />
           </span>
-          <span className="text-sm text-white/70">{email}</span>
+          <span className="text-sm text-white">{email}</span>
           <button type="button" className="btn btn-ghost" onClick={() => void signOut()}>
             <RubyText text={t("settings.logout")} />
           </button>
@@ -358,7 +369,7 @@ function GeminiSection() {
           </span>
         )}
         <a
-          className="text-cyan text-sm underline"
+          className="text-sm text-white underline"
           href="https://aistudio.google.com/apikey"
           target="_blank"
           rel="noreferrer"
@@ -366,7 +377,7 @@ function GeminiSection() {
           <RubyText text={t("settings.geminiHowto")} />
         </a>
       </div>
-      <p className="text-xs text-white/60">
+      <p className="text-xs text-white">
         <RubyText text={t("settings.geminiNote")} />
       </p>
     </Section>
@@ -439,7 +450,7 @@ function Toggle<V extends string | number | boolean>({
           <button
             key={String(v)}
             type="button"
-            className={`rounded-lg px-3 py-1.5 font-bold transition ${v === value ? "bg-cyan text-ink" : "text-white/80 hover:bg-white/10"}`}
+            className={`rounded-lg px-3 py-1.5 font-bold transition ${v === value ? "bg-cyan text-ink" : "text-white hover:bg-white/10"}`}
             onClick={() => onChange(v)}
           >
             <RubyText text={l} />

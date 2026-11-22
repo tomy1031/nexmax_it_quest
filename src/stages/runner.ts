@@ -205,6 +205,7 @@ export class StageRunner {
             target: beat.target,
             arrow: beat.arrow ?? true,
             hints: beat.hints ?? [],
+            lines: beat.lines ?? [],
           },
           hintLevel: 0,
         });

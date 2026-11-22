@@ -169,7 +169,11 @@ function drawPerson(
   ctx.stroke();
 }
 
-/** 押しボタンの箱（「おしてください」・押すと「おまちください」が光る）。 */
+/**
+ * 押しボタンの箱（本物の形: 黄色い箱・角のねじ・上に黒い窓・まん中に銀のふちの赤い丸ボタン・
+ * 下に赤く光る「おしてください」。押すと上の窓に「おまちください」が赤く光る。tomy さんの写真 2026-11-22）。
+ * 正面は +z。position は箱のまん中。
+ */
 export function PushButtonBox({
   position,
   rotationY = 0,
@@ -179,47 +183,96 @@ export function PushButtonBox({
   rotationY?: number;
   waiting: boolean;
 }) {
-  const body = useMemo(
-    () =>
-      merge([
-        box(0.26, 0.4, 0.12, "#f2f2ee"),
-        box(0.12, 0.12, 0.05, "#e9e3c4", { pos: [0, -0.06, 0.07] }),
-      ]),
-    [],
-  );
+  const W = 0.22;
+  const H = 0.25;
+  const D = 0.1;
+  const body = useMemo(() => {
+    const p: THREE.BufferGeometry[] = [
+      // 黄色い箱（ふたのふちを少し明るく）
+      box(W, H, D, "#f7c81e"),
+      // 上の窓・下の字の帯の黒いわく
+      box(0.17, 0.052, 0.008, "#16171a", { pos: [0, 0.072, D / 2 + 0.004] }),
+      box(0.17, 0.04, 0.008, "#16171a", { pos: [0, -0.085, D / 2 + 0.004] }),
+      // ボタンの銀のふち
+      cyl(0.036, 0.014, "#c9cdd2", { pos: [0, -0.006, D / 2 + 0.008], rot: [Math.PI / 2, 0, 0] }),
+      cyl(0.03, 0.016, "#8d9299", { pos: [0, -0.006, D / 2 + 0.01], rot: [Math.PI / 2, 0, 0] }),
+      // 右がわのちょうつがい
+      box(0.012, 0.07, 0.02, "#d9ab16", { pos: [W / 2 + 0.004, 0.06, 0] }),
+      box(0.012, 0.07, 0.02, "#d9ab16", { pos: [W / 2 + 0.004, -0.06, 0] }),
+    ];
+    // 角のねじ
+    for (const [x, y] of [
+      [-0.093, 0.105],
+      [0.093, 0.105],
+      [-0.093, -0.035],
+      [0.093, -0.035],
+    ] as [number, number][]) {
+      p.push(
+        cyl(0.007, 0.008, "#d6d9dd", { pos: [x, y, D / 2 + 0.006], rot: [Math.PI / 2, 0, 0] }),
+      );
+    }
+    return merge(p);
+  }, []);
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh geometry={body} material={FLAT} />
-      <mesh position={[0, -0.06, 0.1]}>
-        <cylinderGeometry args={[0.045, 0.045, 0.03, 16]} />
+      {/* 黄色いふた（日かげでも本物のように明るい黄色に見えるよう、少しだけ自分で光らせる） */}
+      <mesh position={[0, 0, D / 2 + 0.001]}>
+        <boxGeometry args={[W - 0.012, H - 0.012, 0.006]} />
         <meshStandardMaterial
-          color="#f7d24a"
-          emissive="#f7a800"
-          emissiveIntensity={waiting ? 0.2 : 0.8}
+          color="#ffd21f"
+          emissive="#ffb800"
+          emissiveIntensity={0.32}
+          roughness={0.55}
         />
       </mesh>
+      {/* 赤い丸ボタン（押したあとは少し光る） */}
+      <mesh position={[0, -0.006, D / 2 + 0.019]} scale={[1, 1, 0.55]}>
+        <sphereGeometry args={[0.024, 20, 12]} />
+        <meshStandardMaterial
+          color="#d9262c"
+          emissive="#ff2a2a"
+          emissiveIntensity={waiting ? 0.9 : 0.15}
+          roughness={0.35}
+        />
+      </mesh>
+      {/* 上の窓: 押すと「おまちください」が赤く光る */}
       <CanvasPanel
-        width={0.22}
-        height={0.15}
-        ppm={1400}
-        position={[0, 0.11, 0.062]}
+        width={0.16}
+        height={0.042}
+        ppm={2400}
+        position={[0, 0.072, D / 2 + 0.0085]}
         emissive
-        fontText={t("sign.pushButton") + t("sign.wait")}
+        fontText={t("sign.wait")}
         deps={[waiting]}
         draw={(ctx, w, h) => {
-          ctx.fillStyle = "#f7f7f2";
+          ctx.fillStyle = "#0b0b0d";
           ctx.fillRect(0, 0, w, h);
-          drawRuby(ctx, t("sign.pushButton"), w / 2, h * 0.36, {
-            size: h * 0.2,
-            color: "#1b3f8f",
+          if (!waiting) return;
+          drawRuby(ctx, t("sign.wait"), w / 2, h * 0.74, {
+            size: Math.min(h * 0.6, (w * 0.9) / [...t("sign.wait")].length),
+            color: "#ff3b2a",
             align: "center",
+            shadow: "rgba(255,60,40,0.8)",
           });
-          ctx.fillStyle = waiting ? "#ff5a3c" : "#e9e1dc";
-          ctx.fillRect(w * 0.08, h * 0.52, w * 0.84, h * 0.38);
-          drawRuby(ctx, t("sign.wait"), w / 2, h * 0.8, {
-            size: h * 0.19,
-            color: waiting ? "#ffffff" : "#c9bdb6",
+        }}
+      />
+      {/* 下の帯: 「おしてください」がいつも赤く光る */}
+      <CanvasPanel
+        width={0.16}
+        height={0.032}
+        ppm={2400}
+        position={[0, -0.085, D / 2 + 0.0085]}
+        emissive
+        fontText={t("sign.pushButton")}
+        draw={(ctx, w, h) => {
+          ctx.fillStyle = "#0b0b0d";
+          ctx.fillRect(0, 0, w, h);
+          drawRuby(ctx, t("sign.pushButton"), w / 2, h * 0.78, {
+            size: Math.min(h * 0.7, (w * 0.9) / [...t("sign.pushButton")].length),
+            color: "#ff3b2a",
             align: "center",
+            shadow: "rgba(255,60,40,0.7)",
           });
         }}
       />

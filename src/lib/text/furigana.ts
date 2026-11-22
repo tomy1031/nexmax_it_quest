@@ -35,6 +35,11 @@ export interface RubySegment {
  */
 export const KANJI = /[㐀-鿿々]/;
 
+/** 「か月」の数え方（か・ヶ・ヵ・カ・ケ の後の「月」）。 */
+const MONTH = "\u6708";
+const GETSU = "\u3052\u3064";
+const COUNTER_KA = "\u304b\u30f6\u30f5\u30ab\u30b1";
+
 /**
  * 読み辞書から索引を作る。
  * 複合語を単漢字より先に当てるため、表記の長い順に並べる
@@ -69,6 +74,14 @@ export function annotateRuby(text: string, index: FuriganaIndex): RubySegment[] 
     // 漢字を含まない位置は辞書に当たらないので走査を省く
     if (!KANJI.test(text[i] ?? "")) {
       i += 1;
+      continue;
+    }
+    // 「3か月」「1ヶ月」の「月」は「げつ」（辞書は漢字から始まる表記しか持てないので、ここで決める）
+    if (text[i] === MONTH && i > 0 && COUNTER_KA.includes(text[i - 1] ?? "")) {
+      flushPlain(i);
+      segments.push({ text: MONTH, reading: GETSU });
+      i += 1;
+      plainStart = i;
       continue;
     }
     const hit = index.entries.find(

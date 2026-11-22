@@ -163,7 +163,9 @@ function center(
   size: number,
   color: string,
 ) {
-  drawRuby(ctx, text, x, y, { size, color, align: "center", rubyColor: "#0a6bd6" });
+  // 濃い背景（白い字）のときは、ふりがなも白。明るい背景では青
+  const rubyColor = color.toLowerCase() === "#ffffff" ? "#ffffff" : "#0a6bd6";
+  drawRuby(ctx, text, x, y, { size, color, align: "center", rubyColor });
 }
 
 function english(
@@ -256,9 +258,9 @@ const DRAW: Record<PosterKind, (ctx: CanvasRenderingContext2D, w: number, h: num
       ctx.quadraticCurveTo(w * (0.46 + i * 0.08), h * 0.17, w * (0.42 + i * 0.08), h * 0.12);
       ctx.stroke();
     }
-    center(ctx, txt("poster.cafe.title"), w / 2, h * 0.68, w * 0.1, "#f4e9dc");
-    center(ctx, txt("poster.cafe.sub"), w / 2, h * 0.8, w * 0.075, "#ffcf7a");
-    english(ctx, txt("poster.cafe.en"), w / 2, h * 0.9, w * 0.05, "#d8c8b8");
+    center(ctx, txt("poster.cafe.title"), w / 2, h * 0.68, w * 0.1, "#ffffff");
+    center(ctx, txt("poster.cafe.sub"), w / 2, h * 0.8, w * 0.075, "#ffffff");
+    english(ctx, txt("poster.cafe.en"), w / 2, h * 0.9, w * 0.05, "#ffffff");
   },
   rush: (ctx, w, h) => {
     ctx.fillStyle = "#fff6d6";
@@ -306,9 +308,9 @@ const DRAW: Record<PosterKind, (ctx: CanvasRenderingContext2D, w: number, h: num
       ctx.stroke();
     }
     english(ctx, "NEXMAX", w / 2, h * 0.36, w * 0.16, "#ffffff");
-    english(ctx, "IT QUEST", w / 2, h * 0.47, w * 0.11, "#7fe9ff");
+    english(ctx, "IT QUEST", w / 2, h * 0.47, w * 0.11, "#ffffff");
     center(ctx, txt("poster.nexmax.title"), w / 2, h * 0.72, w * 0.085, "#ffffff");
-    english(ctx, txt("poster.nexmax.en"), w / 2, h * 0.84, w * 0.05, "#bfefff");
+    english(ctx, txt("poster.nexmax.en"), w / 2, h * 0.84, w * 0.05, "#ffffff");
   },
   ginkgo: (ctx, w, h) => {
     ctx.fillStyle = "#fff8e1";

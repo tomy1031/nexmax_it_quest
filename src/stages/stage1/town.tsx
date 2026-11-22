@@ -67,6 +67,7 @@ const BUILDINGS: B[] = [
   ["street/shop2", 40.8, 25.6, RE],
   ["street/shop3", 40.8, 29.6, RE],
   // メトロの入口のある通り（南の列・北の列）
+  ["street/shop2", 42, -2.4, R0],
   ["street/konbini", 48, -2.4, R0],
   ["street/shop2", 54, -2.4, R0],
   ["street/shop3", 58, -2.4, R0],
@@ -138,8 +139,8 @@ function Ground() {
     strip(-19, 26.6, 1.2);
     dots(26.9, 1.2);
     dots(37.6, 1.2);
-    strip(37.9, 41.2, 1.2);
-    dots(41.5, 1.2);
+    strip(37.9, 41.9, 1.2);
+    dots(42.2, 1.2);
     return merge(parts);
   }, []);
   return <mesh geometry={geo} material={FLAT} raycast={() => null} />;
@@ -319,7 +320,7 @@ function StoreFronts() {
       <Prop url="street/post-box" position={[13.9, 0.07, 0.25]} />
 
       {/* 広い店（x=18）: 日よけ・たて看板・プランター・自転車 */}
-      <VSign position={[14.35, 3.9, 0.05]} text="town.cafe" bg="#2f5d3a" fg="#f6f1e2" />
+      <VSign position={[14.35, 3.9, 0.05]} text="town.cafe" bg="#2f5d3a" fg="#ffffff" />
       <Prop url="street/awning" position={[16, 2.45, 0.1]} />
       <Prop url="street/awning" position={[20, 2.45, 0.1]} />
       <Prop url="street/sandwich-board" position={[17.4, 1.07, 0.55]} rotationY={0.2} />
@@ -363,7 +364,7 @@ function StoreFronts() {
         rotationY={Math.PI}
         text="town.cafe"
         bg="#2f5d3a"
-        fg="#f6f1e2"
+        fg="#ffffff"
       />
       <VSign
         position={[-15.8, 3.9, 13.25]}
@@ -394,7 +395,7 @@ function StoreFronts() {
       {/* メトロの入口のある通り */}
       <Prop url="street/vending" position={[38.9, 0.07, -0.0]} />
       <Prop url="street/bin" position={[39.7, 0.07, 0.1]} />
-      <Prop url="street/sandwich-board" position={[45.0, 1.07, 0.6]} rotationY={-0.3} />
+      <Prop url="street/sandwich-board" position={[40.4, 1.07, 0.05]} rotationY={-0.3} />
       <Prop url="street/bike-rack" position={[52, 0.07, 0.3]} />
       <Many
         url="street/bicycle"
@@ -402,11 +403,11 @@ function StoreFronts() {
       />
       <Noren position={[44.8, 2.05, 3.5]} rotationY={Math.PI} text="town.soba" />
       <VSign
-        position={[46.6, 3.9, 3.15]}
+        position={[48.6, 3.9, 3.15]}
         rotationY={Math.PI}
         text="town.cafe"
         bg="#2f5d3a"
-        fg="#f6f1e2"
+        fg="#ffffff"
       />
     </>
   );

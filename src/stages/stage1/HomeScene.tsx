@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { playSfx } from "@/lib/audio";
 import { onFx } from "@/stages/events";
 import { usePlay } from "@/stages/play-store";
 import { CanvasPanel } from "@/factory/CanvasPanel";
@@ -20,6 +21,8 @@ export function HomeScene() {
     },
     walk: [{ minX: -2.1, maxX: 2.1, minZ: -1.0, maxZ: 1.9 }],
     shots: {
+      // 目覚まし時計のアップ（はじめに見せて、ここで押して止める）
+      alarm: { pos: [-1.32, 0.84, 0.52], look: [-1.97, 0.57, 0.35], fov: 34 },
       pc: { pos: [1.55, 1.25, -0.75], look: [1.55, 0.88, -1.75], fov: 45 },
       mirror: { pos: [0.2, 1.45, 0.3], look: [1.6, 1.1, 0.9], fov: 50 },
     },
@@ -31,14 +34,32 @@ export function HomeScene() {
   // ステージの途中から始めたとき（NMChat・着がえ）は、もう鳴っていない
   const [ringing, setRinging] = useState(() => usePlay.getState().sectionId === "s01-wake");
   const [blink, setBlink] = useState(true);
-  useEffect(() => onFx((id) => id === "alarm-off" && setRinging(false)), []);
+  useEffect(
+    () =>
+      onFx((id) => {
+        if (id !== "alarm-off") return;
+        setRinging(false);
+        // 台本の sfx alarm-stop と同じ。音が鳴りつづけないよう、場面の側でも止める
+        playSfx("alarm-stop");
+      }),
+    [],
+  );
+  const focus = usePlay((s) => s.focus);
   useEffect(() => {
     if (!ringing) return;
     const timer = window.setInterval(() => setBlink((b) => !b), 450);
     return () => window.clearInterval(timer);
   }, [ringing]);
 
-  const clockGeo = useMemo(() => block(0.26, 0.12, 0.1, "#2a2d33"), []);
+  // 目覚まし時計（画面は +x＝部屋の中の方を向く。横はば 0.26・おく行き 0.12）
+  const clockGeo = useMemo(
+    () =>
+      merge([
+        block(0.12, 0.13, 0.27, "#2a2d33"),
+        box(0.06, 0.02, 0.08, "#e9eef3", { pos: [-0.01, 0.14, 0] }),
+      ]),
+    [],
+  );
   const room = useMemo(
     () =>
       merge([
@@ -104,13 +125,18 @@ export function HomeScene() {
         <meshBasicMaterial color="#fffdf4" toneMapped={false} />
       </mesh>
 
-      <Interactable id="alarm" approach={[-1.35, 0.35]} marker={[-2.0, 0.85, 0.35]}>
+      {/* アップの間は歩けないので、その場で合図を出す（approach なし） */}
+      <Interactable
+        id="alarm"
+        approach={focus === "alarm" ? undefined : [-1.35, 0.35]}
+        marker={[-2.0, 0.85, 0.35]}
+      >
         <mesh geometry={clockGeo} material={FLAT} position={[-2.0, 0.5, 0.35]} />
         <CanvasPanel
           width={0.22}
           height={0.08}
           ppm={1200}
-          position={[-1.88, 0.56, 0.35]}
+          position={[-1.937, 0.565, 0.35]}
           rotation={[0, Math.PI / 2, 0]}
           emissive
           deps={[ringing, blink]}

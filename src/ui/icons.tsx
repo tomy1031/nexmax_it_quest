@@ -192,23 +192,40 @@ export const IconBookOpen = ({ className, style }: P) => (
     style={style}
     fill="none"
     stroke="currentColor"
-    strokeWidth="1.7"
+    strokeWidth="1.8"
     strokeLinejoin="round"
+    strokeLinecap="round"
     aria-hidden
   >
-    <path d="M2.5 5.5h7a2.5 2.5 0 0 1 2.5 2.5v11a2 2 0 0 0-2-2h-7.5z" />
-    <path d="M21.5 5.5h-7A2.5 2.5 0 0 0 12 8v11a2 2 0 0 1 2-2h7.5z" />
-    <path d="M5 9h4M5 12h4M5 15h4M15 9h4M15 12h4M15 15h4" strokeLinecap="round" />
+    {/* ひらいた本（左右のページ・まん中の背・ページの行） */}
+    <path d="M12 6.4C9.6 4.9 6.3 4.6 2.6 5.3v13.5c3.7-.7 7-.4 9.4 1.2 2.4-1.6 5.7-1.9 9.4-1.2V5.3c-3.7-.7-7-.4-9.4 1.1z" />
+    <path d="M12 6.4V20" />
+    <path d="M5.2 9.3h4.2M5.2 12.4h4.2M5.2 15.5h4.2M14.6 9.3h4.2M14.6 12.4h4.2M14.6 15.5h4.2" />
   </svg>
 );
 
-/** 歯車（ぬりつぶし。ボタンのイメージの「設定」の記号）。 */
+/** 歯車（ぬりつぶし・8つの歯・まん中に穴。ボタンのイメージの「設定」の記号）。 */
 export const IconGearSolid = ({ className, style }: P) => (
   <svg viewBox="0 0 24 24" className={className} style={style} fill="currentColor" aria-hidden>
-    <path
-      fillRule="evenodd"
-      d="M10.3 2h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7a6 6 0 0 1 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"
-      transform="translate(0 1.6)"
-    />
+    <defs>
+      <mask id="gear-hole">
+        <rect width="24" height="24" fill="white" />
+        <circle cx="12" cy="12" r="3.3" fill="black" />
+      </mask>
+    </defs>
+    <g mask="url(#gear-hole)">
+      <circle cx="12" cy="12" r="7.4" />
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+        <rect
+          key={a}
+          x="10.1"
+          y="1.6"
+          width="3.8"
+          height="5"
+          rx="1"
+          transform={`rotate(${a} 12 12)`}
+        />
+      ))}
+    </g>
   </svg>
 );

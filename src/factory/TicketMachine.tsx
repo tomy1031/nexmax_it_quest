@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { playSfx } from "@/lib/audio";
+import placesJson from "@content/places.json";
+import type { PlacesFile } from "@/content/schema";
 import { useGame } from "@/lib/store";
 import { t } from "@/lib/t";
 import { questEvents } from "@/stages/events";
@@ -51,9 +53,12 @@ const H = 900;
 const SCREEN_W = 0.56;
 const SCREEN_H = 0.42;
 
+const PLACES = placesJson as PlacesFile;
+
 /** 正しい答え。 */
 const ANSWER = { from: "tennoji", fromLine: "M", to: "awaza", toLine: "C", months: 3 };
-const PRICE = 25000;
+/** 天王寺〜阿波座の通勤定期3か月（content/places.json の passFare。2026-11 に調べた値段）。 */
+const PRICE = PLACES.passFare.commute[String(ANSWER.months)] ?? 0;
 
 function grid(
   ids: { id: string; label: string; line?: string; tone?: Btn["tone"] }[],
@@ -277,6 +282,7 @@ export function TicketMachine({
           setScreen("take");
           playSfx("pi");
           window.setTimeout(() => {
+            useGame.getState().setPassStart(new Date().toISOString().slice(0, 10));
             questEvents.emit("ticket:purchased");
             setScreen("top");
           }, 1400);
@@ -391,7 +397,7 @@ function drawScreen(
     charged: "tm.charged",
   };
   const title = titleKey[screen];
-  if (title) drawRuby(ctx, t(title), 50, 95, { size: 46, color: "#ffffff", rubyColor: "#fff3f8" });
+  if (title) drawRuby(ctx, t(title), 50, 95, { size: 46, color: "#ffffff", rubyColor: "#ffffff" });
   if (screen === "top") {
     drawRuby(ctx, t("tm.passOnly"), W / 2, 230, {
       size: 40,
@@ -409,7 +415,7 @@ function drawScreen(
     const rows: [string, string][] = [
       [t("tm.period"), t("tm.m3")],
       [t("tm.kind"), t("tm.commute")],
-      [t("tm.price"), `${(PRICE + 500).toLocaleString()} ${t("tm.yen")}`],
+      [t("tm.price"), `${(PRICE + PLACES.passFare.deposit).toLocaleString()} ${t("tm.yen")}`],
     ];
     rows.forEach(([k, v], i) => {
       const y = 470 + i * 92;
@@ -423,7 +429,7 @@ function drawScreen(
     });
   }
   if (screen === "pay" || screen === "charge-pay") {
-    const yen = screen === "pay" ? PRICE + 500 : st.amount;
+    const yen = screen === "pay" ? PRICE + PLACES.passFare.deposit : st.amount;
     drawRuby(ctx, `${yen.toLocaleString()} ${t("tm.yen")}`, W / 2, 380, {
       size: 90,
       color: "#16264d",

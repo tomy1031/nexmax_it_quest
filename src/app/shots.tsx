@@ -17,6 +17,7 @@ import { IcocaCard, Phone, Receipt } from "@/factory/small-parts";
 import { Noren, VSign } from "@/factory/town-parts";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { Chibi } from "@/three/Chibi";
+import { NexmaxModel } from "@/three/Nexmax";
 import { Crowd } from "@/three/Crowd";
 import { Lights } from "@/three/helpers";
 import charactersJson from "@content/characters.json";
@@ -102,7 +103,7 @@ export const SHOTS: Record<string, ShotDef> = {
     scene: () => <PedSignal position={[0, 0, 0]} light="green" blinkOn />,
   },
   oshibotan: {
-    camera: { pos: [0.05, 1.2, 1.0], look: [0, 1.13, 0], fov: 32 },
+    camera: { pos: [0.12, 1.19, 0.62], look: [0, 1.14, 0], fov: 32 },
     light: "day",
     scene: () => <PushButtonBox position={[0, 1.15, 0]} waiting />,
   },
@@ -121,7 +122,13 @@ export const SHOTS: Record<string, ShotDef> = {
   teikiken: {
     camera: { pos: [0, 0.35, 0.9], look: [0, 0, 0], fov: 30 },
     light: "room",
-    scene: () => <IcocaCard position={[0, 0, 0]} rotation={[-0.35, 0.15, 0.05]} />,
+    scene: () => (
+      <IcocaCard
+        position={[0, 0, 0]}
+        rotation={[-0.35, 0.15, 0.05]}
+        sampleName={t("pass.sampleName")}
+      />
+    ),
   },
   koutsuhi: {
     camera: { pos: [0, 0.55, 0.75], look: [0, 0, 0], fov: 34 },
@@ -129,7 +136,11 @@ export const SHOTS: Record<string, ShotDef> = {
     scene: () => (
       <>
         <Receipt position={[-0.09, 0, 0]} rotation={[-Math.PI / 2 + 0.3, 0, 0.12]} />
-        <IcocaCard position={[0.12, 0.02, 0.04]} rotation={[-Math.PI / 2 + 0.3, 0, -0.2]} />
+        <IcocaCard
+          position={[0.12, 0.02, 0.04]}
+          rotation={[-Math.PI / 2 + 0.3, 0, -0.2]}
+          sampleName={t("pass.sampleName")}
+        />
       </>
     ),
   },
@@ -299,7 +310,7 @@ SHOTS["town-signs"] = {
         <VSign position={[0, 1.6, 0]} text="town.soba" />
       </group>
       <group rotation={[0, -Math.PI / 2, 0]} position={[-1.8, 0, 0]}>
-        <VSign position={[0, 1.6, 0]} text="town.cafe" bg="#2f5d3a" fg="#f6f1e2" />
+        <VSign position={[0, 1.6, 0]} text="town.cafe" bg="#2f5d3a" fg="#ffffff" />
       </group>
       <group rotation={[0, -Math.PI / 2, 0]} position={[-0.6, 0, 0]}>
         <VSign
@@ -312,6 +323,22 @@ SHOTS["town-signs"] = {
       </group>
       <Noren position={[1.2, 2.0, 0]} text="town.soba" />
       <Noren position={[3.0, 2.0, 0]} text="town.yu" />
+    </>
+  ),
+};
+
+/** 見本（開発用）: ネクマックスの 3D（lab の nexmax.glb）。/factory?shot=nexmax */
+SHOTS.nexmax = {
+  camera: { pos: [0, 0.75, 3.2], look: [0, 0.6, 0], fov: 32 },
+  light: "day",
+  scene: () => (
+    <>
+      <group position={[-0.7, 0, 0]}>
+        <NexmaxModel motion="idle" face="happy" />
+      </group>
+      <group position={[0.7, 0, 0]}>
+        <NexmaxModel motion="wave" face="surprised" />
+      </group>
     </>
   ),
 };

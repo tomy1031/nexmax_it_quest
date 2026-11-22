@@ -1,53 +1,45 @@
 import { useMemo } from "react";
 import { t } from "@/lib/t";
 import { CanvasPanel } from "@/factory/CanvasPanel";
+import { drawIcocaCard, passFontText } from "@/factory/icoca-card";
+import { useGame } from "@/lib/store";
 import { box, FLAT, merge } from "@/factory/kit";
 import { STATION } from "@/factory/signs";
-import { drawRuby, roundRect } from "@/factory/text-canvas";
+import { drawRuby } from "@/factory/text-canvas";
 
 /**
  * 小さな物（ICOCA のカード・電話・領収書）。豆知識の絵（scripts/shots.mjs）と場面で使う。
- * カードの絵柄は本物（商標）をまねない。青い地に名前だけ。
+ * ICOCA の券面は本物の並びに合わせ、ロゴとキャラクターの絵は描かない（src/factory/icoca-card.ts）。
  */
+/** ICOCA（定期券入り）。券面は src/factory/icoca-card.ts（本物の券面の並びに合わせた絵）。 */
 export function IcocaCard({
   position,
   rotation,
   pass = true,
+  sampleName,
 }: {
   position: [number, number, number];
   rotation?: [number, number, number];
   pass?: boolean;
+  /** 豆知識の絵などで使う見本の名前（無ければ、学生の名前）。 */
+  sampleName?: string;
 }) {
+  const own = useGame((s) => s.profile.name);
+  const name = sampleName ?? own;
+  const start = useGame((s) => s.passStart);
+  const info = { pass, name, start };
   return (
     <group position={position} rotation={rotation}>
       <CanvasPanel
         width={0.0856 * 4}
         height={0.054 * 4}
-        ppm={1600}
+        ppm={1800}
         doubleSide
-        fontText={`${t("tm.section")}${STATION.tennoji?.name}${STATION.awaza?.name}`}
-        draw={(ctx, w, h) => {
-          const g = ctx.createLinearGradient(0, 0, w, h);
-          g.addColorStop(0, "#7ad7ff");
-          g.addColorStop(1, "#2a6cff");
-          roundRect(ctx, 0, 0, w, h, h * 0.08);
-          ctx.fillStyle = g;
-          ctx.fill();
-          ctx.fillStyle = "#ffffff";
-          ctx.font = `900 ${h * 0.22}px sans-serif`;
-          ctx.fillText("ICOCA", w * 0.07, h * 0.3);
-          if (pass) {
-            ctx.fillStyle = "rgba(255,255,255,0.92)";
-            roundRect(ctx, w * 0.06, h * 0.45, w * 0.88, h * 0.44, h * 0.05);
-            ctx.fill();
-            drawRuby(ctx, `${STATION.tennoji?.name} ⇄ ${STATION.awaza?.name}`, w * 0.5, h * 0.8, {
-              size: h * 0.17,
-              color: "#16264d",
-              rubyColor: "#0a6bd6",
-              align: "center",
-            });
-          }
-        }}
+        emissive
+        transparent
+        fontText={passFontText(info)}
+        deps={[pass, name, start]}
+        draw={(ctx, w, h) => drawIcocaCard(ctx, w, h, info)}
       />
     </group>
   );

@@ -16,6 +16,7 @@ export interface Objective {
   target?: string;
   arrow: boolean;
   hints: string[];
+  lines: string[];
 }
 
 export interface PlayState {

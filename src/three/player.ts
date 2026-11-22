@@ -22,6 +22,12 @@ export function walkTo(x: number, z: number, onArrive?: () => void): void {
   player.onArrive = onArrive ?? null;
 }
 
+/**
+ * カメラを、ある向き（自分の後ろから見る向き）へ合わせてほしいとき（場面の側から頼む）。
+ * yaw は「自分が向く向き」。CameraRig が次のフレームで受け取り、なめらかに回りこむ。
+ */
+export const cameraAim = { yaw: null as number | null };
+
 /** 自分を置きなおしたとき、カメラもすぐ後ろへ移す（なめらかに追いかけない）。 */
 export const cameraSnap = { pending: true };
 

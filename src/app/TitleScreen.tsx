@@ -37,26 +37,7 @@ export function TitleScreen() {
           draggable={false}
         />
 
-        {/* タグライン（左右に細い線） */}
-        <div
-          className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center whitespace-nowrap text-white"
-          style={{ left: "50%", top: py(80), gap: px(30) }}
-          data-testid="title-tagline"
-        >
-          <span className="block bg-white/75" style={{ width: px(110), height: 1 }} />
-          <span
-            className="font-bold"
-            style={{
-              fontSize: px(22),
-              letterSpacing: "0.36em",
-              marginRight: "-0.36em",
-              textShadow: "0 0 10px rgba(56,225,255,0.55)",
-            }}
-          >
-            <RubyText text={t("title.tagline")} />
-          </span>
-          <span className="block bg-white/75" style={{ width: px(110), height: 1 }} />
-        </div>
+        {/* キャッチコピー（上の1行）は置かない（tomy さん 2026-11-22） */}
 
         {/* 帯 */}
         <p

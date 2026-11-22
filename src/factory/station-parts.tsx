@@ -707,13 +707,13 @@ export function DoorScreen({
           ctx.fillRect(0, 0, w * 0.04, h);
           drawRuby(ctx, t("sign.next"), w * 0.07, h * 0.62, {
             size: h * 0.22,
-            color: "#9fd8ff",
-            rubyColor: "#5ff3ff",
+            color: "#ffffff",
+            rubyColor: "#ffffff",
           });
           drawRuby(ctx, next, w * 0.58, h * 0.78, {
             size: h * 0.42,
             color: "#ffffff",
-            rubyColor: "#5ff3ff",
+            rubyColor: "#ffffff",
             align: "center",
           });
         }}
