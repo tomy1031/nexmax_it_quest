@@ -76,7 +76,7 @@ function ObjectiveBar() {
       className="glass pop absolute top-3 left-3 flex max-w-[min(70vw,560px)] items-center gap-3 rounded-2xl px-4 py-2.5"
       data-testid="objective"
     >
-      <span className="bg-cyan text-ink shrink-0 rounded-full px-2.5 py-0.5 text-xs font-extrabold">
+      <span className="shrink-0 rounded-full bg-[#0a63d6] px-2.5 py-0.5 text-xs font-extrabold text-white">
         <RubyText text={t("hud.objective")} />
       </span>
       {objective.lines.map((id) => (
@@ -170,7 +170,7 @@ function Dialogue() {
             <RubyText text={text} />
           </span>
         </span>
-        <span className="bg-cyan text-ink shrink-0 self-end rounded-full px-3 py-1 text-sm font-extrabold">
+        <span className="shrink-0 self-end rounded-full bg-[#0a63d6] px-3 py-1 text-sm font-extrabold text-white">
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>
@@ -265,7 +265,7 @@ function Dream() {
             </div>
           ))}
         </div>
-        <span className="bg-cyan rounded-full px-4 py-1 font-extrabold">
+        <span className="rounded-full bg-[#0a63d6] px-4 py-1 font-extrabold text-white">
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>
@@ -321,7 +321,7 @@ export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
       </div>
       <div className="flex justify-end gap-2">
         {tip.more && !more && (
-          <button type="button" className="btn btn-ghost !text-ink" onClick={() => setMore(true)}>
+          <button type="button" className="btn btn-sub" onClick={() => setMore(true)}>
             <RubyText text={t("hud.more")} />
           </button>
         )}

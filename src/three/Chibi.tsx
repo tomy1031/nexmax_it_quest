@@ -5,7 +5,7 @@ import type { AvatarConfig } from "@/lib/store";
 import { buildChibi, chibiMaterial, CHIBI_JOINTS, faceTexture, HEAD } from "@/three/chibi";
 
 export type ChibiMotion =
-  "idle" | "walk" | "run" | "sitting" | "talking" | "agree" | "bow" | "surprised";
+  "idle" | "walk" | "run" | "sitting" | "talking" | "agree" | "bow" | "surprised" | "sleep";
 
 /**
  * ちびキャラ（自分・主要キャラ・まわりの人）。骨を使わず、体・頭・腕・足の部品を回して動かす。
@@ -104,6 +104,13 @@ export function Chibi({
         aL = 0.05;
         aR = -0.05;
         break;
+      case "sleep":
+        // 寝ている: 手と足をまっすぐ、ゆっくり息をする
+        aL = 0.08;
+        aR = -0.08;
+        bodyY = Math.sin(tt * 1.2) * 0.006;
+        headRoll = 0.15;
+        break;
       case "surprised":
         bodyY = Math.max(0, Math.sin(tt * 9)) * 0.05;
         aL = 0.9;
@@ -135,7 +142,7 @@ export function Chibi({
       bl.until = tt + 0.12;
       bl.next = tt + 2.5 + ((tt * 7.3) % 3);
     }
-    const want = tt < bl.until ? faceClosed : faceOpen;
+    const want = m === "sleep" || tt < bl.until ? faceClosed : faceOpen;
     if (faceMat.map !== want) {
       faceMat.map = want;
       faceMat.needsUpdate = true;

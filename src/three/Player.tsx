@@ -59,7 +59,9 @@ export function Player() {
     const { walk, triggers } = useLayout.getState();
     const play = usePlay.getState();
     const blocked =
-      player.frozen || Boolean(play.line || play.panel || play.choice || play.tip || play.focus);
+      player.frozen ||
+      Boolean(player.pose) ||
+      Boolean(play.line || play.panel || play.choice || play.tip || play.focus);
 
     // キーで歩く（カメラの向きに合わせる）
     const k = keys.current;
@@ -116,9 +118,16 @@ export function Player() {
       }
     }
     player.moving = moving;
+    if (player.pose?.kind === "sleep") {
+      // ベッドで あおむけに寝ている（頭は yaw の向き。顔は上）
+      motion.current = "sleep";
+      g.position.set(...player.pose.pos);
+      g.rotation.set(-Math.PI / 2, player.pose.yaw, 0, "YXZ");
+      return;
+    }
     motion.current = moving ? "walk" : "idle";
     g.position.copy(player.pos);
-    g.rotation.y = player.yaw;
+    g.rotation.set(0, player.yaw, 0);
 
     // 近づいたら reach:<id>
     for (const tr of triggers) {

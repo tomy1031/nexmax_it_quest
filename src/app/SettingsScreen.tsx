@@ -450,7 +450,7 @@ function Toggle<V extends string | number | boolean>({
           <button
             key={String(v)}
             type="button"
-            className={`rounded-lg px-3 py-1.5 font-bold transition ${v === value ? "bg-cyan text-ink" : "text-white hover:bg-white/10"}`}
+            className={`rounded-lg px-3 py-1.5 font-bold transition ${v === value ? "bg-[#0a63d6] text-white" : "text-white hover:bg-white/10"}`}
             onClick={() => onChange(v)}
           >
             <RubyText text={l} />

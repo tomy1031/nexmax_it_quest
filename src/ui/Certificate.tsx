@@ -105,7 +105,7 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
           <div className="flex gap-2">
             <button
               type="button"
-              className="btn btn-ghost !text-ink"
+              className="btn btn-sub"
               onClick={() => void save()}
               disabled={saving}
             >

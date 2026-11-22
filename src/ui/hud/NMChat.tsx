@@ -16,6 +16,7 @@ const BASE = import.meta.env.BASE_URL;
  */
 export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: () => void }) {
   const [channel, setChannel] = useState<string | null>(mode === "view" ? "onboarding" : null);
+  const [moreBelow, setMoreBelow] = useState<boolean | null>(null);
   const nickname = useGame((s) => s.profile.nickname);
   const [read, setRead] = useState(mode === "view");
   const current = CHAT.channels.find((c) => c.id === channel);
@@ -23,6 +24,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
 
   const open = (id: string) => {
     setChannel(id);
+    setMoreBelow(null);
     if (id === "onboarding") {
       setRead(true);
       questEvents.emit("nmchat:read-onboarding");
@@ -31,7 +33,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
 
   return (
     <div
-      className="text-ink flex h-[min(70vh,560px)] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
+      className="text-ink flex h-[min(84vh,700px)] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
       data-testid="nmchat"
     >
       <aside className="flex w-44 shrink-0 flex-col gap-1 bg-[#1b2a5c] p-3 text-white sm:w-56">
@@ -48,7 +50,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
               key={c.id}
               type="button"
               onClick={() => open(c.id)}
-              className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-left font-bold ${channel === c.id ? "bg-cyan text-ink" : "hover:bg-white/10"} ${unread ? "ring-sun ring-2" : ""}`}
+              className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-left font-bold ${channel === c.id ? "bg-[#0a63d6] text-white" : "hover:bg-white/10"} ${unread ? "ring-sun ring-2" : ""}`}
               data-testid={`channel-${c.id}`}
             >
               <span># {c.name}</span>
@@ -70,7 +72,17 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
                 <RubyText text={current.topic} />
               </p>
             </header>
-            <div className="flex-1 overflow-y-auto px-4 py-3">
+            {/* 文が多いときは、この中だけが動く。下につづきがあるときは「▼」を出す */}
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-3 pb-6"
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                setMoreBelow(el.scrollTop + el.clientHeight < el.scrollHeight - 8);
+              }}
+              ref={(el) => {
+                if (el && moreBelow === null) setMoreBelow(el.scrollHeight > el.clientHeight + 8);
+              }}
+            >
               {current.messages.map((m, i) => (
                 <div key={i} className="mb-4 flex gap-3">
                   <Avatar who={m.from} />
@@ -84,7 +96,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
                       <span className="text-xs text-slate-400">{m.time}</span>
                     </p>
                     {m.lines.map((l, j) => (
-                      <p key={j} className="text-lg leading-[2.2]">
+                      <p key={j} className="text-lg leading-[2.05] break-words">
                         <RubyText text={fill(l, vars)} />
                       </p>
                     ))}
@@ -92,6 +104,11 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
                 </div>
               ))}
             </div>
+            {moreBelow && (
+              <div className="pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-white to-transparent text-center text-xl leading-10 text-[#0a63d6]">
+                ▼
+              </div>
+            )}
           </>
         ) : (
           <div className="grid flex-1 place-items-center p-6 text-center text-xl font-bold text-slate-500">

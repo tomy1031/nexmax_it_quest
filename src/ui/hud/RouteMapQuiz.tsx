@@ -101,7 +101,7 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
               <button
                 key={l.id}
                 type="button"
-                className="btn btn-ghost !text-ink"
+                className="btn btn-sub"
                 style={{ borderColor: l.color }}
                 onClick={() => answer(l.id)}
                 data-testid={`line-${l.id}`}

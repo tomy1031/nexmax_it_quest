@@ -84,12 +84,16 @@
           "t": "clear-objective"
         },
         {
+          "t": "unfocus"
+        },
+        {
           "t": "say",
           "who": "me",
           "text": "7時だ。今日は 大事な 日！"
         },
         {
-          "t": "unfocus"
+          "t": "fx",
+          "id": "wake-up"
         },
         {
           "t": "say",

@@ -48,7 +48,7 @@ export function StageSelect() {
                 <RubyText text={t("select.stage")} /> 1
               </div>
               {cleared && (
-                <div className="bg-leaf text-ink absolute top-4 left-32 flex items-center gap-1 rounded-full px-3 py-1 text-sm font-extrabold">
+                <div className="absolute top-4 left-32 flex items-center gap-1 rounded-full bg-[#1b8a4a] px-3 py-1 text-sm font-extrabold text-white">
                   <IconCheck className="h-4 w-4" />
                   <RubyText text={t("select.cleared")} />
                 </div>

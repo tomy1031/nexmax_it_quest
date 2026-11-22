@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { playSfx } from "@/lib/audio";
+import { placePlayer, player } from "@/three/player";
 import { onFx } from "@/stages/events";
 import { usePlay } from "@/stages/play-store";
 import { CanvasPanel } from "@/factory/CanvasPanel";
@@ -13,6 +14,9 @@ import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
  * 自宅（朝）。目覚まし・パソコン（NMChat）・クローゼット（着がえ）・ドア。
  * 操作の練習を兼ねる（物を押す・床を押して歩く。Fable 5.2 のレビュー）。
  */
+/** ベッドで寝ているときの足の位置（ベッドの上。頭はまくらの方＝-z）。 */
+const SLEEP_POS: [number, number, number] = [-1.62, 0.6, -0.15];
+
 export function HomeScene() {
   useSceneLayout({
     anchors: {
@@ -45,6 +49,25 @@ export function HomeScene() {
     [],
   );
   const focus = usePlay((s) => s.focus);
+
+  // はじめ（目覚まし）は、ベッドで寝ている。fx wake-up で起きて、ベッドの横に立つ
+  const [sleeping, setSleeping] = useState(() => usePlay.getState().sectionId === "s01-wake");
+  useEffect(() => {
+    // 自分を立つ所に置く処理（Player）のあとで寝かせる
+    const timer = window.setTimeout(() => {
+      if (sleeping) player.pose = { kind: "sleep", pos: SLEEP_POS, yaw: 0 };
+    }, 0);
+    const off = onFx((id) => {
+      if (id !== "wake-up") return;
+      setSleeping(false);
+      placePlayer(-0.9, -0.2, Math.PI / 2);
+    });
+    return () => {
+      window.clearTimeout(timer);
+      off();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     if (!ringing) return;
     const timer = window.setInterval(() => setBlink((b) => !b), 450);
@@ -120,6 +143,13 @@ export function HomeScene() {
       <Prop url="home/wall-art" position={[-2.42, 0.05, -0.3]} rotationY={Math.PI / 2} />
       <Poster kind="osaka" position={[2.42, 1.62, -1.65]} rotationY={-Math.PI / 2} />
       <WindowView />
+      {sleeping && (
+        // かけぶとん（寝ている間だけ。むねから足まで）
+        <mesh position={[-1.62, 0.72, -0.55]} raycast={() => null}>
+          <boxGeometry args={[1.25, 0.16, 1.05]} />
+          <meshStandardMaterial color="#9cc3e6" roughness={0.9} />
+        </mesh>
+      )}
       <mesh position={[0, 2.66, 0]} raycast={() => null}>
         <cylinderGeometry args={[0.32, 0.36, 0.06, 24]} />
         <meshBasicMaterial color="#fffdf4" toneMapped={false} />

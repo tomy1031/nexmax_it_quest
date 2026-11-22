@@ -47,6 +47,12 @@ rt {
 }
 ruby {
   ruby-position: over;
+  /* ふりがなが漢字より長いとき、漢字の間を空けない（「入 社 式」のように広がらない） */
+  ruby-align: center;
+}
+rt {
+  letter-spacing: -0.04em;
+  ruby-align: center;
 }
 
 .glass {
@@ -88,17 +94,27 @@ ruby {
   cursor: not-allowed;
   opacity: 0.45;
 }
+/* ボタンは「濃い色の地に白い字」（tomy さん 2026-11-22「灰色に黒は読めない。水色に黒もきたない」） */
 .btn-primary {
-  background: linear-gradient(180deg, #4fe8ff, #1aa6ff);
-  color: #04214f;
+  background: linear-gradient(180deg, #1f8ff5, #0a63d6);
+  color: #ffffff;
   box-shadow:
-    0 4px 0 #0b62b8,
-    0 0 22px rgb(56 225 255 / 0.55);
+    0 4px 0 #063f8c,
+    0 0 18px rgb(56 225 255 / 0.45);
 }
 .btn-primary:hover:not(:disabled) {
   box-shadow:
-    0 4px 0 #0b62b8,
-    0 0 34px rgb(56 225 255 / 0.85);
+    0 4px 0 #063f8c,
+    0 0 30px rgb(56 225 255 / 0.75);
+}
+/* 明るい板の上の、二番目のボタン（濃い灰青の地に白い字） */
+.btn-sub {
+  background: #34466b;
+  color: #ffffff;
+  border: 1.5px solid #1d2c4d;
+}
+.btn-sub:hover:not(:disabled) {
+  background: #2a3a5c;
 }
 .btn-ghost {
   background: rgb(7 26 70 / 0.7);
@@ -109,9 +125,9 @@ ruby {
   background: rgb(20 60 140 / 0.8);
 }
 .btn-ok {
-  background: linear-gradient(180deg, #6ff0a4, #2bbf6a);
-  color: #053a1c;
-  box-shadow: 0 4px 0 #1b8a4a;
+  background: linear-gradient(180deg, #2fb86a, #1b8a4a);
+  color: #ffffff;
+  box-shadow: 0 4px 0 #11663a;
 }
 
 .focus-ring:focus-visible,

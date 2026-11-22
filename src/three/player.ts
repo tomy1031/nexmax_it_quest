@@ -13,6 +13,8 @@ export const player = {
   moving: false,
   /** 場面の切りかえ・アップの間は歩かない。 */
   frozen: false,
+  /** ふつうと ちがう姿勢（ベッドで寝ている など）。null なら立っている。 */
+  pose: null as null | { kind: "sleep"; pos: [number, number, number]; yaw: number },
 };
 
 export function walkTo(x: number, z: number, onArrive?: () => void): void {
@@ -32,6 +34,7 @@ export const cameraAim = { yaw: null as number | null };
 export const cameraSnap = { pending: true };
 
 export function placePlayer(x: number, z: number, yaw = 0): void {
+  player.pose = null;
   player.pos.set(x, 0, z);
   player.yaw = yaw;
   player.target = null;

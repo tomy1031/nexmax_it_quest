@@ -223,7 +223,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             <button
               key={tb}
               type="button"
-              className={`rounded-xl px-3 py-2 font-extrabold transition ${tab === tb ? "bg-cyan text-ink" : "bg-white/10 hover:bg-white/20"}`}
+              className={`rounded-xl px-3 py-2 font-extrabold transition ${tab === tb ? "bg-[#0a63d6] text-white" : "bg-white/10 hover:bg-white/20"}`}
               onClick={() => setTab(tb)}
               data-testid={`avatar-tab-${tb}`}
             >
