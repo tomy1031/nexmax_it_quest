@@ -7,7 +7,9 @@ import { t } from "@/lib/t";
 import { questEvents } from "@/stages/events";
 import { playActions, usePlay } from "@/stages/play-store";
 import { StageRunner } from "@/stages/runner";
+import * as THREE from "three";
 import { player } from "@/three/player";
+import { liveCamera } from "@/three/CameraRig";
 import { useLayout } from "@/three/layout";
 import { World } from "@/three/World";
 import { Hud } from "@/ui/hud/Hud";
@@ -52,6 +54,19 @@ export default function StageScreen({ stageId }: { stageId: string }) {
       play: () => usePlay.getState(),
       layout: () => useLayout.getState(),
       player,
+      /** 3D の位置 → 画面の位置（px）。テストで目印をクリックするのに使う。 */
+      project: (x: number, y: number, z: number) => {
+        const cam = liveCamera.current;
+        const el = document.querySelector("[data-testid=world] canvas");
+        if (!cam || !el) return null;
+        const v = new THREE.Vector3(x, y, z).project(cam);
+        const r = el.getBoundingClientRect();
+        return {
+          x: r.left + ((v.x + 1) / 2) * r.width,
+          y: r.top + ((1 - v.y) / 2) * r.height,
+          z: v.z,
+        };
+      },
       ...playActions,
     };
     return () => {

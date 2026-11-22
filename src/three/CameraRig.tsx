@@ -8,6 +8,9 @@ import { cameraAim, cameraSnap, player } from "@/three/player";
 /** カメラの左右の向き（キーで歩くときの向きにも使う）。 */
 export const cameraYaw = { value: 0 };
 
+/** 開発・テスト用: いまのカメラ（3D の位置を画面の位置に直すのに使う）。 */
+export const liveCamera = { current: null as THREE.Camera | null };
+
 /**
  * カメラ。ふだんは自分の後ろから追う。台本の focus（アップ）では決まった位置へ寄る。
  * ドラッグで向きを変えられ、変えた向きはそのまま保つ（勝手に元へ戻さない。tomy さん 2026-11-22）。
@@ -75,6 +78,7 @@ export function CameraRig() {
     const dt = Math.min(rawDt, 0.05);
     const layout = useLayout.getState();
     const cam = camera as THREE.PerspectiveCamera;
+    liveCamera.current = camera;
     // 場面から「この向きを見せて」と頼まれたとき（例: 横断歩道を渡ったら、正面のメトロの入口）
     if (cameraAim.yaw !== null) {
       baseYaw.current = cameraAim.yaw + Math.PI;

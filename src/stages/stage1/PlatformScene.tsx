@@ -275,17 +275,22 @@ function Train({
   });
 
   const ready = trainsIn && !departing;
+  // クリックできる所と光る印は、動く電車の外に、世界の位置で置く。
+  // （前は電車の中に置いたまま印の位置を世界の位置として使っていたので、印が反対側のホームの上に出ていた。
+  //   tomy さん 2026-11-22「光っているところクリックすると正反対の方向に行ってしまう」）
   return (
-    <group ref={group}>
-      <TrainExterior lineId={lineId} cars={3} doorsOpen={doorsOpen} />
+    <>
+      <group ref={group}>
+        <TrainExterior lineId={lineId} cars={3} doorsOpen={doorsOpen} />
+      </group>
       {ready && (
-        <Interactable id={id} approach={[sx * 2.9, 2]} marker={[-sx * 1.2, 3.4, 2]}>
-          <mesh position={[-sx * 1.3, 2.1, 2]}>
+        <Interactable id={id} approach={[sx * 2.9, 2]} marker={[sx * (TRACK_X - 1.2), 2.4, 2]}>
+          <mesh position={[sx * (TRACK_X - 1.3), 1.0, 2]}>
             <boxGeometry args={[0.4, 2.2, 18]} />
             <meshBasicMaterial transparent opacity={0} depthWrite={false} />
           </mesh>
         </Interactable>
       )}
-    </group>
+    </>
   );
 }
