@@ -336,44 +336,156 @@ def build_body():
 # ---------------------------------------------------------------- 髪
 
 
-def fringe_tips(phi, n, width, base, amp, sharp=1.5, shift=0.0):
-    """前髪の毛先。phi=0 が正面。毛先の数 n が width ラジアンの はばに並ぶ。下へ amp だけ のびる。"""
-    if abs(phi) > width:
-        return base
-    t = (phi + width + shift) / (2 * width) * n
-    w = 0.5 - 0.5 * math.cos(2 * math.pi * t)  # 0..1（0 が毛先）
-    return base - amp * (1 - w) ** sharp
+# ---------------------------------------------------------------- 髪
+# 髪は「頭にかぶる、厚みのある1つのかたまり」で作る（細い毛束を並べない。2026-11-23 tomy さんの髪型のイメージ）。
+# 下のはし（切りそろえた線）を cut(phi) で、外がわの ふくらみを vol(phi, th) で決める。
+# はしは厚く まるくし、前髪は 大きな まるい毛先か、まっすぐな切りそろえにする。
 
 
-def boundary(phi, front, side, back, a1=0.95, a2=1.55, a3=2.3):
-    """髪の下のはし（単位球の z）。正面 front(phi)・横 side・後ろ back を なめらかに つなぐ。"""
-    p = abs(phi)
-    if p <= a1:
-        return front(phi)
-    if p <= a2:
-        return lerp(front(math.copysign(a1, phi)), side, smoothstep(a1, a2, p))
-    if p <= a3:
-        return lerp(side, back, smoothstep(a2, a3, p))
-    return back
+def Z(z):
+    """頭の球の高さ z（-1..1）→ cut の値（真上からの角度）。"""
+    return math.acos(max(-1.0, min(1.0, z)))
 
 
-def hair_shell(name, front, side, back, volume, res=(88, 60), edge=0.05):
-    """頭をおおう髪のから。おおわない所（顔）は頭の中へ しまう。volume は ふくらみ（1 で頭の表面）。"""
+def D(m):
+    """横から まっすぐ たれる長さ（メートル）→ cut の値（π/2 より大きい）。"""
+    return math.pi / 2 + m / HZ
+
+
+def keys(points, sym=True):
+    """(phi, 値) の点を なめらかに つなぐ。sym なら左右おなじ（|phi| で見る）。"""
+    pts = sorted(points)
+
+    def f(phi):
+        p = abs(phi) if sym else phi
+        if p <= pts[0][0]:
+            return pts[0][1]
+        for (a, va), (b, vb) in zip(pts, pts[1:]):
+            if p <= b:
+                return lerp(va, vb, smoothstep(a, b, p))
+        return pts[-1][1]
+
+    return f
+
+
+def tips(n, width, base, amp, sharp=1.6, shift=0.0):
+    """前髪の毛先（大きな まるい先が n こ）。z（頭の球の高さ）を返す。"""
+
+    def f(phi):
+        if abs(phi) > width:
+            return base
+        t = (phi + width) / (2 * width) * n + shift
+        w = 0.5 + 0.5 * math.cos(2 * math.pi * t)  # 1 が すきま、0 が毛先
+        return base - amp * (1 - w) ** sharp
+
+    return f
+
+
+def hairline(bang, side, a=0.72, b=1.0):
+    """前髪（z の関数）と、横・後ろ（cut の値の関数）を つなぐ。"""
+
+    def f(phi):
+        return lerp(Z(bang(phi)), side(phi), smoothstep(a, b, abs(phi)))
+
+    return f
+
+
+def udir(th, phi):
+    return Vector((math.sin(th) * math.sin(phi), -math.sin(th) * math.cos(phi), math.cos(th)))
+
+
+def puff(base=1.13, top=0.06, back=0.05):
+    """ふくらみ（1 で頭の表面）。上と後ろを少し大きく。"""
+
+    def v(phi, th):
+        z = math.cos(th)
+        backness = 0.5 - 0.5 * math.cos(phi)  # 0 が正面、1 が後ろ
+        return base + top * max(0.0, z) ** 1.5 + back * backness * math.sin(th)
+
+    return v
+
+
+def with_bumps(v, bumps, dome=False):
+    """ふくらみに こぶを足す。bumps は [(th, phi, 高さ, はば, とがり)]。dome なら まるい こぶ（くせ毛）。"""
+    dirs = [(udir(t, p), h, w, sh) for t, p, h, w, sh in bumps]
+
+    def f(phi, th):
+        u = udir(th, phi)
+        add = 0.0
+        for d, h, w, sh in dirs:
+            a = math.acos(max(-1.0, min(1.0, u.dot(d))))
+            if a < w:
+                x = a / w
+                add = max(add, h * math.sqrt(1 - x * x)) if dome else add + h * (1 - x) ** sh
+        return v(phi, th) + add
+
+    return f
+
+
+def with_part(v, phi0, depth=0.025):
+    """分け目（頭の上に うすい みぞ）。"""
+
+    def f(phi, th):
+        d = (phi - phi0 + math.pi) % (2 * math.pi) - math.pi
+        return v(phi, th) - depth * math.exp(-((d / 0.07) ** 2)) * smoothstep(0.12, 0.35, th) * smoothstep(1.25, 0.8, th)
+
+    return f
+
+
+def cap(name, cut, vol, taper=None, cols=96, rows=36, thick=0.05):
+    """頭にかぶる髪のかたまり。外がわ・内がわ・下のはし（まるい ふち）で、とじた形にする。
+    cut(phi): 下のはし。π/2 までは頭の球の角度、それより大きいと 横から まっすぐ たれる（D で長さを書く）。
+    taper(phi, f): たれた所の はば（f は 0 が上・1 が毛先。内まきは 1 より小さく、外はねは大きく）。"""
+    hd = lambda phi: Vector((math.sin(phi), -math.cos(phi), 0.0))
+    center = Vector((0, 0, HEAD_Z))
+
+    def outer(phi, s):
+        if s <= math.pi / 2:
+            k = vol(phi, s)
+            return center + Vector(
+                (HX * k * math.sin(s) * math.sin(phi), -HY * k * math.sin(s) * math.cos(phi), HZ * k * math.cos(s))
+            )
+        k = vol(phi, math.pi / 2)
+        d = (s - math.pi / 2) * HZ
+        length = max(1e-4, (cut(phi) - math.pi / 2) * HZ)
+        w = taper(phi, min(1.2, d / length)) if taper else 1.0
+        return Vector((HX * k * w * math.sin(phi), -HY * k * w * math.cos(phi), HEAD_Z - d))
+
+    def inner(phi, s):
+        p = outer(phi, s)
+        if s <= math.pi / 2:
+            k = vol(phi, s)
+            return center + (p - center) * (max(0.94, k - thick / R) / k)
+        return p - hd(phi) * thick
+
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=res[0], v_segments=res[1], radius=1.0)
-    for v in bm.verts:
-        d = v.co.normalized()
-        x, y, z = d.x, d.y, d.z
-        phi = math.atan2(x, -y)
-        b = boundary(phi, front, side, back)
-        c = smoothstep(b - edge, b + edge * 0.4, z)
-        k = lerp(0.9, volume(phi, z), c)
-        v.co = Vector((x * HX * k, y * HY * k, z * HZ * k + HEAD_Z))
-    # 顔の前の、頭の中に しまった所は消す（見えない三角を減らす）
-    hidden = [f for f in bm.faces if all((vv.co - Vector((0, 0, HEAD_Z))).length < R * 0.93 for vv in f.verts)]
-    bmesh.ops.delete(bm, geom=hidden, context="FACES")
-    ob = new_obj(name, bm, location=(0, 0, 0), subdiv=1)
-    return ob
+    top_o = bm.verts.new(outer(0.0, 0.0))
+    top_i = bm.verts.new(inner(0.0, 0.0))
+    O, I, M = [], [], []
+    for j in range(cols):
+        phi = -math.pi + 2 * math.pi * j / cols
+        sc = cut(phi)
+        O.append([bm.verts.new(outer(phi, sc * i / rows)) for i in range(1, rows + 1)])
+        I.append([bm.verts.new(inner(phi, sc * i / rows)) for i in range(1, rows + 1)])
+        po, pi_ = outer(phi, sc), inner(phi, sc)
+        down = outer(phi, sc + 0.03) - po
+        down = down.normalized() if down.length > 1e-6 else Vector((0, 0, -1))
+        M.append([bm.verts.new(po.lerp(pi_, a) + down * thick * 0.6 * math.sin(math.pi * a))
+                  for a in (0.1, 0.25, 0.5, 0.75, 0.9)])
+    for j in range(cols):
+        k = (j + 1) % cols
+        bm.faces.new((top_o, O[j][0], O[k][0]))
+        bm.faces.new((top_i, I[k][0], I[j][0]))
+        for i in range(rows - 1):
+            bm.faces.new((O[j][i], O[j][i + 1], O[k][i + 1], O[k][i]))
+            bm.faces.new((I[j][i], I[k][i], I[k][i + 1], I[j][i + 1]))
+        rj = [O[j][-1]] + M[j] + [I[j][-1]]
+        rk = [O[k][-1]] + M[k] + [I[k][-1]]
+        for i in range(len(rj) - 1):
+            bm.faces.new((rj[i], rj[i + 1], rk[i + 1], rk[i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # 細かい目で作り、なめらかに見せる（あとで三角を へらすと、はしが がたがたになるので へらさない）
+    return new_obj(name, bm, subdiv=0)
 
 
 def surf(theta, phi, k=1.0):
@@ -408,21 +520,6 @@ def oriented(name, center, axes, radii, kind="ellipsoid", seg=16):
     return new_obj(name, bm, subdiv=1 if kind != "cone" else 0)
 
 
-def lock(theta, phi, length, width, thick=0.45, twist=0.0, out=0.0, kind="ellipsoid"):
-    """頭の表面から垂れる毛束。twist は毛束を横へ かたむける角度、out は毛先を外へ はねる量。"""
-    p0 = surf(theta, phi, 1.06)
-    n = (surf(theta, phi) - Vector((0, 0, HEAD_Z))).normalized()
-    down = (surf(theta + 0.05, phi) - surf(theta, phi)).normalized()
-    side = down.cross(n).normalized()
-    if twist:
-        c, s_ = math.cos(twist), math.sin(twist)
-        down, side = (down * c + side * s_).normalized(), (side * c - down * s_).normalized()
-    if out:
-        down = (down + n * out).normalized()
-    center = p0 + down * length * 0.55
-    return oriented("lock", center, (side, down, n), (width, length, width * thick), kind)
-
-
 def finish_hair(name, parts, shine=True):
     """毛束を1つにまとめ、つやの帯（頭の上のまわりが明るい）を頂点の色で入れる。"""
     ob = join(name, parts) if len(parts) > 1 else parts[0]
@@ -445,107 +542,105 @@ def finish_hair(name, parts, shine=True):
     return ob
 
 
-def base_volume(top=0.14, side=0.05, base=1.16):
-    def vol(phi, z):
-        return base + top * max(0.0, z) ** 1.1 + side * (1 - abs(z))
-
-    return vol
-
-
-def fringe(theta=0.56, n=5, spread=0.95, length=0.13, width=0.075, out=0.0, kind="ellipsoid", twist=0.0):
-    """前髪（毛束を左右に並べる）。"""
-    res = []
-    for i in range(n):
-        t = (i / (n - 1)) * 2 - 1 if n > 1 else 0
-        phi = t * spread
-        res.append(lock(theta + 0.04 * abs(t), phi, length * (1 - 0.15 * abs(t)), width, twist=twist * (1 if t >= 0 else 1), out=out, kind=kind))
-    return res
-
-
 def hair_styles():
-    hi = 0.55  # から（髪の土台）の前のはし。前髪の毛束の うしろに かくれる高さ
-    # みじかい（耳を出す・まるい前髪）
-    shell = hair_shell("hair_model", lambda p: hi, side=0.1, back=-0.5, volume=base_volume())
-    finish_hair("hair_model", [shell] + fringe(0.62, 5, 1.0, 0.17, 0.105))
-    # つんつん（上に はねる とがった毛・とがった前髪）
-    shell = hair_shell("hair_spiky", lambda p: hi, 0.12, -0.45, base_volume(0.1))
-    spikes = []
-    for i in range(9):
-        th = 0.12 + (i % 2) * 0.2
-        ph = -2.4 + i * 0.6
-        # 上へ はねる毛（頭の上の方だけ）
-        spikes.append(lock(th, ph, 0.12, 0.06, thick=0.7, out=1.6, kind="cone"))
-    finish_hair("hair_spiky", [shell] + spikes + fringe(0.62, 6, 1.0, 0.17, 0.07, out=0.1, kind="cone"))
-    # よこわけ（右で分けて、左へ大きく流す）
-    shell = hair_shell("hair_side", lambda p: hi, 0.1, -0.5, base_volume(0.14))
-    sweep = [
-        lock(0.45, 0.4, 0.24, 0.13, twist=0.9),
-        lock(0.55, -0.1, 0.22, 0.12, twist=0.8),
-        lock(0.66, -0.65, 0.18, 0.1, twist=0.5),
-        lock(0.8, -1.1, 0.14, 0.08, twist=0.2),
-        lock(0.74, 0.95, 0.12, 0.07),
-    ]
-    finish_hair("hair_side", [shell] + sweep)
-    # ふわふわ（大きく ふくらんだ くせ毛。毛先が外へ はねる）
-    shell = hair_shell("hair_wavy", lambda p: hi, 0.0, -0.55, base_volume(0.16, 0.07, 1.17))
-    flips = [lock(1.3, ph, 0.1, 0.075, out=0.35) for ph in (-2.6, -2.0, 2.0, 2.6, 3.14)]
-    finish_hair("hair_wavy", [shell] + flips + fringe(0.6, 5, 1.0, 0.17, 0.1, out=0.2, twist=0.3))
-    # くるくる（まるい まき毛が たくさん）
-    shell = hair_shell("hair_curly", lambda p: hi, 0.05, -0.45, base_volume(0.08, 0.04, 1.1))
-    curls = []
-    for ring, (th, n) in enumerate(((0.12, 5), (0.42, 10), (0.72, 13), (1.02, 12))):
-        for i in range(n):
-            ph = (i / n) * 2 * math.pi + ring * 0.3 - math.pi
-            if th > 0.6 and abs(ph) < 0.75:
-                continue
-            c = surf(th, ph, 1.12)
-            curls.append(ellipsoid("curl", (c.x, c.y, c.z), (0.068, 0.068, 0.068)))
-    finish_hair("hair_curly", [shell] + curls + fringe(0.66, 5, 0.9, 0.11, 0.08))
-    # ボブ（あごの横まで。下が内まき）
-    def bob_vol(p, z):
-        return base_volume(0.1, 0.02)(p, z) + 0.1 * smoothstep(0.3, -0.45, z) - 0.07 * smoothstep(-0.55, -0.72, z)
-
-    shell = hair_shell("hair_bob", lambda p: hi, -0.62, -0.68, bob_vol)
-    finish_hair("hair_bob", [shell] + fringe(0.62, 6, 1.05, 0.17, 0.09))
-    # ながい（ボブ＋背中へ のびる髪）
-    shell = hair_shell("hair_long", lambda p: hi, -0.7, -0.75, bob_vol)
-    back = lathe(
-        "longBack",
-        [(0.0, HEAD_Z - 0.5), (0.17, HEAD_Z - 0.46), (0.22, HEAD_Z - 0.25), (0.26, HEAD_Z - 0.05), (0.0, HEAD_Z + 0.08)],
-        sx=1.05,
-        sy=0.5,
-        offset=(0.0, 0.12),
+    # 耳を出す みじかい髪の、横と後ろ（もみあげ → 耳の上 → えりあし）
+    short_side = keys(
+        [(0.95, Z(0.05)), (1.15, D(0.05)), (1.3, D(0.04)), (1.45, Z(0.16)), (1.78, Z(0.16)), (2.0, D(0.12)),
+         (2.4, D(0.2)), (math.pi, D(0.22))]
     )
-    finish_hair("hair_long", [shell, back] + fringe(0.62, 6, 1.05, 0.17, 0.09))
-    # ポニーテール（後ろの上で むすぶ）
-    shell = hair_shell("hair_ponytail", lambda p: hi, 0.0, -0.35, base_volume(0.08, 0.02))
+
+    def follow(side):
+        """たれた所を、頭の丸みに そって 内へ入れる（長いほど 内へ）。"""
+        return lambda p, f: 1 - 0.95 * f * (side(p) - math.pi / 2) * HZ
+    tied_side = keys(
+        [(0.95, Z(0.08)), (1.2, D(0.03)), (1.45, Z(0.2)), (1.78, Z(0.2)), (2.0, D(0.1)), (2.4, D(0.17)), (math.pi, D(0.19))]
+    )
+
+    # みじかい（大きな毛先が2つ。少し右へ流す）
+    cap("hair_model", hairline(tips(2, 0.8, 0.47, 0.12, 1.6, shift=0.22), short_side),
+        with_part(puff(1.12, 0.07, 0.05), 0.55), taper=follow(short_side))
+    finish_hair("hair_model", [bpy.data.objects["hair_model"]])
+
+    # つんつん（上と後ろに、太くて先の まるい とがり）
+    spikes = [(0.22, 0.25, 0.36, 0.34, 2.0), (0.45, 1.25, 0.3, 0.34, 2.0), (0.45, -1.0, 0.3, 0.34, 2.0),
+              (0.62, 2.25, 0.28, 0.36, 2.0), (0.62, -2.15, 0.28, 0.36, 2.0), (0.55, math.pi, 0.3, 0.36, 2.0),
+              (0.7, 0.6, 0.16, 0.28, 2.0), (0.68, -0.45, 0.18, 0.28, 2.0)]
+    cap("hair_spiky", hairline(tips(3, 0.8, 0.45, 0.17, 2.4), short_side), with_bumps(puff(1.1, 0.04, 0.04), spikes),
+        taper=follow(short_side))
+    finish_hair("hair_spiky", [bpy.data.objects["hair_spiky"]])
+
+    # よこわけ（右で分けて、左へ大きく流す前髪）
+    def side_bang(phi):
+        return lerp(0.62, 0.2, smoothstep(0.75, -0.7, phi)) - 0.05 * math.exp(-(((phi + 0.4) / 0.2) ** 2))
+
+    cut = lambda phi: lerp(Z(side_bang(phi)), short_side(phi), smoothstep(0.72, 1.0, abs(phi)))
+    cap("hair_side", cut, with_part(puff(1.12, 0.07, 0.05), 0.75, 0.03), taper=follow(short_side))
+    finish_hair("hair_side", [bpy.data.objects["hair_side"]])
+
+    # ふわふわ（あごまで。まん中で分けた前髪・毛先が外へ はねる）
+    wavy_side = lambda phi: D(0.15 + 0.03 * smoothstep(0.95, math.pi, abs(phi)) + 0.015 * math.cos(7 * phi))
+    cap("hair_wavy", hairline(lambda p: 0.22 + 0.3 * math.exp(-((p / 0.24) ** 2)), wavy_side),
+        puff(1.15, 0.06, 0.06),
+        taper=lambda p, f: 1 - 0.7 * f * (wavy_side(p) - math.pi / 2) * HZ + 0.25 * f ** 3 * (0.1 + 0.9 * abs(math.sin(p))))
+    finish_hair("hair_wavy", [bpy.data.objects["hair_wavy"]])
+
+    # くるくる（まるい こぶが たくさん。毛先も まるい）
+    domes = []
+    for th, n, off in ((0.0, 1, 0.0), (0.42, 6, 0.0), (0.82, 10, 0.3), (1.2, 12, 0.0), (1.55, 12, 0.25)):
+        for i in range(n):
+            domes.append((th, -math.pi + 2 * math.pi * (i + off) / n, 0.17, 0.36, 0))
+    curly_side = keys([(0.95, Z(0.0)), (1.3, D(0.04)), (1.9, D(0.08)), (2.4, D(0.18)), (math.pi, D(0.2))])
+    cap("hair_curly", hairline(tips(4, 0.8, 0.42, 0.08, 1.0), curly_side),
+        with_bumps(puff(1.08, 0.04, 0.03), domes, dome=True), taper=follow(curly_side))
+    finish_hair("hair_curly", [bpy.data.objects["hair_curly"]])
+
+    # ボブ（まっすぐ切りそろえた前髪・あごの横まで・毛先が内まき）
+    bob_side = keys([(0.95, D(0.19)), (1.6, D(0.21)), (math.pi, D(0.2))])
+    cap("hair_bob", hairline(lambda p: 0.3 + 0.06 * (p / 0.8) ** 2, bob_side, 0.72, 0.92),
+        puff(1.14, 0.05, 0.05), taper=lambda p, f: 1 - 0.12 * smoothstep(0.5, 1.0, f))
+    finish_hair("hair_bob", [bpy.data.objects["hair_bob"]])
+
+    # ながい（せなかまで。下へ いくほど体に そう）
+    long_side = keys([(0.95, D(0.3)), (1.5, D(0.38)), (2.4, D(0.46)), (math.pi, D(0.48))])
+    cap("hair_long", hairline(tips(2, 0.8, 0.36, 0.06, 1.2), long_side, 0.72, 0.95), puff(1.14, 0.05, 0.05),
+        taper=lambda p, f: 1 - 0.3 * smoothstep(0.1, 1.0, f))
+    finish_hair("hair_long", [bpy.data.objects["hair_long"]])
+
+    # ポニーテール（後ろの上で むすぶ。たばは ふっくら）
+    shell = cap("hair_ponytail", hairline(tips(2, 0.8, 0.5, 0.11, 1.6, shift=0.2), tied_side), puff(1.08, 0.05, 0.03),
+                taper=follow(tied_side))
     tail = lathe(
         "pt",
-        [(0.0, HEAD_Z - 0.44), (0.045, HEAD_Z - 0.38), (0.08, HEAD_Z - 0.2), (0.075, HEAD_Z - 0.02), (0.05, HEAD_Z + 0.07), (0.0, HEAD_Z + 0.11)],
+        [(0.0, HEAD_Z - 0.4), (0.05, HEAD_Z - 0.35), (0.095, HEAD_Z - 0.2), (0.09, HEAD_Z - 0.04),
+         (0.06, HEAD_Z + 0.07), (0.0, HEAD_Z + 0.11)],
         sx=1.0,
         sy=0.85,
-        offset=(0.0, HY * 1.18),
+        offset=(0.0, HY * 1.2),
     )
-    tie = ellipsoid("pt_tie", (0.0, HY * 1.05, HEAD_Z + 0.1), (0.045, 0.035, 0.032))
+    tie = ellipsoid("pt_tie", (0.0, HY * 1.05, HEAD_Z + 0.1), (0.05, 0.035, 0.035))
     tie.name = "acc_hairTie"
-    finish_hair("hair_ponytail", [shell, tail] + fringe(0.62, 5, 1.0, 0.16, 0.1))
-    # ツインテール
-    shell = hair_shell("hair_twin", lambda p: hi, 0.0, -0.4, base_volume(0.08, 0.02))
+    finish_hair("hair_ponytail", [shell, tail])
+
+    # ツインテール（まっすぐ切りそろえた、少し短い前髪）
+    shell = cap("hair_twin", hairline(lambda p: 0.36 + 0.07 * (p / 0.8) ** 2, tied_side), puff(1.09, 0.05, 0.03),
+                taper=follow(tied_side))
     tails = [shell]
     for sx in (-1, 1):
         tails.append(
             lathe(
                 "tt",
-                [(0.0, HEAD_Z - 0.38), (0.045, HEAD_Z - 0.32), (0.075, HEAD_Z - 0.15), (0.065, HEAD_Z + 0.02), (0.0, HEAD_Z + 0.08)],
-                offset=(sx * HX * 1.12, HY * 0.3),
+                [(0.0, HEAD_Z - 0.36), (0.05, HEAD_Z - 0.3), (0.085, HEAD_Z - 0.15), (0.075, HEAD_Z + 0.02),
+                 (0.0, HEAD_Z + 0.09)],
+                offset=(sx * HX * 1.14, HY * 0.3),
             )
         )
-    finish_hair("hair_twin", tails + fringe(0.62, 5, 1.0, 0.16, 0.1))
-    # おだんご（頭の上に まるい だんご）
-    shell = hair_shell("hair_bun", lambda p: hi, 0.02, -0.4, base_volume(0.08, 0.02))
-    bun = ellipsoid("bun", (0.0, HY * 0.35, HEAD_Z + HZ * 1.08), (0.11, 0.105, 0.1))
-    side_l = [lock(1.0, sx * 1.2, 0.13, 0.04) for sx in (-1, 1)]
-    finish_hair("hair_bun", [shell, bun] + side_l + fringe(0.62, 5, 1.0, 0.16, 0.1))
+    finish_hair("hair_twin", tails)
+
+    # おだんご（まん中で分けた前髪・頭の上に まるい だんご）
+    shell = cap("hair_bun", hairline(lambda p: 0.3 + 0.28 * math.exp(-((p / 0.2) ** 2)), tied_side),
+                puff(1.08, 0.05, 0.03), taper=follow(tied_side))
+    bun = ellipsoid("bun", (0.0, HY * 0.35, HEAD_Z + HZ * 1.1), (0.115, 0.11, 0.105))
+    finish_hair("hair_bun", [shell, bun])
 
     # 髪のかざり（花・リボン）。右の耳の上
     c = surf(0.85, 1.05, 1.17)
@@ -560,7 +655,7 @@ def hair_styles():
     join("acc_flowerPetals", petals)
     cc = c + n * 0.01
     ellipsoid("acc_flowerCenter", (cc.x, cc.y, cc.z), (0.016, 0.016, 0.016))
-    c2 = surf(0.42, 0.7, 1.2)
+    c2 = surf(0.42, 0.7, 1.27)
     rib = [
         ellipsoid("r1", (c2.x - 0.04, c2.y, c2.z), (0.042, 0.022, 0.03)),
         ellipsoid("r2", (c2.x + 0.04, c2.y, c2.z), (0.042, 0.022, 0.03)),
@@ -570,7 +665,7 @@ def hair_styles():
 
 
 def lighten():
-    """三角の数を へらす（町の人が たくさん出るので、髪は 1つ 約9000、ほかは 約1500 まで）。"""
+    """三角の数を へらす（町の人が たくさん出るので、ほかの部品は 約1500 まで。髪は はしが がたがたにならないよう、細かいまま）。"""
     dg = bpy.context.evaluated_depsgraph_get()
     for ob in bpy.data.objects:
         if ob.type != "MESH":
@@ -579,7 +674,8 @@ def lighten():
         me = ev.to_mesh()
         tris = sum(len(p.vertices) - 2 for p in me.polygons)
         ev.to_mesh_clear()
-        limit = 9000 if ob.name.startswith("hair_") else 1500
+        # 髪とかざり（小さな部品の集まり）は へらすと形が くずれるので、へらさない
+        limit = 24000 if ob.name.startswith(("hair_", "acc_")) else 1500
         if tris > limit:
             m = ob.modifiers.new("lighten", "DECIMATE")
             m.ratio = limit / tris

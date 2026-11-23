@@ -42,6 +42,8 @@ const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["calm", "avatar.eyes.calm"],
 ];
 
+const BASE = import.meta.env.BASE_URL;
+
 const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["model", "avatar.hs.model"],
   ["spiky", "avatar.hs.spiky"],
@@ -99,8 +101,8 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
   height: { y: 0.62, d: 2.4 },
   skin: { y: 0.9, d: 1.1 },
   eyes: { y: 0.92, d: 0.95 },
-  hair: { y: 0.98, d: 1.15 },
-  hairStyle: { y: 0.9, d: 1.35 },
+  hair: { y: 0.85, d: 1.8 },
+  hairStyle: { y: 0.8, d: 2.0 },
   glasses: { y: 0.92, d: 1.0 },
   suit: { y: 0.6, d: 1.8 },
   tie: { y: 0.66, d: 1.3 },
@@ -342,14 +344,22 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </div>
           )}
           {tab === "hairStyle" && (
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {HAIR_STYLES.map(([hs, key]) => (
                 <button
                   key={hs}
                   type="button"
-                  className={`btn ${avatar.hairStyle === hs ? "btn-primary" : "btn-ghost"}`}
+                  className={`flex w-[92px] flex-col items-center rounded-xl border-2 px-1 pb-1.5 text-[12px] font-extrabold whitespace-nowrap transition ${avatar.hairStyle === hs ? "border-white bg-[#0a63d6] text-white" : "border-transparent bg-white/10 hover:bg-white/20"}`}
                   onClick={() => set({ hairStyle: hs })}
+                  data-testid={`avatar-hair-${hs}`}
                 >
+                  {/* 髪型の絵（tools/blender/render_hair_icons.py で作る） */}
+                  <img
+                    src={`${BASE}img/hair/${hs}.png`}
+                    alt=""
+                    className="h-16 w-16"
+                    draggable={false}
+                  />
                   <RubyText text={t(key)} />
                 </button>
               ))}

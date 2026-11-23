@@ -365,7 +365,7 @@ SHOTS["avatars-ref"] = {
           { outfit: "suit", figure: "m", hairStyle: "side", tie: "#c23a4a" },
           { outfit: "suit", figure: "f", hairStyle: "bun", tie: "#1f2a5a", accessory: "flower" },
           { outfit: "casual", figure: "m", hairStyle: "side" },
-          { outfit: "casual", figure: "f", hairStyle: "bun", accessory: "flower" },
+          { outfit: "casual", figure: "f", hairStyle: "bob", accessory: "ribbon" },
         ] as const
       ).map((c, i) => (
         <group key={i} position={[-1.35 + i * 0.9, 0, 0]} rotation={[0, i % 2 ? -0.25 : 0.25, 0]}>
@@ -422,17 +422,15 @@ SHOTS["hair-new"] = {
   ),
 };
 
-/** 見本（開発用）: 髪型10種を顔の高さで並べる（前と、ななめ後ろ）。/factory?shot=hair-styles */
-SHOTS["hair-styles"] = {
-  camera: { pos: [0, 1.35, 6.2], look: [0, 0.75, 0], fov: 34 },
-  light: "day",
-  scene: () => (
+/** 見本（開発用）: 髪型10種を顔の高さで並べる。/factory?shot=hair-styles（前から）・hair-back（ななめ後ろから） */
+function hairRows(yaw: number) {
+  return (
     <>
       {STYLES.map((hs, i) => (
         <group
           key={hs}
-          position={[-2.4 + (i % 5) * 1.2, i < 5 ? 0.95 : -0.35, i < 5 ? 0 : 0.4]}
-          rotation={[0, i < 5 ? 0 : 2.4, 0]}
+          position={[-2.4 + (i % 5) * 1.2, i < 5 ? 0.62 : -0.62, 0]}
+          rotation={[0, yaw, 0]}
         >
           <Chibi
             config={{
@@ -440,14 +438,24 @@ SHOTS["hair-styles"] = {
               outfit: "casual",
               hairStyle: hs,
               hair: "#5e4030",
-              figure: i % 2 ? "f" : "m",
+              figure: i < 5 && i !== 3 ? "m" : "f",
             }}
             phase={0.4 + i * 0.07}
           />
         </group>
       ))}
     </>
-  ),
+  );
+}
+SHOTS["hair-styles"] = {
+  camera: { pos: [0, 1.2, 5.2], look: [0, 0.75, 0], fov: 34 },
+  light: "day",
+  scene: () => hairRows(0.25),
+};
+SHOTS["hair-back"] = {
+  camera: { pos: [0, 1.2, 5.2], look: [0, 0.75, 0], fov: 34 },
+  light: "day",
+  scene: () => hairRows(2.5),
 };
 
 /** 見本（開発用）: 体の形3種（男性・ズボン／女性・スカート／女性・ズボン）を、スーツとふだんの服で並べる。/factory?shot=figures */
