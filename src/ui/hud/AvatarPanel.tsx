@@ -491,8 +491,9 @@ function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string })
   const ref = faceCell("face_eyes", 0, 0);
   const sheet = FACE_ATLAS.face_eyes;
   if (!box || !ref || !sheet) return null;
-  // まるい目の高さを 30px にそろえる（目の大きさの ちがいが分かるように）
-  const k = 30 / ref[3];
+  // まるい目の高さを 30px に。形ごとの大きさは、顔に貼るときと同じく面積で近づける（chibi.ts の paintFaceParts）
+  const rb = faceCell("face_eyes", 0, row) ?? ref;
+  const k = (30 / ref[3]) * (Math.sqrt(ref[2] * ref[3]) / Math.sqrt(rb[2] * rb[3])) ** 0.7;
   const eye = (flip: boolean) => (
     <span
       className="block"

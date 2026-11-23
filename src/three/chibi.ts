@@ -1,7 +1,13 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { AvatarConfig } from "@/lib/store";
-import { drawFacePart, faceAtlasReady, loadFaceAtlas, onFaceAtlas } from "@/three/face-parts";
+import {
+  drawFacePart,
+  faceAtlasReady,
+  faceCell,
+  loadFaceAtlas,
+  onFaceAtlas,
+} from "@/three/face-parts";
 
 /**
  * ちびキャラ工場。丸い大きな頭・短い体・点の目とほっぺの、かわいい人をプログラムで作る。
@@ -499,8 +505,8 @@ if (typeof window !== "undefined") void loadFaceAtlas();
 /** 目の形 → 表の行（face_eyes の 1行目 まる・2行目 キラキラ・3行目 おだやか・4行目 小さい）。 */
 const EYE_ROW: Record<EyeStyle, number> = { round: 0, smile: 0, sparkle: 1, calm: 2, small: 3 };
 
-/** 表の目の大きさ（まるい目の高さ）を、顔の絵の何 px にするか。 */
-const EYE_H = 0.2;
+/** まるい目の高さ（顔の絵の高さに対する わりあい）。tomy さん「目の大きさバランス整えて」（2026-11-23）で 0.2 → 0.16。 */
+const EYE_H = 0.16;
 
 /** Codex の顔のパーツで顔を描く（docs/codex/face_parts.md）。 */
 function paintFaceParts(
@@ -513,15 +519,20 @@ function paintFaceParts(
 ) {
   const eyes = (cfg.eyes ?? "round") as EyeStyle;
   const row = EYE_ROW[eyes] ?? 0;
-  const ref = 81; // face_eyes の まるい目（1行目 1列目）の高さ（表の px）
+  const r0 = faceCell("face_eyes", 0, 0);
+  const ref = r0?.[3] ?? 81; // まるい目の高さ（表の px）
   const s = (H * EYE_H) / ref;
+  // 目の形ごとの大きさの ちがいを ちぢめる（面積で くらべる。大きい キラキラは少し小さく、小さい目は少し大きく）
+  const rb = faceCell("face_eyes", 0, row);
+  const size = (b: typeof rb) => (b ? Math.sqrt(b[2] * b[3]) : 1);
+  const se = r0 && rb ? s * (size(r0) / size(rb)) ** 0.7 : s;
   const cx = W * 0.25;
-  const gap = W * 0.07;
-  const ey = H * 0.565;
+  const gap = W * 0.072;
+  const ey = H * 0.57;
   // ほっぺ
   if (cfg.blush ?? true) {
     for (const sx of [-1, 1]) {
-      drawFacePart(ctx, "face_cheeks", 0, 0, cx + sx * W * 0.098, H * 0.665, s * 0.62, {
+      drawFacePart(ctx, "face_cheeks", 0, 0, cx + sx * W * 0.1, H * 0.66, s * 0.7, {
         mirror: sx > 0,
         alpha: 0.7,
       });
@@ -529,7 +540,7 @@ function paintFaceParts(
   }
   // まゆ（髪の色。びっくりは高い山・考えるは ななめ）
   const brow = expr === "surprised" ? 4 : expr === "thinking" ? 5 : 0;
-  const browY = H * (expr === "surprised" ? 0.385 : 0.405);
+  const browY = H * (expr === "surprised" ? 0.4 : 0.42);
   for (const sx of [-1, 1]) {
     drawFacePart(ctx, "face_mouth", brow, 0, cx + sx * gap, browY, s * 0.62, {
       mirror: sx > 0,
@@ -547,7 +558,7 @@ function paintFaceParts(
           ? 4
           : 0;
   for (const sx of [-1, 1]) {
-    drawFacePart(ctx, "face_eyes", col, row, cx + sx * gap, ey, s, {
+    drawFacePart(ctx, "face_eyes", col, row, cx + sx * gap, ey, se, {
       mirror: sx > 0,
       anchor: [0, row],
     });
@@ -563,7 +574,7 @@ function paintFaceParts(
         : expr === "thinking"
           ? [4, 2]
           : [0, 2];
-  drawFacePart(ctx, "face_mouth", mc, mr, cx, H * 0.68, s * 0.72);
+  drawFacePart(ctx, "face_mouth", mc, mr, cx, H * 0.675, s * 0.85);
 }
 
 function paintFace(canvas: HTMLCanvasElement, cfg: AvatarConfig, open: boolean, expr: Expression) {

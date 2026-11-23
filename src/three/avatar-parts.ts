@@ -39,9 +39,29 @@ export function bottomOf(cfg: AvatarConfig): "pants" | "skirt" {
 const matCache = new Map<string, THREE.Material>();
 let gradient: THREE.DataTexture | null = null;
 
+/** 布の模様（Codex で作った布を scripts/make_fabrics.py で灰色にしたもの）。選んだ服の色に かける。 */
+export type Fabric = "twill" | "knit" | "denim" | "check";
+/** 模様の くり返し（UV の 1 = 0.25m。tools/blender/build_avatar.py の FABRIC_TILE）。 */
+const FABRIC_REPEAT: Record<Fabric, number> = { twill: 1.2, knit: 0.7, denim: 1, check: 1.1 };
+const fabricCache = new Map<Fabric, THREE.Texture>();
+
+function fabricTexture(f: Fabric): THREE.Texture {
+  const hit = fabricCache.get(f);
+  if (hit) return hit;
+  const tex = new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}img/fabric/${f}.png`);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(FABRIC_REPEAT[f], FABRIC_REPEAT[f]);
+  // 灰色の こさを そのまま「かける数」に使う（色の空間の変換をしない）
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.anisotropy = 4;
+  fabricCache.set(f, tex);
+  return tex;
+}
+
 /** やわらかい陰（4だん）の素材。色ごとに1つだけ作って、みんなで使う。 */
-export function softMaterial(color: string, vertexColors = false): THREE.Material {
-  const key = `${color}|${vertexColors}`;
+export function softMaterial(color: string, vertexColors = false, fabric?: Fabric): THREE.Material {
+  const key = `${color}|${vertexColors}|${fabric ?? ""}`;
   const hit = matCache.get(key);
   if (hit) return hit;
   if (!gradient) {
@@ -53,7 +73,12 @@ export function softMaterial(color: string, vertexColors = false): THREE.Materia
     gradient.magFilter = THREE.NearestFilter;
     gradient.needsUpdate = true;
   }
-  const m = new THREE.MeshToonMaterial({ color, gradientMap: gradient, vertexColors });
+  const m = new THREE.MeshToonMaterial({
+    color,
+    gradientMap: gradient,
+    vertexColors,
+    map: fabric ? fabricTexture(fabric) : null,
+  });
   matCache.set(key, m);
   return m;
 }
@@ -136,6 +161,18 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
   }
 }
 
+/** 部品の名前 → 布の模様（スーツは ツイル・パーカーは ニット・ふだんのズボンは デニム・ふだんのスカートは チェック）。 */
+function fabricFor(name: string, cfg: AvatarConfig): Fabric | undefined {
+  const suit = cfg.outfit === "suit";
+  const side = name.replace(/_[LR]$/, "");
+  if (side === "top_torso" || side === "top_torsoF" || side === "sleeve" || side === "top_suitHem")
+    return suit ? "twill" : "knit";
+  if (side === "bottom_hips" || (side === "leg" && bottomOf(cfg) === "pants"))
+    return suit ? "twill" : "denim";
+  if (side === "bottom_skirt") return suit ? "twill" : "check";
+  return undefined;
+}
+
 /** GLB の中身から、設定に合う部品を選んで色をぬる（形は共有。メッシュだけ新しく作る）。 */
 export function pickParts(scene: THREE.Object3D, cfg: AvatarConfig): AvatarParts {
   const at = (n: string) => scene.getObjectByName(n)?.position.clone() ?? new THREE.Vector3();
@@ -157,7 +194,9 @@ export function pickParts(scene: THREE.Object3D, cfg: AvatarConfig): AvatarParts
     const isHair = name.startsWith("hair_");
     const m = new THREE.Mesh(
       src.geometry,
-      isHair ? softMaterial(boost(color, 1.25), true) : softMaterial(color),
+      isHair
+        ? softMaterial(boost(color, 1.25), true)
+        : softMaterial(color, false, fabricFor(name, cfg)),
     );
     m.name = name;
     if (/^(sleeve|hand|cuff)_L$/.test(name)) {

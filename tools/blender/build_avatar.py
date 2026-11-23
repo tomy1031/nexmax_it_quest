@@ -35,6 +35,7 @@ HX, HY, HZ = R * 1.08, R * 1.0, R * 0.95
 HEAD_Z = 0.86
 SHOULDER = (0.155, 0.555)  # (x, z)
 HIP = (0.062, 0.3)
+FABRIC_TILE = 0.25  # 布の模様の UV の 1 = 0.25m
 
 
 def smoothstep(a, b, x):
@@ -108,6 +109,22 @@ def lathe(name, profile, seg=28, sx=1.0, sy=1.0, origin=(0, 0, 0), offset=(0, 0)
     if len(rings[-1]) > 1:
         bm.faces.new(rings[-1])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # 布の模様を貼る位置（UV）。まわりの長さと高さを メートルで測り、FABRIC_TILE で わる（アプリで くり返しの細かさを決める）
+    uv = bm.loops.layers.uv.new("UVMap")
+    rmax = max(r for r, _ in profile) * (sx + sy) / 2
+    circ = 2 * math.pi * rmax / FABRIC_TILE
+    ax, ay = offset[0] - origin[0], offset[1] - origin[1]
+    for f in bm.faces:
+        us = []
+        for lp in f.loops:
+            co = lp.vert.co
+            a = math.atan2((co.y - ay) / sy, (co.x - ax) / sx) % (2 * math.pi)
+            us.append(a / (2 * math.pi) * circ)
+        # 一周の つなぎ目を またぐ面は、小さい方を 一周ぶん ずらす
+        if max(us) - min(us) > circ / 2:
+            us = [u + circ if u < circ / 2 else u for u in us]
+        for lp, u in zip(f.loops, us):
+            lp[uv].uv = (u, (lp.vert.co.z + origin[2]) / FABRIC_TILE)
     return new_obj(name, bm, location=origin, subdiv=subdiv)
 
 
@@ -699,15 +716,16 @@ def hair_styles():
     finish_hair("hair_twinbun", buns)
 
     # 髪のかざり（花・リボン）。右の耳の上
-    c = surf(0.85, 1.05, 1.17)
-    n = (surf(0.85, 1.05) - Vector((0, 0, HEAD_Z))).normalized()
+    c = surf(0.85, 1.05, 1.18)
+    # 花は 外と前の あいだを向ける（横から見て うすい線に見えないように）。花びらは少し厚く
+    n = ((surf(0.85, 1.05) - Vector((0, 0, HEAD_Z))).normalized() + Vector((0, -0.8, 0))).normalized()
     up = (Vector((0, 0, 1)) - n * n.z).normalized()
     side = up.cross(n)
     petals = []
     for i in range(5):
         a = 2 * math.pi * i / 5
         pc = c + up * (math.cos(a) * 0.033) + side * (math.sin(a) * 0.033)
-        petals.append(oriented("petal", pc, (side, up, n), (0.024, 0.03, 0.012)))
+        petals.append(oriented("petal", pc, (side, up, n), (0.026, 0.032, 0.02)))
     join("acc_flowerPetals", petals)
     cc = c + n * 0.01
     ellipsoid("acc_flowerCenter", (cc.x, cc.y, cc.z), (0.016, 0.016, 0.016))
@@ -756,7 +774,7 @@ def main():
         export_yup=True,
         export_materials="NONE",
         export_normals=True,
-        export_texcoords=False,
+        export_texcoords=True,
         export_vertex_color="ACTIVE",
     )
     names = sorted(o.name for o in bpy.data.objects)

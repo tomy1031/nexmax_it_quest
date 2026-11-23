@@ -525,3 +525,24 @@ SHOTS["figures"] = {
     </>
   ),
 };
+
+/** 見本（開発用）: 布の模様（スーツのツイル・パーカーのニット・デニム・チェックのスカート）を近くで。/factory?shot=fabrics */
+SHOTS.fabrics = {
+  camera: { pos: [0, 0.5, 2.6], look: [0, 0.5, 0], fov: 36 },
+  light: "day",
+  scene: () => (
+    <>
+      {(
+        [
+          { outfit: "suit", figure: "m", bottom: "pants" },
+          { outfit: "casual", figure: "m", bottom: "pants", coat: "#7d8ea8", pants: "#3f5f8f" },
+          { outfit: "casual", figure: "f", bottom: "skirt", coat: "#e8b4a0", pants: "#4c6a5a" },
+        ] as const
+      ).map((c, i) => (
+        <group key={i} position={[-0.62 + i * 0.62, 0, 0]} rotation={[0, (i - 1) * 0.3, 0]}>
+          <Chibi config={{ ...DEFAULT_AVATAR, hairStyle: "side", ...c }} phase={0.2 + i * 0.3} />
+        </group>
+      ))}
+    </>
+  ),
+};
