@@ -30,6 +30,8 @@ export interface AvatarConfig {
   bag?: boolean;
   /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
   shoes?: string;
+  /** 下の服（女性だけ選べる。無ければ、女性のスーツはスカート・ふだんの服はズボン。男性はいつもズボン）。 */
+  bottom?: "pants" | "skirt";
   suit: string;
   shirt: string;
   tie: string;

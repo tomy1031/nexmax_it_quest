@@ -421,3 +421,69 @@ SHOTS["hair-new"] = {
     </>
   ),
 };
+
+/** 見本（開発用）: 髪型10種を顔の高さで並べる（前と、ななめ後ろ）。/factory?shot=hair-styles */
+SHOTS["hair-styles"] = {
+  camera: { pos: [0, 1.35, 6.2], look: [0, 0.75, 0], fov: 34 },
+  light: "day",
+  scene: () => (
+    <>
+      {STYLES.map((hs, i) => (
+        <group
+          key={hs}
+          position={[-2.4 + (i % 5) * 1.2, i < 5 ? 0.95 : -0.35, i < 5 ? 0 : 0.4]}
+          rotation={[0, i < 5 ? 0 : 2.4, 0]}
+        >
+          <Chibi
+            config={{
+              ...DEFAULT_AVATAR,
+              outfit: "casual",
+              hairStyle: hs,
+              hair: "#5e4030",
+              figure: i % 2 ? "f" : "m",
+            }}
+            phase={0.4 + i * 0.07}
+          />
+        </group>
+      ))}
+    </>
+  ),
+};
+
+/** 見本（開発用）: 体の形3種（男性・ズボン／女性・スカート／女性・ズボン）を、スーツとふだんの服で並べる。/factory?shot=figures */
+const FIGS = [
+  { figure: "m", bottom: "pants", hairStyle: "side" },
+  { figure: "f", bottom: "skirt", hairStyle: "bob" },
+  { figure: "f", bottom: "pants", hairStyle: "ponytail" },
+] as const;
+SHOTS["figures"] = {
+  camera: { pos: [0, 0.8, 6.4], look: [0, 0.55, 0], fov: 30 },
+  light: "day",
+  scene: () => (
+    <>
+      {(["suit", "casual"] as const).flatMap((outfit, row) =>
+        FIGS.map((f, i) => (
+          <group
+            key={`${outfit}${i}`}
+            position={[-2.15 + row * 2.7 + i * 0.8, 0, 0]}
+            rotation={[0, -0.25, 0]}
+          >
+            <Chibi
+              config={{
+                ...DEFAULT_AVATAR,
+                outfit,
+                figure: f.figure,
+                bottom: f.bottom,
+                hairStyle: f.hairStyle,
+                skin: ["#c68e64", "#e0ac83", "#a8714a"][i]!,
+                coat: ["#8a8f98", "#d98c6a", "#6f8fb3"][i]!,
+                pants: ["#3a3d44", "#5c4a6e", "#3d5570"][i]!,
+              }}
+              phase={0.3 + i * 0.2}
+            />
+          </group>
+        )),
+      )}
+    </>
+  ),
+};

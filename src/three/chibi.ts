@@ -505,8 +505,8 @@ export function faceTexture(
   ctx.fillStyle = cfg.skin;
   ctx.fillRect(0, 0, W, H);
   const cx = W * 0.25;
-  const ey = H * 0.55;
-  const gap = W * 0.058;
+  const ey = H * 0.56;
+  const gap = W * 0.066;
   const ink = "#2a1f1d";
   // ほっぺ
   if (cfg.blush ?? true) {
@@ -558,8 +558,8 @@ export function faceTexture(
     }
     // びっくり: 少し小さく まるい目。考える: 黒目が上を見る
     const big = expr === "surprised" ? 0.85 : 1;
-    const rx = (eyes === "sparkle" ? W * 0.028 : W * 0.025) * big;
-    const ry = (eyes === "sparkle" ? H * 0.085 : H * 0.078) * big;
+    const rx = (eyes === "sparkle" ? W * 0.032 : W * 0.029) * big;
+    const ry = (eyes === "sparkle" ? H * 0.1 : H * 0.092) * big;
     const lookUp = expr === "thinking" ? -H * 0.012 : 0;
     // 黒目（こげ茶のふち＋黒）
     ctx.beginPath();

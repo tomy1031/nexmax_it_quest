@@ -2,16 +2,12 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { AvatarConfig } from "@/lib/store";
-import {
-  buildChibi,
-  chibiMaterial,
-  chibiOutlineMaterial,
-  CHIBI_JOINTS,
-  faceTexture,
-  HEAD,
-  type Expression,
-} from "@/three/chibi";
-import { useSettings } from "@/lib/store";
+import { useGLTF } from "@react-three/drei";
+import { faceTexture, type Expression } from "@/three/chibi";
+import { AVATAR_URL, pickParts, softMaterial } from "@/three/avatar-parts";
+
+/** 頭の半径（tools/blender/build_avatar.py の R と同じ）。 */
+const HEAD_R = 0.29;
 
 export type ChibiMotion =
   | "idle"
@@ -49,14 +45,16 @@ export function Chibi({
   expression?: Expression;
 }) {
   const key = JSON.stringify(config);
+  // ブレンダーで作った部品（public/models/avatar/avatar.glb）から、設定に合うものを選ぶ
+  const gltf = useGLTF(AVATAR_URL);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const parts = useMemo(() => buildChibi(config), [key]);
-  useEffect(
-    () => () => {
-      Object.values(parts).forEach((g) => g.dispose());
-    },
-    [parts],
-  );
+  const parts = useMemo(() => pickParts(gltf.scene, config), [gltf, key]);
+  const J = parts.joints;
+  const headGeo = useMemo(() => {
+    const g = new THREE.SphereGeometry(HEAD_R, 40, 28);
+    g.scale(1.08, 0.95, 1);
+    return g;
+  }, []);
 
   const faceOpen = useMemo(() => faceTexture(config, true, expression), [config, expression]);
   const faceClosed = useMemo(
@@ -64,7 +62,11 @@ export function Chibi({
     [config, expression],
   );
   const faceMat = useMemo(
-    () => new THREE.MeshToonMaterial({ map: faceOpen, gradientMap: chibiMaterial().gradientMap }),
+    () =>
+      new THREE.MeshToonMaterial({
+        map: faceOpen,
+        gradientMap: (softMaterial("#ffffff") as THREE.MeshToonMaterial).gradientMap,
+      }),
     [faceOpen],
   );
   useEffect(() => () => faceMat.dispose(), [faceMat]);
@@ -161,7 +163,7 @@ export function Chibi({
         aL = 0.12 + Math.sin(tt * 2.2) * 0.03;
         aR = -0.12 - Math.sin(tt * 2.2) * 0.03;
     }
-    const baseY = CHIBI_JOINTS.HIP.y;
+    const baseY = J.hipL.y;
     b.position.y += (baseY + bodyY - b.position.y) * k;
     lerp(b, "x", bodyPitch);
     lerp(h, "x", headPitch);
@@ -186,43 +188,34 @@ export function Chibi({
     }
   });
 
-  const mat = chibiMaterial();
-  // ふちの線（「かるい」設定では描かない）
-  const lowQuality = useSettings((st) => st.quality) === "low";
-  const ol = lowQuality ? null : chibiOutlineMaterial();
-  const part = (g: THREE.BufferGeometry, m: THREE.Material) => (
-    <>
-      <mesh geometry={g} material={m} />
-      {ol && <mesh geometry={g} material={ol} raycast={() => null} />}
-    </>
-  );
-  const { SHOULDER, HIP } = CHIBI_JOINTS;
   const scale = (config.height ?? 168) / 168;
+  const hipY = J.hipL.y;
+  const meshes = (list: THREE.Mesh[]) => list.map((m) => <primitive key={m.name} object={m} />);
 
   return (
     <group scale={scale}>
       {/* 腰を中心に曲げる（おじぎ）ため、体は腰の高さに置き、中身を下げる */}
-      <group ref={body} position={[0, HIP.y, 0]}>
-        <group position={[0, -HIP.y, 0]}>
-          {part(parts.body, mat)}
-          <group ref={head} position={[0, HEAD.y, 0]}>
-            {part(parts.head, faceMat)}
-            {part(parts.headExtras, mat)}
+      <group ref={body} position={[0, hipY, 0]}>
+        <group position={[0, -hipY, 0]}>
+          {meshes(parts.body)}
+          <group ref={head} position={J.head.toArray()}>
+            <mesh geometry={headGeo} material={faceMat} />
+            {meshes(parts.head)}
           </group>
-          <group ref={armL} position={[SHOULDER.x, SHOULDER.y, 0]}>
-            {part(parts.armL, mat)}
+          <group ref={armL} position={J.shoulderL.toArray()}>
+            {meshes(parts.armL)}
           </group>
-          <group ref={armR} position={[-SHOULDER.x, SHOULDER.y, 0]}>
-            {part(parts.armR, mat)}
+          <group ref={armR} position={J.shoulderR.toArray()}>
+            {meshes(parts.armR)}
             {holding && <Held kind={holding} />}
           </group>
         </group>
       </group>
-      <group ref={legL} position={[HIP.x, HIP.y, 0]}>
-        {part(parts.legL, mat)}
+      <group ref={legL} position={J.hipL.toArray()}>
+        {meshes(parts.legL)}
       </group>
-      <group ref={legR} position={[-HIP.x, HIP.y, 0]}>
-        {part(parts.legR, mat)}
+      <group ref={legR} position={J.hipR.toArray()}>
+        {meshes(parts.legR)}
       </group>
     </group>
   );
@@ -278,3 +271,5 @@ function Held({ kind }: { kind: ChibiHolding }) {
     </group>
   );
 }
+
+useGLTF.preload(AVATAR_URL);

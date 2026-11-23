@@ -60,6 +60,8 @@ export function npcLook(i: number, outfit: "suit" | "casual"): AvatarConfig {
     coat: COATS[(i * 5) % COATS.length]!,
     accessory: i % 3 === 1 ? (["none", "flower", "ribbon"] as const)[(i * 7) % 3]! : "none",
     bag: i % 4 !== 2,
+    // 女性の3人に1人は ズボン
+    bottom: i % 9 === 4 ? "pants" : undefined,
   };
 }
 

@@ -229,6 +229,12 @@
       "title": "ネクマックス 3D モデル",
       "source": "https://github.com/tomy1031/lab/tree/97c6823/yokohama-roll/nexmax",
       "note": "ネクストメイクのキャラクター。持ち主（tomy さん）の lab リポジトリの「ハマころ！」のモデルを、持ち主の指示（2026-11-22）で使う。"
+    },
+    {
+      "file": "avatar/avatar.glb",
+      "title": "アバターの部品（体・服・髪型・かざり）",
+      "source": "tools/blender/build_avatar.py",
+      "note": "このリポジトリで作った。ブレンダー（4.2）でスクリプトを動かして書き出す。ほかの作品のモデルは使っていない。"
     }
   ]
 }

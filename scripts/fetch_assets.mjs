@@ -87,7 +87,7 @@ const lines = [
   "## polyfork（https://polyfork.dev/）",
   "",
   "メッシュのファイル（GLB）は CC BY 4.0。下のクレジットを付けて置いている。",
-  "人（自分・まわりの人）はプログラムで作る（src/three/chibi.ts）。",
+  "人（自分・まわりの人）の体・服・髪型は、このリポジトリのブレンダーのスクリプトで作る（下の「そのほか」）。",
   "",
   ...[...credits.values()]
     .sort((a, b) => a.title.localeCompare(b.title))

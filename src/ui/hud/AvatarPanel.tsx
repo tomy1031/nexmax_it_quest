@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { playSfx } from "@/lib/audio";
 import { useGame, type AvatarConfig, type HairStyle } from "@/lib/store";
 import { t, type UiKey } from "@/lib/t";
+import { bottomOf } from "@/three/avatar-parts";
 import { Chibi } from "@/three/Chibi";
 import { RubyText } from "@/ui/RubyText";
 import { IconCheck } from "@/ui/icons";
@@ -113,6 +114,17 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
 
+/** 体の形（男性・ズボン／女性・スカート／女性・ズボン）。 */
+const FIGURES = [
+  { label: "avatar.figureM", figure: "m", bottom: "pants" },
+  { label: "avatar.figureF", figure: "f", bottom: "skirt" },
+  { label: "avatar.figureFP", figure: "f", bottom: "pants" },
+] as const satisfies readonly {
+  label: UiKey;
+  figure: AvatarConfig["figure"];
+  bottom: "pants" | "skirt";
+}[];
+
 export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: () => void }) {
   const avatar = useGame((s) => s.avatar);
   const setAvatar = useGame((s) => s.setAvatar);
@@ -158,8 +170,10 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
   };
 
   const random = () => {
+    const fig = pick<(typeof FIGURES)[number]>([...FIGURES]);
     set({
-      figure: pick(["m", "f"]),
+      figure: fig.figure,
+      bottom: fig.bottom,
       hairStyle: pick<HairStyle>([
         "model",
         "spiky",
@@ -279,14 +293,14 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           )}
           {tab === "figure" && (
             <div className="flex flex-wrap gap-3">
-              {(["m", "f"] as const).map((f) => (
+              {FIGURES.map((f) => (
                 <button
-                  key={f}
+                  key={f.label}
                   type="button"
-                  className={`btn ${avatar.figure === f ? "btn-primary" : "btn-ghost"}`}
-                  onClick={() => set({ figure: f })}
+                  className={`btn ${avatar.figure === f.figure && bottomOf(avatar) === f.bottom ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => set({ figure: f.figure, bottom: f.bottom })}
                 >
-                  <RubyText text={t(f === "m" ? "avatar.figureM" : "avatar.figureF")} />
+                  <RubyText text={t(f.label)} />
                 </button>
               ))}
             </div>

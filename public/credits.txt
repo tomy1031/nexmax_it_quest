@@ -5,7 +5,7 @@
 ## polyfork（https://polyfork.dev/）
 
 メッシュのファイル（GLB）は CC BY 4.0。下のクレジットを付けて置いている。
-人（自分・まわりの人）はプログラムで作る（src/three/chibi.ts）。
+人（自分・まわりの人）の体・服・髪型は、このリポジトリのブレンダーのスクリプトで作る（下の「そのほか」）。
 
 - Air-Con Unit by Polyfork (https://polyfork.dev/asset/air-con-unit-9fadc2), CC BY 4.0
 - Apartment Block by Polyfork (https://polyfork.dev/asset/apartment-block-6445af), CC BY 4.0
@@ -66,3 +66,4 @@
 ## そのほか
 
 - ネクマックス 3D モデル（public/models/nexmax/nexmax.glb）: https://github.com/tomy1031/lab/tree/97c6823/yokohama-roll/nexmax — ネクストメイクのキャラクター。持ち主（tomy さん）の lab リポジトリの「ハマころ！」のモデルを、持ち主の指示（2026-11-22）で使う。
+- アバターの部品（体・服・髪型・かざり）（public/models/avatar/avatar.glb）: tools/blender/build_avatar.py — このリポジトリで作った。ブレンダー（4.2）でスクリプトを動かして書き出す。ほかの作品のモデルは使っていない。
