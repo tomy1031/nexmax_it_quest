@@ -35,7 +35,7 @@ export interface AvatarConfig {
   /** 身長（cm）。モデルの大きさを、この高さに合わせる。 */
   height: number;
   /** 目の形（ちびキャラの顔）。 */
-  eyes: "round" | "smile" | "sparkle" | "calm";
+  eyes: "round" | "smile" | "sparkle" | "calm" | "small";
   /** ほっぺの赤み。 */
   blush: boolean;
   /** 髪のかざり。 */

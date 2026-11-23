@@ -6,6 +6,7 @@ import { useGame, type AvatarConfig, type HairStyle } from "@/lib/store";
 import { t, type UiKey } from "@/lib/t";
 import { bottomOf } from "@/three/avatar-parts";
 import { Chibi } from "@/three/Chibi";
+import { FACE_ATLAS, faceCell, faceSheetUrl } from "@/three/face-parts";
 import { RubyText } from "@/ui/RubyText";
 import { IconCheck } from "@/ui/icons";
 
@@ -40,6 +41,7 @@ const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["smile", "avatar.eyes.smile"],
   ["sparkle", "avatar.eyes.sparkle"],
   ["calm", "avatar.eyes.calm"],
+  ["small", "avatar.eyes.small"],
 ];
 
 const BASE = import.meta.env.BASE_URL;
@@ -105,7 +107,7 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
   figure: { y: 0.55, d: 2.2 },
   height: { y: 0.62, d: 2.4 },
   skin: { y: 0.9, d: 1.1 },
-  eyes: { y: 0.92, d: 0.95 },
+  eyes: { y: 0.86, d: 1.35 },
   hair: { y: 0.85, d: 1.8 },
   hairStyle: { y: 0.8, d: 2.0 },
   glasses: { y: 0.92, d: 1.0 },
@@ -145,6 +147,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "figure",
           "height",
           "skin",
+          "eyes",
           "hairStyle",
           "hair",
           "accessory",
@@ -159,6 +162,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           "figure",
           "height",
           "skin",
+          "eyes",
           "hairStyle",
           "hair",
           "accessory",
@@ -183,7 +187,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
       bottom: fig.bottom,
       hairStyle: pick<HairStyle>(HAIR_STYLES.map(([hs]) => hs)),
       height: 155 + Math.round(Math.random() * 30),
-      eyes: pick<AvatarConfig["eyes"]>(["round", "smile", "sparkle", "calm"]),
+      eyes: pick<AvatarConfig["eyes"]>(EYES.map(([e]) => e)),
       skin: pick(SKINS),
       hair: pick(HAIRS),
       suit: pick(SUITS_OK),
@@ -317,24 +321,19 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </div>
           )}
           {tab === "eyes" && (
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {EYES.map(([e, key]) => (
                 <button
                   key={e}
                   type="button"
-                  className={`btn ${avatar.eyes === e ? "btn-primary" : "btn-ghost"}`}
+                  className={`flex w-[92px] flex-col items-center gap-1 rounded-xl border-2 px-1 py-1.5 text-[12px] font-extrabold whitespace-nowrap transition ${avatar.eyes === e ? "border-white bg-[#0a63d6] text-white" : "border-transparent bg-white/10 hover:bg-white/20"}`}
                   onClick={() => set({ eyes: e })}
+                  data-testid={`avatar-eyes-${e}`}
                 >
+                  <EyePair style={e} skin={avatar.skin} />
                   <RubyText text={t(key)} />
                 </button>
               ))}
-              <button
-                type="button"
-                className={`btn ${avatar.blush ? "btn-primary" : "btn-ghost"}`}
-                onClick={() => set({ blush: !avatar.blush })}
-              >
-                <RubyText text={t("avatar.blush")} />
-              </button>
             </div>
           )}
           {tab === "hairStyle" && (
@@ -482,4 +481,38 @@ function FocusCamera({ tab }: { tab: Tab }) {
     camera.lookAt(look.current);
   });
   return null;
+}
+
+/** 目の形の絵（顔のパーツの表 face_eyes から。見る人の左の目と、反転した右の目）。 */
+function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string }) {
+  const row = { round: 0, smile: 0, sparkle: 1, calm: 2, small: 3 }[style] ?? 0;
+  const col = style === "smile" ? 2 : 0;
+  const box = faceCell("face_eyes", col, row);
+  const ref = faceCell("face_eyes", 0, 0);
+  const sheet = FACE_ATLAS.face_eyes;
+  if (!box || !ref || !sheet) return null;
+  // まるい目の高さを 30px にそろえる（目の大きさの ちがいが分かるように）
+  const k = 30 / ref[3];
+  const eye = (flip: boolean) => (
+    <span
+      className="block"
+      style={{
+        width: box[2] * k,
+        height: box[3] * k,
+        backgroundImage: `url(${faceSheetUrl("face_eyes")})`,
+        backgroundSize: `${sheet.w * k}px ${sheet.h * k}px`,
+        backgroundPosition: `${-box[0] * k}px ${-box[1] * k}px`,
+        transform: flip ? "scaleX(-1)" : undefined,
+      }}
+    />
+  );
+  return (
+    <span
+      className="flex h-11 w-[76px] items-center justify-center gap-2 rounded-lg"
+      style={{ background: skin }}
+    >
+      {eye(false)}
+      {eye(true)}
+    </span>
+  );
 }

@@ -382,6 +382,31 @@ SHOTS["avatars-ref"] = {
 };
 
 /** 見本（開発用）: 表情4つ（ふつう・にこにこ・びっくり・考える）。/factory?shot=faces */
+/** 見本（開発用）: 目の形5つ（まる・にこにこ・キラキラ・おだやか・小さい）。/factory?shot=eyes */
+SHOTS.eyes = {
+  camera: { pos: [0, 0.95, 3.1], look: [0, 0.82, 0], fov: 34 },
+  light: "day",
+  scene: () => (
+    <>
+      {(["round", "smile", "sparkle", "calm", "small"] as const).map((e, i) => (
+        <group key={e} position={[-1.4 + i * 0.7, 0, 0]}>
+          <Chibi
+            config={{
+              ...DEFAULT_AVATAR,
+              outfit: "casual",
+              eyes: e,
+              figure: i % 2 ? "f" : "m",
+              hairStyle: (["side", "bob", "center", "twinbun", "model"] as const)[i]!,
+              skin: ["#c68e64", "#e0ac83", "#a8714a", "#d49a6a", "#b98258"][i]!,
+            }}
+            phase={0.3 + i * 0.4}
+          />
+        </group>
+      ))}
+    </>
+  ),
+};
+
 SHOTS.faces = {
   camera: { pos: [0, 0.95, 2.6], look: [0, 0.85, 0], fov: 34 },
   light: "day",

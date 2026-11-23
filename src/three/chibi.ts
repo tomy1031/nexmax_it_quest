@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { AvatarConfig } from "@/lib/store";
+import { drawFacePart, faceAtlasReady, loadFaceAtlas, onFaceAtlas } from "@/three/face-parts";
 
 /**
  * ちびキャラ工場。丸い大きな頭・短い体・点の目とほっぺの、かわいい人をプログラムで作る。
@@ -13,7 +14,7 @@ import type { AvatarConfig } from "@/lib/store";
  * 大きさは身長 168cm のとき 約1.2m（頭が全体の 4割）。身長の設定に合わせて全体を大きくする。
  */
 
-export type EyeStyle = "round" | "smile" | "sparkle" | "calm";
+export type EyeStyle = "round" | "smile" | "sparkle" | "calm" | "small";
 
 const c = new THREE.Color();
 
@@ -477,7 +478,105 @@ export const CHIBI_JOINTS = { HEAD, SHOULDER, HIP };
 
 // ── 顔（Canvas に描いて頭に貼る） ──
 
-const faceCache = new Map<string, THREE.CanvasTexture>();
+interface FaceEntry {
+  canvas: HTMLCanvasElement;
+  tex: THREE.CanvasTexture;
+  cfg: AvatarConfig;
+  open: boolean;
+  expr: Expression;
+}
+const faceCache = new Map<string, FaceEntry>();
+
+// 顔のパーツの絵がそろったら、もう作った顔も全部かき直す
+onFaceAtlas(() => {
+  for (const e of faceCache.values()) {
+    paintFace(e.canvas, e.cfg, e.open, e.expr);
+    e.tex.needsUpdate = true;
+  }
+});
+if (typeof window !== "undefined") void loadFaceAtlas();
+
+/** 目の形 → 表の行（face_eyes の 1行目 まる・2行目 キラキラ・3行目 おだやか・4行目 小さい）。 */
+const EYE_ROW: Record<EyeStyle, number> = { round: 0, smile: 0, sparkle: 1, calm: 2, small: 3 };
+
+/** 表の目の大きさ（まるい目の高さ）を、顔の絵の何 px にするか。 */
+const EYE_H = 0.2;
+
+/** Codex の顔のパーツで顔を描く（docs/codex/face_parts.md）。 */
+function paintFaceParts(
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  cfg: AvatarConfig,
+  open: boolean,
+  expr: Expression,
+) {
+  const eyes = (cfg.eyes ?? "round") as EyeStyle;
+  const row = EYE_ROW[eyes] ?? 0;
+  const ref = 81; // face_eyes の まるい目（1行目 1列目）の高さ（表の px）
+  const s = (H * EYE_H) / ref;
+  const cx = W * 0.25;
+  const gap = W * 0.07;
+  const ey = H * 0.565;
+  // ほっぺ
+  if (cfg.blush ?? true) {
+    for (const sx of [-1, 1]) {
+      drawFacePart(ctx, "face_cheeks", 0, 0, cx + sx * W * 0.098, H * 0.665, s * 0.62, {
+        mirror: sx > 0,
+        alpha: 0.7,
+      });
+    }
+  }
+  // まゆ（髪の色。びっくりは高い山・考えるは ななめ）
+  const brow = expr === "surprised" ? 4 : expr === "thinking" ? 5 : 0;
+  const browY = H * (expr === "surprised" ? 0.385 : 0.405);
+  for (const sx of [-1, 1]) {
+    drawFacePart(ctx, "face_mouth", brow, 0, cx + sx * gap, browY, s * 0.62, {
+      mirror: sx > 0,
+      tint: darker(cfg.hair, 0.85),
+    });
+  }
+  // 目（とじる・にこにこ・びっくり・考える は列を切りかえる。位置は ひらいた目に そろえる）
+  const col = !open
+    ? 1
+    : expr === "happy" || eyes === "smile"
+      ? 2
+      : expr === "surprised"
+        ? 3
+        : expr === "thinking"
+          ? 4
+          : 0;
+  for (const sx of [-1, 1]) {
+    drawFacePart(ctx, "face_eyes", col, row, cx + sx * gap, ey, s, {
+      mirror: sx > 0,
+      anchor: [0, row],
+    });
+  }
+  // 鼻（はだの色を こくした 小さな点）
+  drawFacePart(ctx, "face_mouth", 0, 1, cx, H * 0.625, s * 0.7, { tint: darker(cfg.skin, 0.72) });
+  // 口
+  const [mc, mr] =
+    expr === "happy"
+      ? [1, 2]
+      : expr === "surprised"
+        ? [3, 2]
+        : expr === "thinking"
+          ? [4, 2]
+          : [0, 2];
+  drawFacePart(ctx, "face_mouth", mc, mr, cx, H * 0.68, s * 0.72);
+}
+
+function paintFace(canvas: HTMLCanvasElement, cfg: AvatarConfig, open: boolean, expr: Expression) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = cfg.skin;
+  ctx.fillRect(0, 0, W, H);
+  if (faceAtlasReady()) paintFaceParts(ctx, W, H, cfg, open, expr);
+  else paintFaceFallback(ctx, W, H, cfg, open, expr);
+}
 
 /**
  * 顔の絵。球の貼り方では、絵の横 1/4 の所が顔の正面（+z）になる。
@@ -494,16 +593,28 @@ export function faceTexture(
   const eyes = (cfg.eyes ?? "round") as EyeStyle;
   const key = `${cfg.skin}|${cfg.hair}|${eyes}|${cfg.blush ?? true}|${cfg.figure}|${open}|${expr}`;
   const hit = faceCache.get(key);
-  if (hit) return hit;
-  const W = 1024;
-  const H = 512;
+  if (hit) return hit.tex;
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("2d canvas unavailable");
-  ctx.fillStyle = cfg.skin;
-  ctx.fillRect(0, 0, W, H);
+  canvas.width = 1024;
+  canvas.height = 512;
+  paintFace(canvas, cfg, open, expr);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  faceCache.set(key, { canvas, tex, cfg, open, expr });
+  return tex;
+}
+
+/** 顔のパーツの絵が まだ無いときの顔（プログラムで描く）。 */
+function paintFaceFallback(
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  cfg: AvatarConfig,
+  open: boolean,
+  expr: Expression,
+) {
+  const eyes = (cfg.eyes ?? "round") as EyeStyle;
   const cx = W * 0.25;
   const ey = H * 0.56;
   const gap = W * 0.066;
@@ -624,10 +735,4 @@ export function faceTexture(
     ctx.arc(cx, H * 0.63, W * 0.013, Math.PI * 0.15, Math.PI * 0.85);
     ctx.stroke();
   }
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
-  faceCache.set(key, tex);
-  return tex;
 }

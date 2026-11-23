@@ -47,7 +47,7 @@ const STYLES: AvatarConfig["hairStyle"][] = [
   "braid",
   "twinbun",
 ];
-const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle"];
+const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle", "small"];
 
 export function npcLook(i: number, outfit: "suit" | "casual"): AvatarConfig {
   return {
