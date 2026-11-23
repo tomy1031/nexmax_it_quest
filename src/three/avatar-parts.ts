@@ -156,9 +156,40 @@ function kigurumiColor(name: string, cfg: AvatarConfig): string | null {
   }
 }
 
+/** 寝巻きのときの色（上下 同じ色・はだし）。 */
+function pajamaColor(name: string, cfg: AvatarConfig): string | null {
+  const c = cfg.pajama ?? "#a9cdeb";
+  const side = name.replace(/_[LR]$/, "");
+  switch (side) {
+    case "top_torso":
+      return cfg.figure === "f" ? null : c;
+    case "top_torsoF":
+      return cfg.figure === "f" ? c : null;
+    case "sleeve":
+    case "bottom_hips":
+    case "leg":
+      return c;
+    case "hand":
+    case "ear":
+    case "skin_foot":
+      return cfg.skin;
+    case "glasses_frame":
+      return cfg.glasses ? "#2a2d35" : null;
+    case "acc_flowerPetals":
+    case "acc_flowerCenter":
+    case "acc_ribbon":
+      return null;
+    default:
+      if (name === `hair_${cfg.hairStyle}`) return cfg.hair;
+      if (name === `acc_tie_${cfg.hairStyle}`) return shade(cfg.hair, 0.7);
+      return null;
+  }
+}
+
 /** 部品の名前 → 色（null なら この設定では使わない）。 */
 function colorFor(name: string, cfg: AvatarConfig): string | null {
   if (cfg.outfit === "kigurumi") return kigurumiColor(name, cfg);
+  if (cfg.outfit === "pajama") return pajamaColor(name, cfg);
   if (name.startsWith("kig_")) return null;
   {
     // くつ（形を えらぶ）。着ぐるみでないときは、まるい「shoe」は使わない
@@ -234,6 +265,7 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
 /** 部品の名前 → 布の模様（スーツは ツイル・パーカーは ニット・ふだんのズボンは デニム・ふだんのスカートは チェック）。 */
 function fabricFor(name: string, cfg: AvatarConfig): Fabric | undefined {
   if (cfg.outfit === "kigurumi") return undefined;
+  if (cfg.outfit === "pajama") return "check";
   const suit = cfg.outfit === "suit";
   const side = name.replace(/_[LR]$/, "");
   if (side === "top_torso" || side === "top_torsoF" || side === "sleeve" || side === "top_suitHem")

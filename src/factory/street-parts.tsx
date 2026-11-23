@@ -39,15 +39,17 @@ export function CarSignal({
       ]),
     [],
   );
+  // 左折の 緑の矢印（←）。tomy さん 2026-11-23「矢印と車の向きが合ってないです。左にして」
   const arrowShape = useMemo(() => {
     const s = new THREE.Shape();
-    s.moveTo(-0.1, -0.035);
-    s.lineTo(0.03, -0.035);
-    s.lineTo(0.03, -0.08);
-    s.lineTo(0.11, 0);
-    s.lineTo(0.03, 0.08);
-    s.lineTo(0.03, 0.035);
-    s.lineTo(-0.1, 0.035);
+    s.moveTo(0.1, -0.035);
+    s.lineTo(-0.03, -0.035);
+    s.lineTo(-0.03, -0.08);
+    s.lineTo(-0.11, 0);
+    s.lineTo(-0.03, 0.08);
+    s.lineTo(-0.03, 0.035);
+    s.lineTo(0.1, 0.035);
+    s.closePath();
     return new THREE.ShapeGeometry(s);
   }, []);
   return (
@@ -171,7 +173,7 @@ function drawPerson(
 
 /**
  * 押しボタンの箱（本物の形: 黄色い箱・角のねじ・上に黒い窓・まん中に銀のふちの赤い丸ボタン・
- * 下に赤く光る「おしてください」。押すと上の窓に「おまちください」が赤く光る。tomy さんの写真 2026-11-22）。
+ * 下に赤く光る「おしてください」。押すと上の窓に「おまちください」が赤く光り、「おしてください」は消える。tomy さんの写真 2026-11-22）。
  * 正面は +z。position は箱のまん中。
  */
 export function PushButtonBox({
@@ -257,7 +259,7 @@ export function PushButtonBox({
           });
         }}
       />
-      {/* 下の帯: 「おしてください」がいつも赤く光る */}
+      {/* 下の帯: 「おしてください」が赤く光る。押して「おまちください」が光っている間は消える（tomy さん 2026-11-23） */}
       <CanvasPanel
         width={0.16}
         height={0.032}
@@ -265,9 +267,11 @@ export function PushButtonBox({
         position={[0, -0.085, D / 2 + 0.0085]}
         emissive
         fontText={t("sign.pushButton")}
+        deps={[waiting]}
         draw={(ctx, w, h) => {
           ctx.fillStyle = "#0b0b0d";
           ctx.fillRect(0, 0, w, h);
+          if (waiting) return;
           drawRuby(ctx, t("sign.pushButton"), w / 2, h * 0.78, {
             size: Math.min(h * 0.7, (w * 0.9) / [...t("sign.pushButton")].length),
             color: "#ff3b2a",

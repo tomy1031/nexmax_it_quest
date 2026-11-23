@@ -109,7 +109,8 @@ export function CameraRig() {
       desiredLook.current.copy(desired.current).add(off);
     } else {
       const yaw = baseYaw.current + drag.current.yawOffset;
-      cameraYaw.value = yaw + Math.PI;
+      // キーで歩く向き: 上キー＝カメラから はなれる向き（yaw + π だと 外で上下左右が逆になっていた。tomy さん 2026-11-23）
+      cameraYaw.value = yaw;
       const dist = layout.camera.distance ?? 4.2;
       const height = (layout.camera.height ?? 2.4) + drag.current.pitch * 3;
       desired.current.set(
@@ -132,7 +133,7 @@ export function CameraRig() {
       camera.position.copy(desired.current);
       look.current.copy(desiredLook.current);
       if (!shot && layout.camera.mode === "follow") {
-        baseYaw.current = player.yaw + Math.PI;
+        baseYaw.current = layout.camera.yaw ?? player.yaw + Math.PI;
         const yaw = baseYaw.current;
         const dist = layout.camera.distance ?? 4.2;
         camera.position.set(

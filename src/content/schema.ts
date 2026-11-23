@@ -57,7 +57,8 @@ export const panelId = z.enum([
 ]);
 export type PanelId = z.infer<typeof panelId>;
 
-export const nexmaxPose = z.enum(["guide", "hello", "cheer", "listen", "book", "build"]);
+/** ネクマックスの ポーズ。メガネの絵（book）は使わない（tomy さん 2026-11-23）。 */
+export const nexmaxPose = z.enum(["guide", "hello", "cheer", "listen", "build"]);
 
 type BeatShape =
   | { t: "say"; who: SpeakerId; text: string; pose?: z.infer<typeof nexmaxPose> }
@@ -91,6 +92,8 @@ type BeatShape =
   | { t: "verdict"; ok: boolean; text: string }
   | { t: "todo-add"; id: string; text: string }
   | { t: "todo-done"; id: string }
+  | { t: "memo-add"; id: string; title: string; text: string }
+  | { t: "wear"; outfit: "suit" | "casual" | "kigurumi" | "pajama" }
   | { t: "dream"; items: { text: string; icon: string }[] }
   | { t: "end" };
 
@@ -146,6 +149,10 @@ export const beat: z.ZodType<BeatShape> = z.lazy(() =>
     z.object({ t: z.literal("todo-add"), id: z.string(), text: learnerText }),
     /** やることリストの「できた」（横線を引く）。 */
     z.object({ t: z.literal("todo-done"), id: z.string() }),
+    /** メモに足す（自動で書くメモ。tomy さん 2026-11-23「メモは自分でするのではなく、参考としていつでもみれるように自動生成させて」）。 */
+    z.object({ t: z.literal("memo-add"), id: z.string(), title: learnerText, text: learnerText }),
+    /** 服を着せる（朝は 寝巻きで 起きる）。 */
+    z.object({ t: z.literal("wear"), outfit: z.enum(["suit", "casual", "kigurumi", "pajama"]) }),
     z.object({
       t: z.literal("dream"),
       items: z.array(z.object({ text: learnerText, icon: z.string() })).min(1),

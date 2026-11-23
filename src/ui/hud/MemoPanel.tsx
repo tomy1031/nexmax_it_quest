@@ -1,83 +1,95 @@
 import { useState } from "react";
-import { playSfx } from "@/lib/audio";
-import { useGame } from "@/lib/store";
+import { useSettings } from "@/lib/store";
 import { t } from "@/lib/t";
+import { usePlay, type MemoItem } from "@/stages/play-store";
 import { RubyText } from "@/ui/RubyText";
 
-/** 書いた文に、家の駅の名前が入っているか（漢字・ひらがな・カタカナ・ローマ字のどれでもよい。判定は学生に有利に）。 */
-export function memoHasStation(text: string): boolean {
-  const s = text.toLowerCase().replace(/\s/g, "");
-  return /天王寺|てんのうじ|テンノウジ|tennoji|tennouji|m23/.test(s);
-}
-
 /**
- * メモ（企画メモ「何線？メモを促す」）。自由に書く（選択式にしない。必ず守るルール3）。
- * 家の駅の名前が入っていれば保存できる。
+ * メモ（自動で書く）。tomy さん 2026-11-23「メモは自分でするのではなく、参考としていつでもみれるように自動生成させて」
+ * 「メモは右上にして。（数個表示。もっと見るで大きくなる）」「タイトルクリックで詳細が出る」。
+ * 台本の memo-add で足す（入社式・家の駅・行き方・定期券・ホーム）。学生は書かない。
  */
-export function MemoEditor({
-  onSaved,
-  required = false,
-}: {
-  onSaved: () => void;
-  required?: boolean;
-}) {
-  const memo = useGame((s) => s.memo);
-  const setMemo = useGame((s) => s.setMemo);
-  const [text, setText] = useState(memo);
-  const [error, setError] = useState(false);
-  const [ok, setOk] = useState(false);
 
-  const save = () => {
-    if (required && !memoHasStation(text)) {
-      setError(true);
-      playSfx("ng");
-      return;
-    }
-    setMemo(text);
-    setOk(true);
-    playSfx("ok");
-    window.setTimeout(onSaved, 700);
-  };
-
+/** 1つのメモ（タイトルを押すと、くわしい文が出る）。 */
+function MemoRow({ m, open, onToggle }: { m: MemoItem; open: boolean; onToggle: () => void }) {
   return (
-    <div
-      className="glass-light pop flex w-full max-w-xl flex-col gap-3 rounded-3xl p-5"
-      data-testid="memo"
-    >
-      <h2 className="text-xl font-extrabold">
-        <RubyText text={t("memo.title")} />
-      </h2>
-      <p className="text-lg font-bold">
-        <RubyText text={t("memo.help")} />
-      </p>
-      <p className="text-ink/70">
-        <RubyText text={t("memo.example")} />
-      </p>
-      <textarea
-        className="input min-h-28 resize-none text-xl"
-        value={text}
-        placeholder={t("memo.placeholder")}
-        onChange={(e) => {
-          setText(e.target.value);
-          setError(false);
-        }}
-        data-testid="memo-input"
-      />
-      {error && (
-        <p className="text-coral font-extrabold">
-          <RubyText text={t("memo.needStation")} />
+    <li className="pop rounded-xl bg-white/10">
+      <button
+        type="button"
+        className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[15px] font-extrabold text-white hover:bg-white/10"
+        onClick={onToggle}
+        aria-expanded={open}
+        data-testid={`memo-${m.id}`}
+      >
+        <span className="text-xs opacity-80">{open ? "▼" : "▶"}</span>
+        <RubyText text={m.title} />
+      </button>
+      {open && (
+        <p className="px-3 pb-2 text-[15px] leading-relaxed font-bold text-white">
+          <RubyText text={m.text} />
         </p>
       )}
-      <div className="flex items-center justify-end gap-3">
-        {ok && (
-          <span className="text-leaf font-extrabold">
-            <RubyText text={t("memo.ok")} />
-          </span>
+    </li>
+  );
+}
+
+/** 右上の小さなメモ（新しい順に いくつか）。「もっと 見る」で 全部を大きく出す。 */
+export function MemoBox() {
+  const memos = usePlay((s) => s.memos);
+  const big = useSettings((s) => s.memoBig ?? false);
+  const setSettings = useSettings((s) => s.setSettings);
+  const [open, setOpen] = useState<string | null>(null);
+  if (memos.length === 0) return null;
+  const shown = big ? memos : memos.slice(-3);
+  return (
+    <div
+      className={`glass pointer-events-auto absolute top-[68px] right-3 rounded-2xl px-3 py-2 ${big ? "max-h-[70vh] w-[min(80vw,440px)] overflow-y-auto" : "w-[min(60vw,280px)]"}`}
+      data-testid="memo-box"
+    >
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="text-sm font-extrabold text-white">
+          <RubyText text={t("memo.title")} />
+          <span className="ml-1.5 text-xs opacity-80">{memos.length}</span>
+        </span>
+        {(memos.length > 3 || big) && (
+          <button
+            type="button"
+            className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-white/25"
+            onClick={() => setSettings({ memoBig: !big })}
+            data-testid="memo-more"
+          >
+            <RubyText text={t(big ? "memo.less" : "memo.more")} />
+          </button>
         )}
-        <button type="button" className="btn btn-primary" onClick={save} data-testid="memo-save">
-          <RubyText text={t("memo.save")} />
-        </button>
       </div>
+      <ul className="flex flex-col gap-1">
+        {shown.map((m) => (
+          <MemoRow
+            key={m.id}
+            m={m}
+            open={big || open === m.id}
+            onToggle={() => setOpen(open === m.id ? null : m.id)}
+          />
+        ))}
+      </ul>
     </div>
+  );
+}
+
+/** メニューの「メモ」（全部を ひらいて出す）。 */
+export function MemoList() {
+  const memos = usePlay((s) => s.memos);
+  if (memos.length === 0)
+    return (
+      <p className="text-white">
+        <RubyText text={t("memo.empty")} />
+      </p>
+    );
+  return (
+    <ul className="flex flex-col gap-2">
+      {memos.map((m) => (
+        <MemoRow key={m.id} m={m} open onToggle={() => undefined} />
+      ))}
+    </ul>
   );
 }

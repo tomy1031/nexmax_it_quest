@@ -26,7 +26,7 @@
       "more": "昔の 日本語では、緑も「青」と 言いました。",
       "en": "In Japan, the green light is called \"ao\" (blue).",
       "image": "/img/tips/aoshingou.webp",
-      "pose": "book"
+      "pose": "guide"
     },
     {
       "id": "oshibotan",
@@ -44,7 +44,7 @@
       "more": "歩く 人は、歩行者用の 信号を 見ましょう。",
       "en": "Even on red, cars may go in the direction of a green arrow.",
       "image": "/img/tips/yajirushi.webp",
-      "pose": "book"
+      "pose": "guide"
     },
     {
       "id": "ekibango",
@@ -53,7 +53,7 @@
       "more": "天王寺は 御堂筋線の M23 です。",
       "en": "Osaka Metro stations have a line letter and number (e.g. M23).",
       "image": "/img/tips/ekibango.webp",
-      "pose": "book"
+      "pose": "guide"
     },
     {
       "id": "teikiken",
@@ -98,7 +98,7 @@
       "more": "「〇〇行き」は、電車が 最後に 止まる 駅です。",
       "en": "\"…houmen\" is the direction. \"…yuki\" is the last stop of the train.",
       "image": "/img/tips/houmen.webp",
-      "pose": "book"
+      "pose": "guide"
     },
     {
       "id": "rush",

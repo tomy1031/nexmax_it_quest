@@ -16,7 +16,7 @@ import {
 } from "@/ui/icons";
 import { NMChat } from "@/ui/hud/NMChat";
 import { RouteMap } from "@/ui/hud/RouteMap";
-import { MemoEditor } from "@/ui/hud/MemoPanel";
+import { MemoList } from "@/ui/hud/MemoPanel";
 import { AvatarEditor } from "@/ui/hud/AvatarPanel";
 import { TIPS, TipView } from "@/ui/hud/Hud";
 import { SettingsScreen } from "@/app/SettingsScreen";
@@ -115,7 +115,7 @@ export function Menu({ onClose }: { onClose: () => void }) {
               <RouteMap />
             </div>
           )}
-          {view === "memo" && <MemoEditor onSaved={() => setView("list")} />}
+          {view === "memo" && <MemoList />}
           {view === "items" && (
             <div className="flex flex-col gap-3">
               {inventory.length === 0 && (

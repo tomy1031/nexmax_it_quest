@@ -8,6 +8,7 @@ import { Chibi, type ChibiMotion } from "@/three/Chibi";
 import { insideWalk, useLayout } from "@/three/layout";
 import { placePlayer, player } from "@/three/player";
 import { cameraYaw } from "@/three/CameraRig";
+import { fireInteractable, interactables } from "@/three/Interactable";
 import type { Expression } from "@/three/chibi";
 import { expressionOf } from "@/three/expression";
 
@@ -33,6 +34,8 @@ export function Player() {
       : "normal";
   const keys = useRef(new Set<string>());
   const inside = useRef(new Set<string>());
+  /** 十字キーで 物の前に入って 合図を出した物（出たら また出せる）。 */
+  const touched = useRef<string | null>(null);
 
   // はじめに立つ所
   useEffect(() => {
@@ -52,6 +55,34 @@ export function Player() {
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       keys.current.add(e.key.toLowerCase());
+      // Enter・スペース: 近くの物を押す（セリフ・問題が出ている間は「つぎへ」なので、ここでは何もしない）
+      if ((e.key === "Enter" || e.key === " ") && tag !== "BUTTON") {
+        const p = usePlay.getState();
+        if (p.line || p.panel || p.choice || p.tip || p.verdict || p.dream) return;
+        const want = p.waitingFor?.startsWith("click:") ? p.waitingFor.slice(6) : null;
+        const near = (a?: [number, number]) =>
+          a ? Math.hypot(player.pos.x - a[0], player.pos.z - a[1]) : 0;
+        const w = want ? interactables.get(want) : undefined;
+        if (want && w && !w.disabled && (!w.approach || near(w.approach) < 1.6)) {
+          e.preventDefault();
+          fireInteractable(want);
+          return;
+        }
+        let best: string | null = null;
+        let bd = 1.2;
+        for (const [id, it] of interactables) {
+          if (it.disabled || !it.approach) continue;
+          const d = near(it.approach);
+          if (d < bd) {
+            bd = d;
+            best = id;
+          }
+        }
+        if (best) {
+          e.preventDefault();
+          fireInteractable(best);
+        }
+      }
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
     window.addEventListener("keydown", down);
@@ -68,7 +99,7 @@ export function Player() {
     const dt = Math.min(rawDt, 0.05);
     const g = group.current;
     if (!g) return;
-    const { walk, triggers } = useLayout.getState();
+    const { walk, triggers, blocks } = useLayout.getState();
     const play = usePlay.getState();
     const blocked =
       player.frozen ||
@@ -86,6 +117,7 @@ export function Player() {
     let moving = false;
     if (!blocked && (kx || kz)) {
       player.target = null;
+      player.path = [];
       player.onArrive = null;
       const yaw = cameraYaw.value;
       const dir = tmp.current
@@ -94,17 +126,20 @@ export function Player() {
         .applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
       const nx = player.pos.x + dir.x * SPEED * dt;
       const nz = player.pos.z + dir.z * SPEED * dt;
-      if (insideWalk(nx, nz, walk)) {
+      if (insideWalk(nx, nz, walk, blocks)) {
         player.pos.x = nx;
         player.pos.z = nz;
-      } else if (insideWalk(nx, player.pos.z, walk)) player.pos.x = nx;
-      else if (insideWalk(player.pos.x, nz, walk)) player.pos.z = nz;
+      } else if (insideWalk(nx, player.pos.z, walk, blocks)) player.pos.x = nx;
+      else if (insideWalk(player.pos.x, nz, walk, blocks)) player.pos.z = nz;
       player.yaw = Math.atan2(dir.x, dir.z);
       moving = true;
     } else if (!blocked && player.target) {
       const d = tmp.current.copy(player.target).sub(player.pos).setY(0);
       const dist = d.length();
-      if (dist < 0.06) {
+      if (dist < 0.06 && player.path.length) {
+        // とちゅうの地点に着いた。次の地点へ
+        player.target = player.path.shift()!;
+      } else if (dist < 0.06) {
         player.target = null;
         const cb = player.onArrive;
         player.onArrive = null;
@@ -114,6 +149,7 @@ export function Player() {
         d.normalize();
         const nx = player.pos.x + d.x * step;
         const nz = player.pos.z + d.z * step;
+        // 道は家具を よけて作ってあるので、ここでは 歩ける四角だけを見る（角で止まらないように）
         if (insideWalk(nx, nz, walk)) {
           player.pos.x = nx;
           player.pos.z = nz;
@@ -125,11 +161,24 @@ export function Player() {
           moving = true;
         } else {
           player.target = null;
+          player.path = [];
           player.onArrive = null;
         }
       }
     }
     player.moving = moving;
+    // 十字キーで、待っている物の前に入ったら、そのまま押したことにする（ドア・階段・券売機など）
+    if (!blocked && (kx !== 0 || kz !== 0)) {
+      const want = play.waitingFor?.startsWith("click:") ? play.waitingFor.slice(6) : null;
+      const it = want ? interactables.get(want) : undefined;
+      if (want && it?.approach && !it.disabled) {
+        const d = Math.hypot(player.pos.x - it.approach[0], player.pos.z - it.approach[1]);
+        if (d < 0.45 && touched.current !== want) {
+          touched.current = want;
+          fireInteractable(want);
+        } else if (d > 0.8 && touched.current === want) touched.current = null;
+      }
+    }
     if (player.pose?.kind === "sleep") {
       // ベッドで あおむけに寝ている（頭は yaw の向き。顔は上）
       motion.current = "sleep";

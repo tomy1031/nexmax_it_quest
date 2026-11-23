@@ -7,7 +7,8 @@ import { RouteMap } from "@/ui/hud/RouteMap";
 
 /**
  * 路線図で調べる。はじめに「天王寺から 阿波座まで」を問題として出し、
- * ①まず 何線に 乗るか ②どこで 乗りかえるか ③本町駅で 何線に 乗るか、の順に聞く（tomy さん 2026-11-22）。
+ * ①今の駅は どこか ②行きたい駅は どこか（路線図の上で さがす。tomy さん 2026-11-23）
+ * ③まず 何線に 乗るか ④どこで 乗りかえるか ⑤本町駅で 何線に 乗るか、の順に聞く（tomy さん 2026-11-22）。
  * 読む・調べる確認なので、選ぶ形（駅をクリック・線をえらぶ）でよい（必ず守るルール3）。
  * まちがえたら「不正解。」とヒントを出し、もう一度えらぶ。
  */
@@ -16,19 +17,19 @@ type Q =
   | { key: UiKey; hint: UiKey; kind: "line"; answer: string; options: string[] };
 
 const QUESTIONS: Q[] = [
+  // まず 路線図の上で 今の駅と 行きたい駅を さがす（tomy さん 2026-11-23）
+  { key: "quiz.qFrom", hint: "quiz.qFromHint", kind: "station", answer: "tennoji" },
+  { key: "quiz.qTo", hint: "quiz.qToHint", kind: "station", answer: "awaza" },
   { key: "quiz.q1", hint: "quiz.q1hint", kind: "line", answer: "M", options: ["M", "T"] },
   { key: "quiz.q2", hint: "quiz.q2hint", kind: "station", answer: "hommachi" },
   { key: "quiz.q3", hint: "quiz.q3hint", kind: "line", answer: "C", options: ["M", "C", "Y"] },
 ];
 
-/** 問題の出発と到着（路線図に、はじめから印を付けておく）。 */
-const FROM = "tennoji";
-const TO = "awaza";
-
 export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
   const [result, setResult] = useState<"ok" | "ng" | null>(null);
-  const [marks, setMarks] = useState<Record<string, "ok" | "ng">>({ [FROM]: "ok", [TO]: "ok" });
+  // 今の駅・行きたい駅は、学生が さがして クリックしてから 印を付ける
+  const [marks, setMarks] = useState<Record<string, "ok" | "ng">>({});
   const q = QUESTIONS[i];
   const done = i >= QUESTIONS.length;
 

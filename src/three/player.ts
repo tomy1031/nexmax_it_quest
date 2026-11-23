@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { clampToWalk, useLayout } from "@/three/layout";
+import { clampToWalk, findPath, useLayout } from "@/three/layout";
 
 /**
  * 自分（プレイヤー）の位置と行き先。毎フレーム変わるので React の状態には入れない。
@@ -9,6 +9,8 @@ export const player = {
   pos: new THREE.Vector3(),
   yaw: 0,
   target: null as THREE.Vector3 | null,
+  /** 家具を よけるための、とちゅうの地点（target のあとに順に行く）。 */
+  path: [] as THREE.Vector3[],
   onArrive: null as (() => void) | null,
   moving: false,
   /** 場面の切りかえ・アップの間は歩かない。 */
@@ -19,8 +21,12 @@ export const player = {
 
 export function walkTo(x: number, z: number, onArrive?: () => void): void {
   if (player.frozen) return;
-  const [cx, cz] = clampToWalk(x, z, useLayout.getState().walk);
-  player.target = new THREE.Vector3(cx, 0, cz);
+  const { walk, blocks } = useLayout.getState();
+  const [cx, cz] = clampToWalk(x, z, walk);
+  const route = findPath([player.pos.x, player.pos.z], [cx, cz], walk, blocks) ?? [[cx, cz]];
+  const pts = route.map(([px, pz]) => new THREE.Vector3(px, 0, pz));
+  player.target = pts.shift() ?? null;
+  player.path = pts;
   player.onArrive = onArrive ?? null;
 }
 
@@ -38,6 +44,7 @@ export function placePlayer(x: number, z: number, yaw = 0): void {
   player.pos.set(x, 0, z);
   player.yaw = yaw;
   player.target = null;
+  player.path = [];
   player.onArrive = null;
   player.moving = false;
   cameraSnap.pending = true;

@@ -29,7 +29,7 @@ import { useLayout, type Rect } from "@/three/layout";
  * 座標: 歩道は x の方向（家 x=0 → 交差点 x=27）。横断歩道は x=28〜36 の道を渡る。メトロの入口は x=40。
  * 信号の動き（台本の fx）:
  *   はじめ 歩行者=青・車=赤 → ped-blink（点滅→赤、車=青で車が流れる）→ button-pressed（おまちください）
- *   → car-yellow → car-arrow（赤＋右折の矢印、1台だけ曲がる）→ car-red → ped-green（渡れる）
+ *   → car-yellow → car-arrow（赤＋左折の矢印 ←。手前から来る車が3台 つづけて左に曲がる）→ car-red → ped-green（渡れる）
  * 実際の押しボタンの信号に矢印が付くのはめずらしい。教材として「家の近くの交差点」にまとめた（docs/design/01_ステージ1.md）。
  */
 
@@ -39,14 +39,15 @@ const HOME_STATION = STATION.tennoji?.name ?? "";
 /** メトロの入口のまん中（横断歩道を渡った先の正面。入口は -x を向く）。 */
 const ENTRANCE = { x: 44.7, z: 1.7 };
 
-const SIDEWALK: Rect = { minX: -2, maxX: 27.3, minZ: 0.5, maxZ: 2.9 };
+const SIDEWALK: Rect = { minX: -2, maxX: 27.3, minZ: 0.5, maxZ: 2.65 };
 const CROSSING: Rect = { minX: 27.3, maxX: 37.2, minZ: 0.7, maxZ: 2.7 };
 const FAR_SIDE: Rect = { minX: 37.2, maxX: 42.4, minZ: 0.5, maxZ: 3.2 };
 
 /** 通りを行き来する人（朝の通勤・通学）。自分の歩く線（z=1.7）からは少しはなす。 */
 const WALKERS: WalkerSpec[] = [
   { from: [-12, 0.55], to: [24, 0.55], speed: 1.0, at: 0.3 },
-  { from: [3, 2.85], to: [21, 2.85], speed: 1.25, at: 0.7 },
+  // ガードレール（z=3.0）に めりこまないよう、少し内がわを歩く（tomy さん 2026-11-23）
+  { from: [3, 2.35], to: [21, 2.35], speed: 1.25, at: 0.7 },
   { from: [-16, 12.0], to: [26, 12.0], speed: 1.1, at: 0.2 },
   { from: [-10, 12.7], to: [24, 12.7], speed: 0.9, at: 0.8, casual: true },
   { from: [26.6, -30], to: [26.6, -1], speed: 1.15, at: 0.5 },
@@ -67,7 +68,8 @@ export function StreetScene() {
     shots: {
       "ped-signal": { pos: [25.2, 1.9, 2.4], look: [36.9, 2.9, 0.25], fov: 26 },
       "push-button": { pos: [26.62, 1.24, 0.58], look: [27.18, 1.14, 0.25], fov: 30 },
-      "car-signal": { pos: [31.5, 3.6, 13], look: [34.2, 4.6, 4.6], fov: 40 },
+      // 車の信号と、矢印の方向へ曲がる車が いっしょに見える（tomy さん 2026-11-23）
+      "car-signal": { pos: [34.5, 4.8, 19], look: [30.5, 1.0, 6.5], fov: 50 },
       // 渡り終えたら、正面のメトロの入口を見せる
       metro: { pos: [37.6, 1.9, 3.1], look: [43.2, 2.3, 1.7], fov: 48 },
     },
@@ -75,7 +77,8 @@ export function StreetScene() {
       { id: "crosswalk-stop", x: 26.4, z: 1.7, r: 1.3 },
       { id: "across", x: 38.2, z: 1.7, r: 1.2 },
     ],
-    camera: { mode: "follow", distance: 4.4, height: 2.5 },
+    // 少し高く・はなれて、まわりが見やすいように（tomy さん 2026-11-23「カメラの視点のせいか、操作がしにくい」）
+    camera: { mode: "follow", distance: 5.2, height: 3.2 },
     showPlayer: true,
   });
 
@@ -257,48 +260,98 @@ function MetroEntrance() {
 }
 
 /**
- * 交差する道の車。信号が青のときは流れ、黄・赤で止まる。赤＋矢印のときは1台だけ右へ曲がる。
+ * 交差する道の車。信号が青のときは流れ、黄・赤で止まる。
+ * 赤＋左折の矢印（←）のときは、手前（+z）から来る車（x=30・南へ）が、家の前の道へ 1台ずつ つづけて左に曲がる（3台）。
+ * 左に曲がる車は 横断歩道（z=0.7〜2.7）より手前で曲がるので、歩く人の道を通らない（tomy さん 2026-11-23「手前側から左折する車を写して」）。
  */
+type TrafficCar = {
+  lane: number;
+  dir: 1 | -1;
+  z: number;
+  speed: number;
+  kind: string;
+  /** 曲がっている とちゅう（0〜1）。曲がったあとは まっすぐ -x へ。null なら曲がっていない。 */
+  turn: number | null;
+  /** 曲がったあと、-x へ進んだ きょり。 */
+  away: number;
+};
+
+/** 左折: 南へ行く車（x=30）が、家の前の道（z=9 の車線。-x へ）に入る。 */
+const TURN_R = 2.4;
+const TURN_END_Z = 8.8;
+const TURN_START_Z = TURN_END_Z + TURN_R;
+
 function CrossTraffic({ light }: { light: CarLight }) {
   const cars = useRef<THREE.Group[]>([]);
-  const state = useRef([
-    { lane: 30, dir: -1, z: 30, speed: 0, kind: "street/taxi" },
-    { lane: 30, dir: -1, z: 48, speed: 0, kind: "street/kei-van" },
-    { lane: 34, dir: 1, z: -20, speed: 0, kind: "street/taxi" },
+  const state = useRef<TrafficCar[]>([
+    { lane: 30, dir: -1, z: 22, speed: 0, kind: "street/taxi", turn: null, away: 0 },
+    { lane: 30, dir: -1, z: 30, speed: 0, kind: "street/kei-van", turn: null, away: 0 },
+    { lane: 30, dir: -1, z: 38, speed: 0, kind: "street/taxi", turn: null, away: 0 },
+    { lane: 34, dir: 1, z: -12, speed: 0, kind: "street/taxi", turn: null, away: 0 },
+    { lane: 34, dir: 1, z: -22, speed: 0, kind: "street/kei-van", turn: null, away: 0 },
   ]);
-  const turn = useRef({ active: false, t: 0 });
+  const turned = useRef(0);
 
   useEffect(() => {
-    if (light === "red-arrow") turn.current = { active: true, t: 0 };
+    if (light === "red-arrow") turned.current = 0;
   }, [light]);
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.05);
+    const go = light === "green";
+    const arrow = light === "red-arrow";
+    // 南へ行く車の ならび（前＝z が小さい順）
+    const queue = state.current
+      .filter((c) => c.dir < 0 && c.turn === null)
+      .sort((a, b) => a.z - b.z);
+    const turning = state.current.some((c) => c.turn !== null && c.turn < 0.5);
     state.current.forEach((c, i) => {
       const g = cars.current[i];
       if (!g) return;
-      const go = light === "green";
-      const stopZ = c.dir < 0 ? 5.8 : -2.4;
-      const beforeStop = c.dir < 0 ? c.z > stopZ : c.z < stopZ;
-      const target = go || !beforeStop ? 9 : 0;
-      c.speed += (target - c.speed) * Math.min(1, dt * 1.5);
-      if (!go && beforeStop) {
-        const dist = Math.abs(c.z - stopZ);
-        c.speed = Math.min(c.speed, dist * 1.2);
-      }
-      // 矢印のときは、北へ行く車が交差点で右（-x）へ曲がる
-      if (i === 2 && turn.current.active) {
-        turn.current.t += dt * 0.35;
-        const tt = Math.min(1, turn.current.t);
-        const x = 34 - Math.sin((tt * Math.PI) / 2) * 6;
-        const z = -2 + (1 - Math.cos((tt * Math.PI) / 2)) * 0 + Math.sin((tt * Math.PI) / 2) * 8.5;
-        g.position.set(x, 0, z);
-        g.rotation.y = (-tt * Math.PI) / 2;
-        if (tt >= 1) {
-          turn.current.active = false;
-          c.z = -40;
+      if (c.turn !== null) {
+        // 左に曲がる（南向き → 西向き）。曲がったら まっすぐ進み、見えない所で うしろへ もどる
+        if (c.turn < 1) {
+          c.turn = Math.min(1, c.turn + dt * 0.5);
+          const a = (c.turn * Math.PI) / 2;
+          g.position.set(30 - TURN_R * (1 - Math.cos(a)), 0, TURN_START_Z - TURN_R * Math.sin(a));
+          g.rotation.y = Math.PI + a;
+        } else {
+          c.away += dt * 7;
+          g.position.set(30 - TURN_R - c.away, 0, TURN_END_Z);
+          g.rotation.y = -Math.PI / 2;
+          if (c.away > 45) {
+            c.turn = null;
+            c.away = 0;
+            c.z = 46 + i * 4;
+            c.speed = 0;
+          }
         }
         return;
+      }
+      const order = c.dir < 0 ? queue.indexOf(c) : 0;
+      // 南へ行く車は、左に曲がる所（TURN_START_Z）の手前で止まる。北へ行く車は 交差点の手前（z=-2.4）
+      const stopZ = c.dir < 0 ? TURN_START_Z + Math.max(0, order) * 5.5 : -2.4;
+      const beforeStop = c.dir < 0 ? c.z > stopZ - 0.01 : c.z < stopZ;
+      // 矢印: いちばん前の車が 曲がる所に着いたら、前の車が少し進んでから 曲がりはじめる（3台まで）
+      if (
+        arrow &&
+        c.dir < 0 &&
+        order === 0 &&
+        !turning &&
+        turned.current < 3 &&
+        c.z < TURN_START_Z + 1.2
+      ) {
+        c.turn = 0;
+        turned.current += 1;
+        return;
+      }
+      const free = go || !beforeStop;
+      c.speed += ((free ? 9 : 0) - c.speed) * Math.min(1, dt * 1.5);
+      if (!free) {
+        const dist = Math.abs(c.z - stopZ);
+        c.speed = Math.min(c.speed, dist * 1.4 + (arrow && c.dir < 0 && order <= 2 ? 1.5 : 0));
+        if (c.dir < 0 && c.z <= stopZ) c.speed = 0;
+        if (c.dir > 0 && c.z >= stopZ) c.speed = 0;
       }
       c.z += c.dir * c.speed * dt;
       if (c.dir < 0 && c.z < -40) c.z = 45;

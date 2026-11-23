@@ -21,6 +21,7 @@ import { IconCheck } from "@/ui/icons";
 type Tab =
   | "outfit"
   | "kigurumi"
+  | "pajama"
   | "figure"
   | "height"
   | "skin"
@@ -187,6 +188,7 @@ const SHOES_CASUAL = [
 const LABEL: Record<Tab, UiKey> = {
   outfit: "avatar.outfit",
   kigurumi: "avatar.kigurumiKind",
+  pajama: "avatar.pajamaColor",
   figure: "avatar.figure",
   height: "avatar.height",
   skin: "avatar.skin",
@@ -208,6 +210,7 @@ const LABEL: Record<Tab, UiKey> = {
 const FOCUS: Record<Tab, { y: number; d: number }> = {
   outfit: { y: 0.62, d: 2.2 },
   kigurumi: { y: 0.7, d: 2.0 },
+  pajama: { y: 0.6, d: 1.9 },
   figure: { y: 0.55, d: 2.2 },
   height: { y: 0.62, d: 2.4 },
   skin: { y: 0.9, d: 1.1 },
@@ -227,6 +230,9 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
 
+/** 寝巻きの色（パステル）。 */
+const PAJAMAS = ["#a9cdeb", "#f4c7c3", "#cfe3c4", "#e6d8f2", "#f6e3a8", "#f2f2f2", "#9fb8d8"];
+
 /** くつの形。 */
 const SHOE_TYPES: [NonNullable<AvatarConfig["shoeType"]>, UiKey][] = [
   ["leather", "avatar.shoe.leather"],
@@ -238,6 +244,7 @@ const OUTFIT_LABEL: Record<AvatarConfig["outfit"], UiKey> = {
   suit: "avatar.suit",
   casual: "avatar.casual",
   kigurumi: "avatar.kigurumi",
+  pajama: "avatar.pajama",
 };
 
 /** 着ぐるみの どうぶつ。 */
@@ -267,37 +274,39 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
   const tabs: Tab[] =
     avatar.outfit === "kigurumi"
       ? ["outfit", "kigurumi", "figure", "height", "skin", "eyes", "glasses"]
-      : avatar.outfit === "suit"
-        ? [
-            "outfit",
-            "figure",
-            "height",
-            "skin",
-            "eyes",
-            "hairStyle",
-            "hair",
-            "accessory",
-            "glasses",
-            "suit",
-            "tie",
-            "shirt",
-            "shoes",
-          ]
-        : [
-            "outfit",
-            "figure",
-            "height",
-            "skin",
-            "eyes",
-            "hairStyle",
-            "hair",
-            "accessory",
-            "glasses",
-            "coat",
-            "pants",
-            "shoes",
-            "bag",
-          ];
+      : avatar.outfit === "pajama"
+        ? ["outfit", "pajama", "figure", "height", "skin", "eyes", "hairStyle", "hair", "glasses"]
+        : avatar.outfit === "suit"
+          ? [
+              "outfit",
+              "figure",
+              "height",
+              "skin",
+              "eyes",
+              "hairStyle",
+              "hair",
+              "accessory",
+              "glasses",
+              "suit",
+              "tie",
+              "shirt",
+              "shoes",
+            ]
+          : [
+              "outfit",
+              "figure",
+              "height",
+              "skin",
+              "eyes",
+              "hairStyle",
+              "hair",
+              "accessory",
+              "glasses",
+              "coat",
+              "pants",
+              "shoes",
+              "bag",
+            ];
 
   const set = (a: Partial<AvatarConfig>) => {
     playSfx("click");
@@ -418,7 +427,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         <div className="min-h-32 rounded-2xl bg-white/5 p-4">
           {tab === "outfit" && (
             <div className="flex flex-wrap gap-3">
-              {(["suit", "casual", "kigurumi"] as const).map((o) => (
+              {(["suit", "casual", "kigurumi", "pajama"] as const).map((o) => (
                 <button
                   key={o}
                   type="button"
@@ -561,6 +570,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           {/* はだは 見本だけ（自由な色にしない） */}
           {tab === "skin" && swatches(SKINS, "skin", false)}
           {tab === "hair" && swatches(HAIRS, "hair")}
+          {tab === "pajama" && swatches(PAJAMAS, "pajama")}
           {/* スーツは 見本だけ（入社式に安心な色を教えるため。自由な色にしない） */}
           {tab === "suit" && swatches([...SUITS_OK, ...SUITS_LOUD], "suit", false)}
           {tab === "tie" && swatches(TIES, "tie")}

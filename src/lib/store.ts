@@ -6,7 +6,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
  * 版（version）を上げたら migrate を足す。保存のキーは変えない（学生の進み具合が消える）。
  */
 
-export type Outfit = "suit" | "casual" | "kigurumi";
+export type Outfit = "suit" | "casual" | "kigurumi" | "pajama";
 /** 着ぐるみの どうぶつ（tomy さん 2026-11-23「服の中に着ぐるみをつくって」）。 */
 export type Kigurumi = "bear" | "cat" | "rabbit";
 export type HairStyle =
@@ -75,6 +75,8 @@ export interface AvatarConfig {
   shoeType?: "leather" | "sneaker" | "sandal";
   /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
   shoes?: string;
+  /** 寝巻きの色（tomy さん 2026-11-23「デフォルトは寝巻きにしてください」）。 */
+  pajama?: string;
   /** 着ぐるみの どうぶつ（服が着ぐるみのとき）。 */
   kigurumi?: Kigurumi;
   /** 下の服（女性だけ選べる。無ければ、女性のスーツはスカート・ふだんの服はズボン。男性はいつもズボン）。 */
@@ -87,7 +89,8 @@ export interface AvatarConfig {
 }
 
 export const DEFAULT_AVATAR: AvatarConfig = {
-  outfit: "casual",
+  outfit: "pajama",
+  pajama: "#a9cdeb",
   figure: "m",
   skin: "#c68e64",
   hair: "#4a3326",
@@ -139,6 +142,8 @@ interface GameState extends PersistedState {
   setSection: (stageId: string, section: string) => void;
   clearStage: (stageId: string) => void;
   resetStage: (stageId: string) => void;
+  /** 最初の場面から始めるとき、前に遊んだときの 持ち物・残高・定期券の日・報告を消す。 */
+  resetRun: () => void;
   give: (item: string) => void;
   has: (item: string) => boolean;
   charge: (yen: number) => void;
@@ -180,6 +185,8 @@ export const useGame = create<GameState>()(
         set((s) => ({
           stages: { ...s.stages, [stageId]: { ...s.stages[stageId], section: undefined } },
         })),
+      resetRun: () =>
+        set({ inventory: [], icocaBalance: 0, passStart: undefined, reportText: "", memo: "" }),
       give: (item) =>
         set((s) => (s.inventory.includes(item) ? s : { inventory: [...s.inventory, item] })),
       has: (item) => get().inventory.includes(item),
@@ -226,6 +233,8 @@ interface SettingsState {
   sound: boolean;
   /** やることリストで、できたものを かくす。 */
   hideDoneTodos?: boolean;
+  /** 右上のメモを大きく出す。 */
+  memoBig?: boolean;
   setSettings: (s: Partial<Omit<SettingsState, "setSettings">>) => void;
 }
 

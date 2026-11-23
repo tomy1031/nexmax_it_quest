@@ -7,6 +7,18 @@ import { usePlay } from "@/stages/play-store";
 import { useLayout, type V3 } from "@/three/layout";
 import { player, walkTo } from "@/three/player";
 
+/**
+ * いま場面にある「クリックできる物」（十字キーだけでも遊べるように。tomy さん 2026-11-23）。
+ * Player が、待っている物の前（approach）に歩いて入ったら 合図を出す。Enter・スペースでも押せる。
+ */
+export const interactables = new Map<string, { approach?: [number, number]; disabled?: boolean }>();
+
+/** 物を押した合図を出す（クリック・十字キー・Enter で同じ）。 */
+export function fireInteractable(id: string): void {
+  playSfx("click");
+  questEvents.emit(`click:${id}`);
+}
+
 /** ドラッグ（カメラを回す）と、クリックを見分ける（動いた量が多ければクリックにしない）。 */
 export function isDrag(e: ThreeEvent<MouseEvent>): boolean {
   return e.delta > 6;
@@ -33,6 +45,14 @@ export function Interactable({
   disabled?: boolean;
 }) {
   const [hover, setHover] = useState(false);
+
+  useEffect(() => {
+    interactables.set(id, { approach, disabled });
+    return () => {
+      interactables.delete(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, approach?.[0], approach?.[1], disabled]);
 
   useEffect(() => {
     useLayout.setState((s) => ({ targets: { ...s.targets, [id]: marker } }));

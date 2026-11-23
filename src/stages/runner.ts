@@ -35,6 +35,12 @@ function addTodo(id: string, text: string): void {
   usePlay.setState({ todos: [...list, { id, text, done: false }] });
 }
 
+function addMemo(id: string, title: string, text: string): void {
+  const list = usePlay.getState().memos;
+  if (list.some((x) => x.id === id)) return;
+  usePlay.setState({ memos: [...list, { id, title, text }] });
+}
+
 function doneTodo(id: string): void {
   usePlay.setState({
     todos: usePlay.getState().todos.map((x) => (x.id === id ? { ...x, done: true } : x)),
@@ -86,11 +92,15 @@ export class StageRunner {
       0,
       stage.sections.findIndex((s) => s.id === this.opts.startSection),
     );
+    // 最初の場面から始めるときは、前に遊んだときの 持ち物（定期券など）を消す
+    // （「最初から」で定期券が残り、券売機で チャージしか えらべなかった。tomy さん 2026-11-23）
+    if (index === 0) useGame.getState().resetRun();
     // 途中から始めたときは、前の場面までの「やること」を そろえておく
     for (const s of stage.sections.slice(0, index)) {
       for (const b of s.beats) {
         if (b.t === "todo-add") addTodo(b.id, b.text);
         if (b.t === "todo-done") doneTodo(b.id);
+        if (b.t === "memo-add") addMemo(b.id, b.title, b.text);
       }
     }
     let lastChapter = 0;
@@ -310,6 +320,13 @@ export class StageRunner {
         return;
       case "todo-done":
         doneTodo(beat.id);
+        return;
+      case "wear":
+        useGame.getState().setAvatar({ outfit: beat.outfit });
+        return;
+      case "memo-add":
+        addMemo(beat.id, beat.title, beat.text);
+        if (!this.opts.fast) playSfx("pi");
         return;
       case "verdict": {
         usePlay.setState({ verdict: { ok: beat.ok, text: beat.text } });

@@ -210,6 +210,34 @@
       "id": "woven-storage-basket-983d80"
     },
     {
+      "file": "home/sofa",
+      "id": "sofa-9c0e7e"
+    },
+    {
+      "file": "home/tv",
+      "id": "flat-screen-television-97b1f3"
+    },
+    {
+      "file": "home/coffee-table",
+      "id": "coffee-table-acc698"
+    },
+    {
+      "file": "home/kitchen",
+      "id": "tea-point-counter-module-1ad43e"
+    },
+    {
+      "file": "home/fridge",
+      "id": "fridge-freezer-fb9b5a"
+    },
+    {
+      "file": "home/microwave",
+      "id": "microwave-oven-7f60d4"
+    },
+    {
+      "file": "home/toilet",
+      "id": "toilet-2edbd9"
+    },
+    {
       "file": "station/lockers",
       "id": "locker-bank-1784b8"
     },

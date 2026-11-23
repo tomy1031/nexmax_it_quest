@@ -5,7 +5,9 @@ import { playActions, usePlay } from "@/stages/play-store";
 import { NMChat } from "@/ui/hud/NMChat";
 import { AvatarEditor } from "@/ui/hud/AvatarPanel";
 import { RouteMapQuiz } from "@/ui/hud/RouteMapQuiz";
-import { MemoEditor } from "@/ui/hud/MemoPanel";
+import { MemoList } from "@/ui/hud/MemoPanel";
+import { RubyText } from "@/ui/RubyText";
+import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
@@ -34,7 +36,14 @@ export function Panels() {
         />
       )}
       {panel.id === "routemap-quiz" && <RouteMapQuiz onDone={close} />}
-      {panel.id === "memo" && <MemoEditor required onSaved={close} />}
+      {panel.id === "memo" && (
+        <div className="glass pop flex w-full max-w-xl flex-col gap-3 rounded-3xl p-5">
+          <MemoList />
+          <button type="button" className="btn btn-primary self-end" onClick={close}>
+            <RubyText text={t("hud.close")} />
+          </button>
+        </div>
+      )}
       {panel.id === "report" && <ReportPanel onDone={close} />}
       {panel.id === "certificate" && (
         <Certificate

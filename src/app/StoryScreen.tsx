@@ -7,7 +7,7 @@ const PAGES: { key: UiKey; pose: string }[] = [
   { key: "story.1", pose: "hello" },
   { key: "story.2", pose: "build" },
   { key: "story.3", pose: "guide" },
-  { key: "story.4", pose: "book" },
+  { key: "story.4", pose: "guide" },
   { key: "story.5", pose: "cheer" },
 ];
 

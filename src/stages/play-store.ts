@@ -19,6 +19,13 @@ export interface Objective {
   lines: string[];
 }
 
+/** 自動で書くメモの1つ（タイトルと くわしい文）。 */
+export interface MemoItem {
+  id: string;
+  title: string;
+  text: string;
+}
+
 /** やることリストの1つ。 */
 export interface Todo {
   id: string;
@@ -50,6 +57,8 @@ export interface PlayState {
   waitingFor: string | null;
   /** やることリスト（台本の todo-add で足し、todo-done で横線）。 */
   todos: Todo[];
+  /** 自動で書くメモ（台本の memo-add）。 */
+  memos: MemoItem[];
 }
 
 export const initialPlay: PlayState = {
@@ -73,6 +82,7 @@ export const initialPlay: PlayState = {
   ended: false,
   waitingFor: null,
   todos: [],
+  memos: [],
 };
 
 export const usePlay = create<PlayState>(() => initialPlay);

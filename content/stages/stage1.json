@@ -48,6 +48,10 @@
       "spawn": "bed",
       "beats": [
         {
+          "t": "wear",
+          "outfit": "pajama"
+        },
+        {
           "t": "sfx",
           "id": "alarm"
         },
@@ -201,6 +205,12 @@
           "t": "todo-add",
           "id": "go",
           "text": "会社の 駅（阿波座）まで 行く"
+        },
+        {
+          "t": "memo-add",
+          "id": "ceremony",
+          "title": "入社式",
+          "text": "4月1日 10:00から。場所は ネクストメイク（阿波座駅の 近く）。スーツで 行く。"
         },
         {
           "t": "say",
@@ -513,7 +523,7 @@
         {
           "t": "say",
           "who": "nexmax",
-          "pose": "book",
+          "pose": "guide",
           "text": "まず、路線図で 行き方を 調べましょう。"
         },
         {
@@ -547,18 +557,26 @@
         {
           "t": "say",
           "who": "nexmax",
-          "pose": "book",
-          "text": "家の 駅と 線を メモして おきましょう。"
+          "pose": "guide",
+          "text": "家の 駅と 行き方を、メモに 書いて おきました。"
         },
         {
-          "t": "panel",
-          "id": "memo"
+          "t": "memo-add",
+          "id": "home-station",
+          "title": "家の 駅",
+          "text": "天王寺駅（御堂筋線 M23）"
+        },
+        {
+          "t": "memo-add",
+          "id": "route",
+          "title": "行き方",
+          "text": "天王寺 →（御堂筋線）→ 本町で 乗りかえ →（中央線）→ 阿波座"
         },
         {
           "t": "say",
           "who": "nexmax",
           "pose": "guide",
-          "text": "メモは メニューから いつでも 見られます。"
+          "text": "メモは 右上で いつでも 見られます。"
         }
       ]
     },
@@ -635,6 +653,12 @@
         {
           "t": "todo-done",
           "id": "pass"
+        },
+        {
+          "t": "memo-add",
+          "id": "pass",
+          "title": "定期券",
+          "text": "天王寺 ↔ 阿波座、3か月、27,020円。改札で タッチする。"
         },
         {
           "t": "fx",
@@ -759,7 +783,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "御堂筋線の マークを、上の 看板で さがしましょう。"
               }
             ],
@@ -772,7 +796,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "今日は メトロに 乗ります。"
               }
             ],
@@ -866,6 +890,12 @@
           "id": "houmen"
         },
         {
+          "t": "memo-add",
+          "id": "midosuji",
+          "title": "御堂筋線の ホーム",
+          "text": "本町へは「なんば・梅田 方面」2番線。"
+        },
+        {
           "t": "unfocus"
         },
         {
@@ -904,7 +934,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "券売機の 前から やり直しましょう。"
               },
               {
@@ -995,7 +1025,7 @@
                 {
                   "t": "say",
                   "who": "nexmax",
-                  "pose": "book",
+                  "pose": "guide",
                   "text": "もう一度 えらんで みましょう。"
                 }
               ]
@@ -1104,7 +1134,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "中央線の マークを さがしましょう。"
               }
             ],
@@ -1117,7 +1147,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "駅の 外には まだ 出ません。"
               }
             ]
@@ -1154,6 +1184,12 @@
           "t": "say",
           "who": "me",
           "text": "電光掲示板と 看板を 見よう。"
+        },
+        {
+          "t": "memo-add",
+          "id": "chuo",
+          "title": "中央線の ホーム",
+          "text": "阿波座へは「阿波座・コスモスクエア 方面」2番線。"
         },
         {
           "t": "unfocus"
@@ -1194,7 +1230,7 @@
               {
                 "t": "say",
                 "who": "nexmax",
-                "pose": "book",
+                "pose": "guide",
                 "text": "ホームの 看板を もう一度 見ましょう。"
               },
               {

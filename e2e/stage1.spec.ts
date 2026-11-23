@@ -119,7 +119,12 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
           break;
         case "routemap-quiz":
           await expect(page.getByTestId("quiz-problem")).toBeVisible();
-          // ① まず 何線？（まちがえる → 不正解 → 正解）
+          // ① 今の 駅は？ ② 行きたい 駅は？（路線図の上で さがす）
+          await page.getByTestId("station-tennoji").click();
+          await page.waitForTimeout(1300);
+          await page.getByTestId("station-awaza").click();
+          await page.waitForTimeout(1300);
+          // ③ まず 何線？（まちがえる → 不正解 → 正解）
           await page.getByTestId("line-T").click();
           await page.waitForTimeout(300);
           await page.screenshot({ path: `${SHOTS}/panel-routemap-wrong.png` });
@@ -133,11 +138,6 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
           await page.waitForTimeout(1300);
           await page.screenshot({ path: `${SHOTS}/panel-routemap-done.png` });
           await page.getByTestId("quiz-close").click();
-          break;
-        case "memo":
-          await page.getByTestId("memo-input").fill("天王寺 御堂筋線 M23");
-          await page.getByTestId("memo-save").click();
-          await page.waitForTimeout(900);
           break;
         case "report":
           await page

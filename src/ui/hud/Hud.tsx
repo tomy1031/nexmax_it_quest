@@ -10,6 +10,7 @@ import { usePhotoUrl } from "@/ui/use-photo";
 import { Menu } from "@/ui/hud/Menu";
 import { LineMark } from "@/ui/LineMark";
 import { Panels } from "@/ui/hud/Panels";
+import { MemoBox } from "@/ui/hud/MemoPanel";
 
 const TIPS = (tipsJson.tips as Tip[]).reduce<Record<string, Tip>>(
   (m, tip) => ((m[tip.id] = tip), m),
@@ -59,6 +60,7 @@ export function Hud() {
         <IconMenu className="h-5 w-5" />
         <RubyText text={t("hud.menu")} />
       </button>
+      <MemoBox />
       <HintBubble />
       <ChapterBanner />
       <Dialogue />
@@ -364,7 +366,7 @@ export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
             />
           ) : (
             <img
-              src={`${BASE}img/nexmax/${tip.pose ?? "book"}.webp`}
+              src={`${BASE}img/nexmax/${tip.pose ?? "guide"}.webp`}
               alt=""
               className="bob h-40 w-40"
             />

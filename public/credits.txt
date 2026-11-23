@@ -19,6 +19,7 @@
 - City Bicycle by Polyfork (https://polyfork.dev/asset/city-bicycle-5b67d1), CC BY 4.0
 - City Taxi by Polyfork (https://polyfork.dev/asset/city-taxi-eefa91), CC BY 4.0
 - Coat Rack by Polyfork (https://polyfork.dev/asset/coat-rack-57bbbc), CC BY 4.0
+- Coffee Table by Polyfork (https://polyfork.dev/asset/coffee-table-acc698), CC BY 4.0
 - Concrete Block Wall by Polyfork (https://polyfork.dev/asset/concrete-block-wall-02c715), CC BY 4.0
 - Convenience Store by Polyfork (https://polyfork.dev/asset/convenience-store-c30e1d), CC BY 4.0
 - Convex Traffic Mirror by Polyfork (https://polyfork.dev/asset/convex-traffic-mirror-a64d15), CC BY 4.0
@@ -27,9 +28,11 @@
 - Delivery Moped by Polyfork (https://polyfork.dev/asset/delivery-moped-1aa2ce), CC BY 4.0
 - Fabric Awning by Polyfork (https://polyfork.dev/asset/fabric-awning-4d6acc), CC BY 4.0
 - Fire Extinguisher by Polyfork (https://polyfork.dev/asset/fire-extinguisher-95dca1), CC BY 4.0
+- Flat Screen Television by Polyfork (https://polyfork.dev/asset/flat-screen-television-97b1f3), CC BY 4.0
 - Floor Houseplant by Polyfork (https://polyfork.dev/asset/floor-houseplant-8fad17), CC BY 4.0
 - Flower Planter by Polyfork (https://polyfork.dev/asset/flower-planter-550bfb), CC BY 4.0
 - Framed Wall Art by Polyfork (https://polyfork.dev/asset/framed-wall-art-d2c8a2), CC BY 4.0
+- Fridge Freezer by Polyfork (https://polyfork.dev/asset/fridge-freezer-fb9b5a), CC BY 4.0
 - Ginkgo Leaf Litter by Polyfork (https://polyfork.dev/asset/ginkgo-leaf-litter-9784e9), CC BY 4.0
 - Ginkgo Tree by Polyfork (https://polyfork.dev/asset/ginkgo-tree-baa895), CC BY 4.0
 - Guardrail Section by Polyfork (https://polyfork.dev/asset/guardrail-section-68c3c4), CC BY 4.0
@@ -40,6 +43,7 @@
 - Locker Bank by Polyfork (https://polyfork.dev/asset/locker-bank-1784b8), CC BY 4.0
 - Manhole Cover by Polyfork (https://polyfork.dev/asset/manhole-cover-137569), CC BY 4.0
 - Meter Box by Polyfork (https://polyfork.dev/asset/meter-box-1e6e42), CC BY 4.0
+- Microwave Oven by Polyfork (https://polyfork.dev/asset/microwave-oven-7f60d4), CC BY 4.0
 - Noren Curtain by Polyfork (https://polyfork.dev/asset/noren-curtain-7b9e53), CC BY 4.0
 - Office Mug by Polyfork (https://polyfork.dev/asset/office-mug-8afee0), CC BY 4.0
 - Plastic Drum by Polyfork (https://polyfork.dev/asset/plastic-drum-da992f), CC BY 4.0
@@ -49,12 +53,15 @@
 - Sandwich Board Sign by Polyfork (https://polyfork.dev/asset/sandwich-board-sign-cb5e7c), CC BY 4.0
 - Sidewalk Bollard by Polyfork (https://polyfork.dev/asset/sidewalk-bollard-c2567e), CC BY 4.0
 - Sit-Stand Desk by Polyfork (https://polyfork.dev/asset/sit-stand-desk-3ff7b8), CC BY 4.0
+- Sofa by Polyfork (https://polyfork.dev/asset/sofa-9c0e7e), CC BY 4.0
 - Station Clock Post by Polyfork (https://polyfork.dev/asset/station-clock-post-eaaf63), CC BY 4.0
 - Street Bin by Polyfork (https://polyfork.dev/asset/street-bin-770173), CC BY 4.0
 - Street Lamp by Polyfork (https://polyfork.dev/asset/street-lamp-29f365), CC BY 4.0
 - Table Lamp by Polyfork (https://polyfork.dev/asset/table-lamp-e25998), CC BY 4.0
 - Task Chair by Polyfork (https://polyfork.dev/asset/task-chair-ccd944), CC BY 4.0
+- Tea Point Counter Module by Polyfork (https://polyfork.dev/asset/tea-point-counter-module-1ad43e), CC BY 4.0
 - Three-Storey Shophouse by Polyfork (https://polyfork.dev/asset/three-storey-shophouse-2f6378), CC BY 4.0
+- Toilet by Polyfork (https://polyfork.dev/asset/toilet-2edbd9), CC BY 4.0
 - Two-Storey Shophouse by Polyfork (https://polyfork.dev/asset/two-storey-shophouse-183790), CC BY 4.0
 - Utility Pole by Polyfork (https://polyfork.dev/asset/utility-pole-574130), CC BY 4.0
 - Vending Machine by Polyfork (https://polyfork.dev/asset/vending-machine-471c29), CC BY 4.0
