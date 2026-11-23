@@ -89,7 +89,8 @@ export function TrainScene({ line, crowded }: { line: "midosuji" | "chuo"; crowd
   return (
     <>
       <Lights preset="train" />
-      <color attach="background" args={["#101418"]} />
+      {/* トンネルの中。まっ黒にせず、こい青みの灰色（パステルの色合いに合わせる） */}
+      <color attach="background" args={["#4a5263"]} />
       <Sway>
         <TrainInterior lineId={lineId} next={stops[stop] ?? ""} />
         <DoorScreen

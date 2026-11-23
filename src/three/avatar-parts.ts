@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { AvatarConfig, Kigurumi } from "@/lib/store";
+import { pastelize, type PastelOpts } from "@/factory/kit";
 
 /**
  * アバターの部品（ブレンダーで作った public/models/avatar/avatar.glb。作り方は tools/blender/build_avatar.py）。
@@ -62,13 +63,23 @@ function fabricTexture(f: Fabric): THREE.Texture {
 }
 
 /** やわらかい陰（4だん）の素材。色ごとに1つだけ作って、みんなで使う。 */
-export function softMaterial(color: string, vertexColors = false, fabric?: Fabric): THREE.Material {
-  const key = `${color}|${vertexColors}|${fabric ?? ""}`;
+/** 服・髪の色の パステル（はだは そのまま。はだの色を白くしない）。 */
+const PASTEL_CLOTH: PastelOpts = { lift: 0.14, sat: 0.95, tint: "#fff6e8" };
+const PASTEL_HAIR: PastelOpts = { lift: 0.06, sat: 1, tint: "#fff3e6" };
+
+export function softMaterial(
+  color: string,
+  vertexColors = false,
+  fabric?: Fabric,
+  tone: "cloth" | "hair" | "skin" = "skin",
+): THREE.Material {
+  const key = `${color}|${vertexColors}|${fabric ?? ""}|${tone}`;
   const hit = matCache.get(key);
   if (hit) return hit;
   if (!gradient) {
+    // かげの いちばん こい所も 明るめに（どう森のような やわらかい陰。tomy さん 2026-11-23）
     const d = new Uint8Array([
-      196, 196, 196, 255, 222, 222, 222, 255, 244, 244, 244, 255, 255, 255, 255, 255,
+      214, 214, 214, 255, 232, 232, 232, 255, 247, 247, 247, 255, 255, 255, 255, 255,
     ]);
     gradient = new THREE.DataTexture(d, 4, 1, THREE.RGBAFormat);
     gradient.minFilter = THREE.NearestFilter;
@@ -81,6 +92,7 @@ export function softMaterial(color: string, vertexColors = false, fabric?: Fabri
     vertexColors,
     map: fabric ? fabricTexture(fabric) : null,
   });
+  if (tone !== "skin") pastelize(m, tone === "hair" ? PASTEL_HAIR : PASTEL_CLOTH);
   matCache.set(key, m);
   return m;
 }
@@ -236,8 +248,8 @@ export function pickParts(scene: THREE.Object3D, cfg: AvatarConfig): AvatarParts
     const m = new THREE.Mesh(
       src.geometry,
       isHair
-        ? softMaterial(boost(color, 1.25), true)
-        : softMaterial(color, false, fabricFor(name, cfg)),
+        ? softMaterial(boost(color, 1.25), true, undefined, "hair")
+        : softMaterial(color, false, fabricFor(name, cfg), color === cfg.skin ? "skin" : "cloth"),
     );
     m.name = name;
     if (/^(sleeve|hand|cuff)_L$/.test(name)) {

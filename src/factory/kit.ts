@@ -6,13 +6,69 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
  * 日本の駅の部品（券売機・改札・信号など）を組み立てる。部品ごとに1つの形にまとめ、描画の回数を減らす。
  */
 
+/**
+ * 色合いを パステルに寄せる（tomy さん 2026-11-23「色彩感のベースはどう森を意識したい」「全般パステルで柔らかさを感じるもの」）。
+ * 素材の色（頂点の色・絵）を、少し淡くして（sat）、あたたかい白に近づける（lift）。黒っぽい色も こい灰色まで上がる。
+ * polyfork の部品も、工場で作った部品も、同じ素材を通すので、ここ1か所で全体の色合いが そろう。
+ */
+export interface PastelOpts {
+  /** 白に近づける量（0〜1）。 */
+  lift: number;
+  /** 色の こさ（1 で そのまま）。 */
+  sat: number;
+  /** 近づける白（少し あたたかい）。 */
+  tint?: string;
+  /**
+   * 光が当たったあとの色も整える（いちばん暗い所を うすい ラベンダーの灰色に、いちばん明るい所を クリーム色に）。
+   * コントラストが やわらかくなり、黒が出なくなる。町・駅の部品（FLAT）だけに使う。
+   */
+  grade?: boolean;
+}
+
+export const PASTEL: PastelOpts = { lift: 0.1, sat: 1.08, tint: "#fff6e8", grade: true };
+
+export function pastelize<T extends THREE.Material>(mat: T, o: PastelOpts = PASTEL): T {
+  const tint = new THREE.Color(o.tint ?? "#fff8ee");
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.pastelTint = { value: new THREE.Vector3(tint.r, tint.g, tint.b) };
+    shader.fragmentShader = shader.fragmentShader
+      .replace("void main() {", "uniform vec3 pastelTint;\nvoid main() {")
+      .replace(
+        "#include <color_fragment>",
+        `#include <color_fragment>
+        {
+          vec3 pc = pow(max(diffuseColor.rgb, vec3(0.0)), vec3(1.0 / 2.2));
+          float pl = dot(pc, vec3(0.299, 0.587, 0.114));
+          pc = mix(vec3(pl), pc, ${o.sat.toFixed(3)});
+          pc = mix(pc, pow(pastelTint, vec3(1.0 / 2.2)), ${o.lift.toFixed(3)});
+          diffuseColor.rgb = pow(pc, vec3(2.2));
+        }`,
+      );
+    if (o.grade)
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <opaque_fragment>",
+        `{
+          vec3 gc = pow(max(outgoingLight, vec3(0.0)), vec3(1.0 / 2.2));
+          gc = mix(vec3(0.27, 0.24, 0.29), vec3(1.0, 0.98, 0.94), clamp(gc, 0.0, 1.0));
+          outgoingLight = pow(gc, vec3(2.2));
+        }
+        #include <opaque_fragment>`,
+      );
+  };
+  mat.customProgramCacheKey = () => `pastel-${o.lift}-${o.sat}-${o.tint ?? ""}-${o.grade ?? false}`;
+  mat.needsUpdate = true;
+  return mat;
+}
+
 /** polyfork と同じ見た目の素材（頂点の色・面ごとの陰影）。全部の部品でこれを1つだけ使う。 */
-export const FLAT = new THREE.MeshStandardMaterial({
-  vertexColors: true,
-  flatShading: true,
-  roughness: 0.82,
-  metalness: 0.02,
-});
+export const FLAT = pastelize(
+  new THREE.MeshStandardMaterial({
+    vertexColors: true,
+    flatShading: true,
+    roughness: 0.82,
+    metalness: 0.02,
+  }),
+);
 
 /** 光る部品（ランプ・画面のふち）。 */
 export function glowMaterial(color: string, intensity = 1.6): THREE.MeshStandardMaterial {

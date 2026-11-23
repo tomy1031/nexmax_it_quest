@@ -61,6 +61,28 @@ export const SUMMER_CHERRY: Recolor = (r, g, b) => {
   return null;
 };
 
+/**
+ * 建物の かべを パステルの色に（どう森の色彩感。tomy さん 2026-11-23）。
+ * 色の うすい（灰色・白っぽい）明るめの面だけを、明るさを残したまま その色に寄せる。窓・屋根・看板の こい色は そのまま。
+ */
+const pastelWalls = new Map<string, Recolor>();
+export const WALL_PASTELS = ["#ffe3c2", "#d8f0dc", "#fbd5d2", "#d6e8fa", "#efe0f7", "#fff2b8"];
+export function pastelWall(hex: string): Recolor {
+  const hit = pastelWalls.get(hex);
+  if (hit) return hit;
+  const t = new THREE.Color(hex);
+  const f: Recolor = (r, g, b) => {
+    const mx = Math.max(r, g, b);
+    const mn = Math.min(r, g, b);
+    const l = (r + g + b) / 3;
+    if (mx - mn > 0.14 || l < 0.38) return null;
+    const k = Math.min(1, 0.35 + l * 0.75);
+    return [t.r * k, t.g * k, t.b * k];
+  };
+  pastelWalls.set(hex, f);
+  return f;
+}
+
 function applyRecolor(obj: THREE.Object3D, recolor: Recolor): void {
   const c = new THREE.Color();
   obj.traverse((o) => {
@@ -165,8 +187,9 @@ export function Many({ url, at, recolor }: { url: string; at: Place[]; recolor?:
 
 /** 空（上が青く、地平線が白っぽい大きな球）。 */
 export function SkyDome({
-  top = "#5aa8f0",
-  bottom = "#e8f4ff",
+  // パステルの空（どう森の色彩感。tomy さん 2026-11-23）
+  top = "#8fd3f7",
+  bottom = "#f4fbff",
 }: {
   top?: string;
   bottom?: string;

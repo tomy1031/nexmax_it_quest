@@ -152,8 +152,8 @@ export function StreetScene() {
   return (
     <>
       <Lights preset="day" />
-      <color attach="background" args={["#cfe6f7"]} />
-      <fog attach="fog" args={["#dcecf7", 45, 175]} />
+      <color attach="background" args={["#d9f0fb"]} />
+      <fog attach="fog" args={["#e8f5fb", 40, 165]} />
       <SkyDome />
       <Clouds />
       <mesh geometry={ground} material={FLAT} />

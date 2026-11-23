@@ -225,38 +225,43 @@ export function Companion() {
 export type LightPreset = "day" | "room" | "underground" | "train";
 
 /** 光の決まり。polyfork の色は強い色調補正なしで作られているので、補正をかけずに明るさで合わせる。 */
+/**
+ * あかり。tomy さん「色合いが全般くらいけどもっと明るくできますか？」（2026-11-23）で、
+ * どの場面も 3割ほど明るくし、下からの光（地面の照り返し）の色を明るくして、かげを浅くした。
+ */
 export function Lights({ preset }: { preset: LightPreset }) {
   switch (preset) {
     case "day":
       return (
         <>
-          <hemisphereLight args={["#dff1ff", "#8c8a7a", 1.9]} />
-          <directionalLight position={[8, 14, 6]} intensity={2.2} color="#fff6e8" />
-          <ambientLight intensity={0.25} />
+          <hemisphereLight args={["#e6f5ff", "#b9b4a2", 2.3]} />
+          <directionalLight position={[8, 14, 6]} intensity={2.5} color="#fff8ec" />
+          <ambientLight intensity={0.5} />
         </>
       );
     case "room":
       return (
         <>
-          <hemisphereLight args={["#fff4e6", "#7a6a5a", 1.5]} />
-          <directionalLight position={[-3, 5, 2]} intensity={1.6} color="#fff1d8" />
-          <pointLight position={[0, 2.4, 0]} intensity={6} distance={9} color="#fff3e0" />
+          <hemisphereLight args={["#fff7ec", "#a8977f", 1.9]} />
+          <directionalLight position={[-3, 5, 2]} intensity={1.9} color="#fff3dc" />
+          <pointLight position={[0, 2.4, 0]} intensity={7} distance={9} color="#fff5e6" />
+          <ambientLight intensity={0.35} />
         </>
       );
     case "underground":
       return (
         <>
-          <hemisphereLight args={["#f3f8ff", "#6c7480", 1.7]} />
-          <directionalLight position={[2, 8, 4]} intensity={1.2} color="#ffffff" />
-          <ambientLight intensity={0.35} />
+          <hemisphereLight args={["#f6faff", "#a2aab6", 2.1]} />
+          <directionalLight position={[2, 8, 4]} intensity={1.5} color="#ffffff" />
+          <ambientLight intensity={0.6} />
         </>
       );
     case "train":
       return (
         <>
-          <hemisphereLight args={["#ffffff", "#7a8090", 1.8]} />
-          <directionalLight position={[0, 6, 2]} intensity={1} />
-          <ambientLight intensity={0.4} />
+          <hemisphereLight args={["#ffffff", "#a8aebb", 2.1]} />
+          <directionalLight position={[0, 6, 2]} intensity={1.3} />
+          <ambientLight intensity={0.65} />
         </>
       );
   }

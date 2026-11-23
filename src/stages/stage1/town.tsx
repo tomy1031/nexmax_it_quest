@@ -4,7 +4,9 @@ import {
   AUTUMN_GINKGO,
   AUTUMN_MAPLE,
   Many,
+  pastelWall,
   Prop,
+  WALL_PASTELS,
   SPRING_PETALS,
   SUMMER_CHERRY,
   type Place,
@@ -277,7 +279,13 @@ export function Town() {
       <Ground />
       <Skyline />
       {BUILDINGS.map(([url, x, z, r], i) => (
-        <Prop key={i} url={url} position={[x, 0, z]} rotationY={r} />
+        <Prop
+          key={i}
+          url={url}
+          position={[x, 0, z]}
+          rotationY={r}
+          recolor={pastelWall(WALL_PASTELS[(i * 5) % WALL_PASTELS.length]!)}
+        />
       ))}
 
       {/* 木（季節で入れかわる） */}
