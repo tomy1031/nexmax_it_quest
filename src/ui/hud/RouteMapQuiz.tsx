@@ -59,7 +59,7 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      className="glass-light pop flex w-full max-w-4xl flex-col gap-3 rounded-3xl p-5"
+      className="glass-light pop flex max-h-[88vh] w-full max-w-4xl flex-col gap-3 overflow-hidden rounded-3xl p-5"
       data-testid="routemap-quiz"
     >
       <h2 className="text-xl font-extrabold">
@@ -118,7 +118,8 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
             ))}
         </div>
       )}
-      <div className="rounded-2xl border border-slate-200 bg-white p-2">
+      {/* 路線図だけ 中で動かせる（問題文は いつも見える。Codex の UI の相談 7） */}
+      <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-slate-200 bg-white p-2">
         <RouteMap onStation={!done && q?.kind === "station" ? answer : undefined} marks={marks} />
       </div>
       {done && (

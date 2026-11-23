@@ -182,6 +182,8 @@ function pajamaColor(name: string, cfg: AvatarConfig): string | null {
     default:
       if (name === `hair_${cfg.hairStyle}`) return cfg.hair;
       if (name === `acc_tie_${cfg.hairStyle}`) return shade(cfg.hair, 0.7);
+      if (name === `acc_clip_${cfg.hairStyle}`) return "#f2c14e";
+      if (name === `acc_band_${cfg.hairStyle}`) return "#f3e3c8";
       return null;
   }
 }
@@ -258,6 +260,9 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
       // 髪をむすぶ ゴム（ポニーテール・ハーフアップ・みつあみ）。かざりが リボンなら ピンク
       if (name === `acc_tie_${cfg.hairStyle}`)
         return cfg.accessory === "ribbon" ? "#e85c7a" : shade(cfg.hair, 0.7);
+      // ヘアピン（黄色）・カチューシャ（クリーム色）
+      if (name === `acc_clip_${cfg.hairStyle}`) return "#f2c14e";
+      if (name === `acc_band_${cfg.hairStyle}`) return "#f3e3c8";
       return null;
   }
 }

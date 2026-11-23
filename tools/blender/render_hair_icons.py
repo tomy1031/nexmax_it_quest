@@ -24,7 +24,7 @@ R = 0.29
 HX, HY, HZ = R * 1.08, R * 1.0, R * 0.95
 HEAD_Z = 0.86
 STYLES = ["model", "spiky", "side", "wavy", "curly", "buzz", "center", "bob", "long", "ponytail", "twin", "bun",
-          "halfup", "braid", "twinbun", "shichisan", "allback", "twoblock", "mohawk", "afro", "sidetail", "lowpony", "hime", "longwave", "osage"]
+          "halfup", "braid", "twinbun", "shichisan", "allback", "twoblock", "mohawk", "afro", "sidetail", "lowpony", "hime", "longwave", "osage", "swirl", "messy", "topknot", "mash", "wolf", "tucked", "pixie", "lob", "budtail", "crown", "perm", "lowpuff", "clipbob", "headband"]
 
 
 def material(name, rgb, rough=0.6):
@@ -72,7 +72,7 @@ def main():
             ob.data.materials.clear()
             ob.data.materials.append(body_m)
             continue
-        if ob.name.startswith(("hair_", "acc_tie_")):
+        if ob.name.startswith(("hair_", "acc_tie_", "acc_clip_", "acc_band_")):
             ob.data.materials.clear()
             ob.data.materials.append(hair_m)
             hairs[ob.name] = ob
@@ -111,7 +111,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     for st in STYLES:
         for name, ob in hairs.items():
-            ob.hide_render = name not in (f"hair_{st}", f"acc_tie_{st}")
+            ob.hide_render = name not in (f"hair_{st}", f"acc_tie_{st}", f"acc_clip_{st}", f"acc_band_{st}")
         sc.render.filepath = os.path.join(OUT, f"{st}.png")
         bpy.ops.render.render(write_still=True)
         print("HAIR_ICON", st)

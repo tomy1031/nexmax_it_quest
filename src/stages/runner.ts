@@ -70,9 +70,10 @@ export class StageRunner {
         const w = this.eventWaiter;
         this.eventWaiter = null;
         w(name);
-      } else if (name.startsWith("reach:")) {
-        // 到着だけは、待つ前に着いてしまうことがあるので取っておく
-        this.eventQueue.push(name);
+      } else if (name.startsWith("reach:") || name.startsWith("ticket:")) {
+        // 到着と 券売機の「買った・チャージした」は、待つ前に 起きることがあるので取っておく
+        // （定期券を買ったあと、説明の とちゅうで チャージすると 合図が すてられ、もう一度 チャージと言われた。tomy さん 2026-11-23）
+        if (!this.eventQueue.includes(name)) this.eventQueue.push(name);
       }
     });
   }
@@ -95,6 +96,12 @@ export class StageRunner {
     // 最初の場面から始めるときは、前に遊んだときの 持ち物（定期券など）を消す
     // （「最初から」で定期券が残り、券売機で チャージしか えらべなかった。tomy さん 2026-11-23）
     if (index === 0) useGame.getState().resetRun();
+    // 着がえ（スーツ）の場面より あとから始めたのに 寝巻きのままなら、スーツにする（駅で寝巻きにならないように）
+    const dressAt = stage.sections.findIndex((sec) =>
+      sec.beats.some((b) => b.t === "panel" && b.id === "avatar" && b.mode === "suit"),
+    );
+    if (dressAt >= 0 && index > dressAt && useGame.getState().avatar.outfit === "pajama")
+      useGame.getState().setAvatar({ outfit: "suit" });
     // 途中から始めたときは、前の場面までの「やること」を そろえておく
     for (const s of stage.sections.slice(0, index)) {
       for (const b of s.beats) {
@@ -180,8 +187,12 @@ export class StageRunner {
     });
   }
 
-  private nextEvent(): Promise<string> {
-    const queued = this.eventQueue.shift();
+  private nextEvent(want?: string): Promise<string> {
+    // 待っている合図が 取っておいた中に あれば、それを先に使う。券売機の合図は、待つまで 取っておく
+    const hit = want ? this.eventQueue.indexOf(want) : -1;
+    if (hit >= 0) return Promise.resolve(this.eventQueue.splice(hit, 1)[0]!);
+    const k = this.eventQueue.findIndex((e) => !e.startsWith("ticket:"));
+    const queued = k >= 0 ? this.eventQueue.splice(k, 1)[0] : undefined;
     if (queued) return Promise.resolve(queued);
     return new Promise((resolve) => {
       this.eventWaiter = resolve;
@@ -247,7 +258,7 @@ export class StageRunner {
       case "wait": {
         for (;;) {
           usePlay.setState({ waitingFor: beat.event });
-          const name = await this.nextEvent();
+          const name = await this.nextEvent(beat.event);
           usePlay.setState({ waitingFor: null });
           this.check();
           if (name === beat.event) return;

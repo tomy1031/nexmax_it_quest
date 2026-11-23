@@ -56,6 +56,11 @@ const STYLES: AvatarConfig["hairStyle"][] = [
   "hime",
   "longwave",
   "osage",
+  "mash",
+  "lob",
+  "perm",
+  "tucked",
+  "lowpuff",
 ];
 const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle", "small"];
 

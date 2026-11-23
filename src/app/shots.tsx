@@ -256,6 +256,20 @@ const STYLES: HairStyle[] = [
   "hime",
   "longwave",
   "osage",
+  "swirl",
+  "messy",
+  "topknot",
+  "mash",
+  "wolf",
+  "tucked",
+  "pixie",
+  "lob",
+  "budtail",
+  "crown",
+  "perm",
+  "lowpuff",
+  "clipbob",
+  "headband",
 ];
 
 /** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */
@@ -464,7 +478,7 @@ function hairRows(yaw: number) {
       {STYLES.map((hs, i) => (
         <group
           key={hs}
-          position={[-2.4 + (i % 5) * 1.2, 2.3 - Math.floor(i / 5) * 1.25, 0]}
+          position={[-3.0 + (i % 6) * 1.2, 4.0 - Math.floor(i / 6) * 1.25, 0]}
           rotation={[0, yaw, 0]}
         >
           <Chibi
@@ -483,12 +497,12 @@ function hairRows(yaw: number) {
   );
 }
 SHOTS["hair-styles"] = {
-  camera: { pos: [0, 0.4, 9.2], look: [0, 0.35, 0], fov: 42 },
+  camera: { pos: [0, 0.9, 12.5], look: [0, 0.9, 0], fov: 42 },
   light: "day",
   scene: () => hairRows(0.25),
 };
 SHOTS["hair-back"] = {
-  camera: { pos: [0, 0.4, 9.2], look: [0, 0.35, 0], fov: 42 },
+  camera: { pos: [0, 0.9, 12.5], look: [0, 0.9, 0], fov: 42 },
   light: "day",
   scene: () => hairRows(2.5),
 };

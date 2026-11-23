@@ -750,6 +750,7 @@ def hair_styles():
     finish_hair("hair_twinbun", buns)
 
     more_styles(short_side, tied_side, follow)
+    ref_styles(short_side, tied_side, follow)
 
     # 髪のかざり（花・リボン）。右の耳の上
     c = surf(0.85, 1.05, 1.18)
@@ -894,6 +895,170 @@ def more_styles(short_side, tied_side, follow):
         ties.append(ellipsoid("os_tie", (bt.x, bt.y, bt.z), (0.028, 0.028, 0.02)))
     join("acc_tie_osage", ties)
     finish_hair("hair_osage", parts)
+
+
+def chain(name, pts, r0, r1, squash=0.85):
+    """点の ならびに そって、まるい つぶを つなぐ（くるん・あみこみ・カチューシャ）。"""
+    parts = []
+    n = len(pts)
+    for i in range(n - 1):
+        a, b = pts[i], pts[i + 1]
+        c = (a + b) / 2
+        along = (b - a).normalized()
+        side = along.cross(Vector((0, 0, 1)))
+        side = side.normalized() if side.length > 1e-3 else Vector((1, 0, 0))
+        out = side.cross(along).normalized()
+        r = lerp(r0, r1, i / max(1, n - 2))
+        parts.append(oriented(name, c, (side, along, out), (r, (b - a).length * 0.8, r * squash)))
+    return parts
+
+
+def over_head(k, lean, n=14, span=1.25):
+    """頭の上を 左の耳から 右の耳へ こえる弧（lean で 前・後ろへ かたむける）。"""
+    pts = []
+    for i in range(n):
+        s = -span + 2 * span * i / (n - 1)
+        x = HX * k * math.sin(s)
+        z = HEAD_Z + HZ * k * math.cos(s)
+        y = -HY * k * lean * math.cos(s)
+        pts.append(Vector((x, y, z)))
+    return pts
+
+
+def ref_styles(short_side, tied_side, follow):
+    """Codex の 髪型の参考の絵（codex_out/hair_ref_*.png。2026-11-23）から、今の髪型と ちがう形を 作った。
+    絵を そのまま写さず、このアプリの作り方（厚みのある かたまり）に 合わせた。"""
+    # くるん（みじかい髪の上に、大きく まいた 毛が 1つ）
+    cap("hair_swirl", hairline(tips(2, 0.8, 0.47, 0.12, 1.6, shift=0.25), short_side),
+        with_part(puff(1.12, 0.07, 0.05), 0.5), taper=follow(short_side))
+    base = surf(0.22, 0.15, 1.12)
+    pts = []
+    for i in range(12):
+        a = i / 11 * math.pi * 1.6
+        r = 0.1 * (1 - 0.35 * i / 11)
+        # 横に まく（前から見て くるんと見える）
+        pts.append(base + Vector((r * (1 - math.cos(a)), 0.0, r * math.sin(a) + 0.03 * i / 11)))
+    finish_hair("hair_swirl", [bpy.data.objects["hair_swirl"]] + chain("sw", pts, 0.068, 0.03, squash=1.0))
+
+    # ねぐせ（ふんわり はねた みじかい髪。前髪は よこへ流す）
+    bumps = []
+    for i, (th, ph) in enumerate(((0.3, 0.9), (0.35, -0.7), (0.55, 2.0), (0.5, -2.3), (0.75, 2.8), (0.2, -0.1),
+                                  (0.7, -1.6), (0.65, 1.5), (0.45, 3.1), (0.9, 2.4), (0.9, -2.6))):
+        bumps.append((th, ph, 0.09 + 0.03 * (i % 3), 0.32, 1.6))
+    cap("hair_messy", hairline(tips(4, 0.85, 0.42, 0.14, 1.2, shift=0.15), short_side),
+        with_bumps(puff(1.12, 0.05, 0.05), bumps), taper=lambda p, f: 1 - 0.8 * f * (short_side(p) - math.pi / 2) * HZ
+        + 0.1 * f * abs(math.sin(5 * p)))
+    finish_hair("hair_messy", [bpy.data.objects["hair_messy"]])
+
+    # トップノット（よこと後ろは みじかく、頭の上で 小さく むすぶ）
+    top_side = keys([(0.95, Z(0.22)), (1.3, Z(0.12)), (1.45, Z(0.22)), (1.78, Z(0.22)), (2.05, D(0.04)),
+                     (2.5, D(0.1)), (math.pi, D(0.12))])
+    shell = cap("hair_topknot", hairline(lambda p: 0.55 - 0.05 * (p / 0.8) ** 2, top_side), puff(1.06, 0.04, 0.03),
+                taper=follow(top_side), thick=0.035)
+    knot = ellipsoid("tk", (0.0, HY * 0.15, HEAD_Z + HZ * 1.12), (0.08, 0.075, 0.07))
+    tie = ellipsoid("tk_tie", (0.0, HY * 0.15, HEAD_Z + HZ * 1.05), (0.045, 0.045, 0.02))
+    tie.name = "acc_tie_topknot"
+    finish_hair("hair_topknot", [shell, knot])
+
+    # マッシュ（まるい きのこの形。まゆの上で まっすぐ切った 前髪。耳は かくれる）
+    mash_side = keys([(0.8, D(0.04)), (1.3, D(0.07)), (2.2, D(0.08)), (math.pi, D(0.09))])
+    cap("hair_mash", hairline(lambda p: 0.3 + 0.02 * (p / 0.8) ** 2, mash_side, 0.7, 0.9), puff(1.16, 0.05, 0.05),
+        taper=lambda p, f: 1 - 0.1 * f)
+    finish_hair("hair_mash", [bpy.data.objects["hair_mash"]])
+
+    # ウルフ（上は みじかく、えりあしが 長く、毛先が はねる）
+    wolf_side = keys([(0.95, Z(0.12)), (1.3, D(0.04)), (1.45, Z(0.18)), (1.78, Z(0.16)), (2.05, D(0.14)),
+                      (2.5, D(0.26)), (math.pi, D(0.29))])
+    cap("hair_wolf", hairline(tips(4, 0.85, 0.42, 0.14, 1.4, shift=0.1), wolf_side), puff(1.13, 0.08, 0.04),
+        taper=lambda p, f: 1 - 0.25 * f + 0.28 * f ** 3 * smoothstep(1.8, 2.6, abs(p)))
+    finish_hair("hair_wolf", [bpy.data.objects["hair_wolf"]])
+
+    # 耳かけ（あごまでの髪を、耳の うしろに かける。センターわけ）
+    tuck_side = keys([(0.95, D(0.18)), (1.3, D(0.18)), (1.42, Z(0.2)), (1.8, Z(0.2)), (1.95, D(0.18)),
+                      (math.pi, D(0.2))])
+    cap("hair_tucked", hairline(lambda p: 0.24 + 0.36 * math.exp(-((p / 0.2) ** 2)), tuck_side),
+        with_part(puff(1.13, 0.06, 0.05), 0.0, 0.03), taper=lambda p, f: 1 - 0.12 * smoothstep(0.4, 1.0, f))
+    finish_hair("hair_tucked", [bpy.data.objects["hair_tucked"]])
+
+    # ピクシー（とても みじかい。前髪は とがった 毛先がたくさん）
+    cap("hair_pixie", hairline(tips(5, 0.85, 0.42, 0.13, 2.2), short_side), puff(1.08, 0.05, 0.04),
+        taper=follow(short_side), thick=0.04)
+    finish_hair("hair_pixie", [bpy.data.objects["hair_pixie"]])
+
+    # ロブ（かたまでの ボブ。右で分けて、前髪を 大きく よこへ流す）
+    lob_side = keys([(0.95, D(0.3)), (1.6, D(0.32)), (math.pi, D(0.32))])
+
+    def lob_bang(phi):
+        return lerp(0.62, 0.18, smoothstep(0.7, -0.75, phi))
+
+    cut = lambda p: lerp(Z(lob_bang(p)), lob_side(p), smoothstep(0.72, 0.95, abs(p)))
+    cap("hair_lob", cut, with_part(puff(1.14, 0.06, 0.05), 0.7, 0.03),
+        taper=lambda p, f: 1 - 0.15 * smoothstep(0.3, 1.0, f))
+    finish_hair("hair_lob", [bpy.data.objects["hair_lob"]])
+
+    # おだんごダウン（頭の上の左右に おだんご。のこりの髪は かたまで おろす）
+    down_side = keys([(0.95, D(0.24)), (1.6, D(0.27)), (math.pi, D(0.28))])
+    shell = cap("hair_budtail", hairline(lambda p: 0.34 + 0.06 * (p / 0.8) ** 2, down_side, 0.72, 0.92),
+                puff(1.12, 0.05, 0.05), taper=lambda p, f: 1 - 0.18 * smoothstep(0.2, 1.0, f))
+    buns = [shell]
+    for sx in (-1, 1):
+        c = surf(0.45, sx * 1.0, 1.16)
+        buns.append(ellipsoid("bd", (c.x, c.y, c.z), (0.095, 0.09, 0.09)))
+    finish_hair("hair_budtail", buns)
+
+    # あみこみ（頭の上を、耳から耳へ あみこみが こえる。のこりは まとめる）
+    shell = cap("hair_crown", hairline(lambda p: 0.4 + 0.05 * (p / 0.8) ** 2, tied_side), puff(1.08, 0.04, 0.03),
+                taper=follow(tied_side))
+    ring = chain("cr", over_head(1.075, 0.3, 18, 1.25), 0.05, 0.05, squash=0.7)
+    finish_hair("hair_crown", [shell] + ring)
+
+    # パーマ（ふんわり ゆれる、あごの下までの くせ毛）
+    perm_side = lambda p: D(0.2 + 0.03 * smoothstep(0.95, math.pi, abs(p)) + 0.02 * math.cos(9 * p))
+    domes = [(th, -math.pi + 2 * math.pi * (i + off) / n, 0.08, 0.32, 0)
+             for th, n, off in ((0.5, 7, 0.0), (0.9, 11, 0.3), (1.3, 13, 0.0))
+             for i in range(n)]
+    cap("hair_perm", hairline(tips(3, 0.8, 0.4, 0.07, 1.0), perm_side, 0.72, 0.95),
+        with_bumps(puff(1.12, 0.05, 0.06), domes, dome=True),
+        taper=lambda p, f: 1 + 0.2 * f + 0.07 * math.sin(9 * p + 4 * f) * f)
+    finish_hair("hair_perm", [bpy.data.objects["hair_perm"]])
+
+    # ふたつ結び（耳の下で ふんわり まるく 2つに むすぶ）
+    shell = cap("hair_lowpuff", hairline(lambda p: 0.34 + 0.06 * (p / 0.8) ** 2, tied_side), puff(1.09, 0.05, 0.03),
+                taper=follow(tied_side))
+    puffs = [shell]
+    ties = []
+    for sx in (-1, 1):
+        c = Vector((sx * HX * 1.2, HY * 0.25, HEAD_Z - 0.2))
+        puffs.append(ellipsoid("lpf", (c.x, c.y, c.z), (0.1, 0.1, 0.11)))
+        t = Vector((sx * HX * 1.08, HY * 0.25, HEAD_Z - 0.12))
+        ties.append(ellipsoid("lpt", (t.x, t.y, t.z), (0.035, 0.04, 0.035)))
+    join("acc_tie_lowpuff", ties)
+    finish_hair("hair_lowpuff", puffs)
+
+    # ヘアピン（ふんわり ボブ。右の前に ヘアピン）
+    clip_side = keys([(0.95, D(0.16)), (1.6, D(0.18)), (math.pi, D(0.17))])
+
+    def clip_bang(phi):
+        return lerp(0.5, 0.26, smoothstep(0.6, -0.7, phi))
+
+    cut = lambda p: lerp(Z(clip_bang(p)), clip_side(p), smoothstep(0.72, 0.95, abs(p)))
+    cap("hair_clipbob", cut, with_part(puff(1.14, 0.05, 0.05), 0.6, 0.03),
+        taper=lambda p, f: 1 - 0.1 * smoothstep(0.5, 1.0, f))
+    c = surf(0.62, 0.85, 1.25)
+    n = (surf(0.62, 0.85) - Vector((0, 0, HEAD_Z))).normalized()
+    along = Vector((0.6, -0.2, 0.75)).normalized()
+    side = along.cross(n).normalized()
+    clip = oriented("clip", c, (side, along, n), (0.024, 0.065, 0.016))
+    clip.name = "acc_clip_clipbob"
+    finish_hair("hair_clipbob", [bpy.data.objects["hair_clipbob"]])
+
+    # カチューシャ（せなかまでの ゆるい波。頭の上に カチューシャ）
+    wave_side = lambda p: D(0.3 + 0.1 * smoothstep(0.95, 2.4, abs(p)) + 0.02 * math.cos(9 * p))
+    cap("hair_headband", hairline(tips(3, 0.8, 0.4, 0.07, 1.4), wave_side, 0.72, 0.95), puff(1.15, 0.06, 0.06),
+        taper=lambda p, f: 1 - 0.15 * f + 0.07 * math.sin(f * 3 * math.pi))
+    band = chain("hb", over_head(1.205, -0.25, 18, 1.3), 0.03, 0.03, squash=0.6)
+    join("acc_band_headband", band)
+    finish_hair("hair_headband", [bpy.data.objects["hair_headband"]])
 
 
 def kigurumi():

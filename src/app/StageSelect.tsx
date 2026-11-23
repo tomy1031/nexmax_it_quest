@@ -61,6 +61,15 @@ export function StageSelect() {
               <p className="text-white">
                 <RubyText text={stage1.subtitle} />
               </p>
+              {/* 学ぶ量の目安（Codex の UI の相談 10） */}
+              <p className="text-base font-bold text-white/90" data-testid="stage1-info">
+                <RubyText
+                  text={t("select.info", {
+                    scenes: stage1.sections.length,
+                    words: stage1.words.length,
+                  })}
+                />
+              </p>
               <div className="mt-auto flex flex-wrap gap-2 pt-2">
                 {resume ? (
                   <>

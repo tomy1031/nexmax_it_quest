@@ -108,7 +108,7 @@ export function TitleScreen() {
             style={{
               left: "50%",
               top: py(762),
-              fontSize: px(17),
+              fontSize: px(21),
               padding: `${px(4)} ${px(16)}`,
               background: "rgba(8,36,100,0.7)",
             }}

@@ -183,8 +183,9 @@ export function PlatformScene({ placeId }: { placeId: string }) {
       <Walkers
         people={[
           {
-            from: [-1.0, -19],
-            to: [-1.0, 13],
+            // ごみ箱（z=-17.6）・ベンチ・時計の柱の あいだを歩く
+            from: [-0.95, -16.8],
+            to: [-0.95, 13],
             speed: 0.85,
             at: 0.35,
             casual: false,

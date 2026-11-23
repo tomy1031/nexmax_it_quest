@@ -39,14 +39,15 @@ export function ConcourseScene() {
   useSceneLayout({
     anchors: {
       "stairs-bottom": { pos: [-12, 0, -5.5], yaw: Math.PI / 2 },
-      "route-map": { pos: [-7, 0, -5.8], yaw: Math.PI },
+      // 路線図は 券売機の上の かべ（本物の駅のように。tomy さん 2026-11-23「路線図はきっぷ、定期売り場の上に移動させて」）
+      "route-map": { pos: [-0.3, 0, -5.3], yaw: Math.PI },
       // 券売機の前（まちがえた電車のあとの「券売機の 前から やり直し」もここ）。
       // 西を向いて立つと、カメラから券売機（右）と改札（左）の両方が見える
       "pass-machine": { pos: [3.2, 0, -6.2], yaw: -Math.PI / 2 },
     },
     walk: [UNPAID],
     shots: {
-      "route-map": { pos: [-7, 1.75, -4.4], look: [-7, 1.7, -7.9], fov: 52 },
+      "route-map": { pos: [-0.3, 2.2, -5.0], look: [-0.3, 2.65, -7.9], fov: 44 },
       "pass-machine": { pos: [3.2, 1.5, -6.55], look: [3.2, 1.22, -7.3], fov: 44 },
     },
     triggers: [],
@@ -181,7 +182,8 @@ export function ConcourseScene() {
       />
       <Walkers
         people={[
-          { from: [-11, -3.4], to: [12.5, -3.4], speed: 1.1, at: 0.2 },
+          // 柱（x=0, z=-3）に めりこまないよう z=-4.2 を歩く
+          { from: [-11, -4.2], to: [12.5, -4.2], speed: 1.1, at: 0.2 },
           { from: [12.8, -0.6], to: [-8, -0.6], speed: 1.25, at: 0.6, casual: true },
           { from: [-12.5, -4.8], to: [-12.5, 0], speed: 0.9, at: 0.5 },
         ]}
@@ -200,8 +202,11 @@ export function ConcourseScene() {
           tone: "navy",
         }}
       />
-      <Interactable id="route-map" approach={[-7, -5.8]} marker={[-7, 3.0, -7.7]}>
-        <RouteMapBoard position={[-7, 1.7, -7.85]} here="tennoji" />
+      <Interactable id="route-map" approach={[-0.3, -5.3]} marker={[-0.3, 3.2, -7.5]}>
+        {/* 券売機（高さ 約1.9m）の上から 天井の下まで。大きさは 0.7 倍（2.24 x 1.4m） */}
+        <group position={[-0.3, 2.65, -7.85]} scale={0.7}>
+          <RouteMapBoard position={[0, 0, 0]} here="tennoji" />
+        </group>
       </Interactable>
 
       {[-2, -1, 0, 1, 2].map((x) => (
@@ -222,9 +227,10 @@ export function ConcourseScene() {
       >
         <TicketMachine position={[3.2, 0, -7.6]} active={passFocused} />
       </Interactable>
+      {/* 「きっぷ・定期券」の つり看板は、路線図に かからないよう 右（定期券の券売機の上）へ */}
       <HangingSign
-        position={[0.5, 2.85, -6.6]}
-        width={3.4}
+        position={[2.75, 2.85, -6.6]}
+        width={2.5}
         height={0.45}
         spec={{
           lines: ["M", "T"],

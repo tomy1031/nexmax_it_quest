@@ -14,6 +14,7 @@ import { useLayout } from "@/three/layout";
 import { World } from "@/three/World";
 import { Hud } from "@/ui/hud/Hud";
 import { RubyText } from "@/ui/RubyText";
+import { LoadingCover } from "@/ui/LoadingCover";
 
 const STAGES: Record<string, StageFile> = { stage1: stage1Json as StageFile };
 
@@ -86,6 +87,7 @@ export default function StageScreen({ stageId }: { stageId: string }) {
     <main className="bg-deep relative h-full w-full overflow-hidden">
       <World />
       <Hud />
+      <LoadingCover />
       <p className="pointer-events-none absolute bottom-1 left-2 z-0 text-[10px] font-bold text-white drop-shadow">
         <RubyText text={t("hud.disclaimer")} />
       </p>
