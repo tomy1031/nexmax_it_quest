@@ -6,6 +6,7 @@ import { usePlay } from "@/stages/play-store";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { block, box, FLAT, merge } from "@/factory/kit";
 import { Prop } from "@/factory/props";
+import { LaptopScreen } from "@/factory/small-parts";
 import { drawWindowTrees } from "@/factory/season-parts";
 import { drawRuby, FONT_FAMILY } from "@/factory/text-canvas";
 import { currentSeason, gameDate } from "@/lib/season";
@@ -185,21 +186,17 @@ export function HomeScene() {
 
       <Interactable id="pc" approach={[1.4, -0.6]} marker={[1.55, 1.15, -1.75]}>
         <Prop url="home/laptop" position={[1.55, 0.72, -1.8]} />
-        <CanvasPanel
-          width={0.28}
-          height={0.17}
+        <LaptopScreen
+          position={[1.55, 0.72, -1.8]}
           ppm={900}
-          position={[1.55, 0.86, -1.88]}
-          rotation={[-0.25, 0, 0]}
-          emissive
           draw={(ctx, w, h) => {
             ctx.fillStyle = "#1b2a5c";
             ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(w * 0.32, h * 0.1, w * 0.62, h * 0.8);
             ctx.fillStyle = "#38e1ff";
-            ctx.font = `800 ${h * 0.14}px sans-serif`;
-            ctx.fillText("NMChat", w * 0.04, h * 0.2);
+            ctx.font = `800 ${h * 0.1}px sans-serif`;
+            ctx.fillText("NMChat", w * 0.035, h * 0.2);
             ctx.fillStyle = "#ffd23f";
             ctx.fillRect(w * 0.04, h * 0.42, w * 0.24, h * 0.1);
           }}

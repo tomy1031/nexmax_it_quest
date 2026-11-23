@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { t } from "@/lib/t";
 import { CanvasPanel } from "@/factory/CanvasPanel";
-import { drawIcocaCard, passFontText } from "@/factory/icoca-card";
+import { drawIcocaCard, passFontText, passPrice } from "@/factory/icoca-card";
 import { useGame } from "@/lib/store";
 import { box, FLAT, merge } from "@/factory/kit";
 import { STATION } from "@/factory/signs";
@@ -116,7 +116,8 @@ export function Receipt({
             rubyColor: "#0a6bd6",
           });
           ctx.fillRect(w * 0.08, h * 0.65, w * 0.84, h * 0.005);
-          drawRuby(ctx, `25,500 ${t("tm.yen")}`, w * 0.92, h * 0.8, {
+          // 金額は 券売機と同じ データ（content/places.json の passFare）から
+          drawRuby(ctx, `${passPrice(3).toLocaleString()} ${t("tm.yen")}`, w * 0.92, h * 0.8, {
             size: h * 0.09,
             color: "#16264d",
             rubyColor: "#0a6bd6",
@@ -125,5 +126,45 @@ export function Receipt({
         }}
       />
     </group>
+  );
+}
+
+/**
+ * ノートパソコン（polyfork の laptop）と、その画面の絵。
+ * 画面の位置・かたむきは モデルの ふた（lid）から計算した: ふたは うしろへ 約17度 かたむき（-0.297 rad）、
+ * ふたの大きさは 0.312 x 0.208m、中心は 置いた所から 上へ 0.123m・うしろへ 0.134m。
+ * 絵は ふたの面より 6mm 前に、ふちを少し残して 0.27 x 0.17m で貼る（はみ出さない）。
+ */
+export const LAPTOP_SCREEN = {
+  offset: [0, 0.1248, -0.1287] as [number, number, number],
+  rotation: [-0.297, 0, 0] as [number, number, number],
+  width: 0.27,
+  height: 0.17,
+};
+
+export function LaptopScreen({
+  position,
+  draw,
+  ppm = 1200,
+  fontText,
+}: {
+  /** ノートパソコンを置いた所（Prop の position と同じ）。 */
+  position: [number, number, number];
+  draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
+  ppm?: number;
+  fontText?: string;
+}) {
+  const [ox, oy, oz] = LAPTOP_SCREEN.offset;
+  return (
+    <CanvasPanel
+      width={LAPTOP_SCREEN.width}
+      height={LAPTOP_SCREEN.height}
+      ppm={ppm}
+      position={[position[0] + ox, position[1] + oy, position[2] + oz]}
+      rotation={LAPTOP_SCREEN.rotation}
+      emissive
+      fontText={fontText}
+      draw={draw}
+    />
   );
 }
