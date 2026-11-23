@@ -6,6 +6,7 @@ import { signInWithGoogle, signOut, useAuth } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/env";
 import { deletePhoto, savePhoto, shrinkToSquare } from "@/lib/photo";
 import { isKatakanaName, useGame, useSettings } from "@/lib/store";
+import { COHORTS, UNIVERSITIES } from "@/lib/school";
 import { t, type UiKey } from "@/lib/t";
 import { usePhotoUrl } from "@/ui/use-photo";
 import { RubyText } from "@/ui/RubyText";
@@ -67,6 +68,7 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
               autoComplete="off"
             />
           </Field>
+          <SchoolField />
           <PhotoField />
         </Section>
 
@@ -280,6 +282,53 @@ function CameraModal({
           <button type="button" className="btn btn-ghost" onClick={onClose}>
             <RubyText text={t("settings.cancel")} />
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** 学校（AUPP・CADT）と 期生（1〜5）。academy と 同じ ユーザーの 表に 書く（ログインしているとき）。 */
+function SchoolField() {
+  const profile = useGame((s) => s.profile);
+  const setProfile = useGame((s) => s.setProfile);
+  return (
+    // ボタンを ならべるので label で つつまない（文字を おすと 1つめの ボタンが 押されてしまう）
+    <div className="flex flex-col gap-1.5">
+      <span className="font-bold">
+        <RubyText text={t("settings.school")} />
+      </span>
+      <span className="text-sm text-white">
+        <RubyText text={t("settings.schoolHelp")} />
+      </span>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("settings.school")}>
+          {UNIVERSITIES.map((u) => (
+            <button
+              key={u}
+              type="button"
+              aria-pressed={profile.university === u}
+              className={`btn min-h-11 px-5 ${profile.university === u ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => setProfile({ university: u })}
+              data-testid={`settings-school-${u}`}
+            >
+              {u}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("settings.cohort")}>
+          {COHORTS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={profile.cohort === c}
+              className={`btn min-h-11 px-4 ${profile.cohort === c ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => setProfile({ cohort: c })}
+              data-testid={`settings-cohort-${c}`}
+            >
+              <RubyText text={t("settings.cohortN", { n: c })} />
+            </button>
+          ))}
         </div>
       </div>
     </div>

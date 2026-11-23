@@ -46,6 +46,7 @@
 - Microwave Oven by Polyfork (https://polyfork.dev/asset/microwave-oven-7f60d4), CC BY 4.0
 - Noren Curtain by Polyfork (https://polyfork.dev/asset/noren-curtain-7b9e53), CC BY 4.0
 - Office Mug by Polyfork (https://polyfork.dev/asset/office-mug-8afee0), CC BY 4.0
+- Orchestra Chair by Polyfork (https://polyfork.dev/asset/orchestra-chair-9538ec), CC BY 4.0
 - Plastic Drum by Polyfork (https://polyfork.dev/asset/plastic-drum-da992f), CC BY 4.0
 - Potted Shrub by Polyfork (https://polyfork.dev/asset/potted-shrub-43bd21), CC BY 4.0
 - Red Post Box by Polyfork (https://polyfork.dev/asset/red-post-box-f12045), CC BY 4.0

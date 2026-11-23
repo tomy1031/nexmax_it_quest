@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import charactersJson from "@content/characters.json";
 import { CanvasPanel } from "@/factory/CanvasPanel";
@@ -7,6 +8,7 @@ import { block, box, FLAT, merge } from "@/factory/kit";
 import { Prop } from "@/factory/props";
 import { drawRuby, FONT_FAMILY } from "@/factory/text-canvas";
 import { playSfx } from "@/lib/audio";
+import { assignSeats, classmateLook, fetchClassmates, type Classmate } from "@/lib/classmates";
 import { DEFAULT_AVATAR, type AvatarConfig } from "@/lib/store";
 import { t } from "@/lib/t";
 import { onFx, questEvents } from "@/stages/events";
@@ -392,16 +394,19 @@ export function CarPanel({
 
 // ── 7階（入社式の 会場） ─────────────────────────────────
 
-const ROWS = [-2.6, -1.2, 0.2, 1.6];
+/** 列（前 → 後ろ）。同じ 期生の 人が 多くても 座れるように 5列（40席）。 */
+const ROWS = [-2.6, -1.35, -0.1, 1.15, 2.4];
 const COLS = [-3.2, -2.4, -1.6, -0.8, 0.8, 1.6, 2.4, 3.2];
 /** あいている 席（前の 席・後ろの 席）。 */
 const SEAT_FRONT: [number, number] = [0.8, ROWS[0]!];
-const SEAT_BACK: [number, number] = [0.8, ROWS[3]!];
+const SEAT_BACK: [number, number] = [0.8, ROWS[4]!];
 const HALL_WALK: Rect[] = [{ minX: -4.6, maxX: 4.6, minZ: -4.0, maxZ: 5.4 }];
 const HALL_BLOCKS: Rect[] = ROWS.flatMap((z) => [
   { minX: -3.5, maxX: -0.55, minZ: z - 0.28, maxZ: z + 0.28 },
   { minX: 0.55, maxX: 3.5, minZ: z - 0.28, maxZ: z + 0.28 },
 ]);
+/** いすの 向き（モデルは +z が 前。π まわして、座る 面が 前の 台＝-z を 向くように）。 */
+const CHAIR_YAW = Math.PI;
 const HENDY_START: [number, number, number] = [2.4, 0, 3.9];
 const HENDY_FRONT: [number, number, number] = [0, 0.25, -4.7];
 
@@ -460,23 +465,45 @@ export function OfficeHallScene() {
     [],
   );
 
+  // 同じ 学校・期生の メンバー（ログインして 学校と 期生を えらんでいる とき）。いなければ 名前の 無い 人で うめる
+  const [mates, setMates] = useState<Classmate[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void fetchClassmates().then((list) => alive && setMates(list));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const people = useMemo(() => {
-    const list: { pos: [number, number, number]; look: AvatarConfig }[] = [];
-    let i = 0;
-    for (const z of ROWS) {
+    // 座れる 席（後ろの 列から 前へ）。前の 列は 両はしだけ（前に すわる 人は 少ない）。
+    const seats: [number, number][] = [];
+    for (const z of [...ROWS].reverse()) {
       for (const x of COLS) {
-        i += 1;
-        const empty =
+        const target =
           (x === SEAT_FRONT[0] && z === SEAT_FRONT[1]) ||
           (x === SEAT_BACK[0] && z === SEAT_BACK[1]);
-        // 前の 列は ほかにも あいている（前に すわる 人は 少ない）
         const sparseFront = z === ROWS[0] && x !== -3.2 && x !== 3.2;
-        if (empty || sparseFront) continue;
-        list.push({ pos: [x, 0, z + 0.05], look: { ...npcLook(i + 3, "suit"), bag: false } });
+        if (!target && !sparseFront) seats.push([x, z]);
       }
     }
-    return list;
-  }, []);
+    if (mates && mates.length > 0) {
+      return assignSeats(seats, mates).map(({ seat, who }) => ({
+        pos: [seat[0], 0, seat[1] + 0.05] as [number, number, number],
+        look: classmateLook(who),
+        name: who.name,
+      }));
+    }
+    if (mates === null) return [];
+    // 名前の 無い 人（ログインしていない・同じ 期生の 人が いない とき）。前の 4列だけ
+    return seats
+      .filter(([, z]) => z !== ROWS[4])
+      .map(([x, z], i) => ({
+        pos: [x, 0, z + 0.05] as [number, number, number],
+        look: { ...npcLook(i + 3, "suit"), bag: false },
+        name: "",
+      }));
+  }, [mates]);
 
   return (
     <>
@@ -518,16 +545,24 @@ export function OfficeHallScene() {
       <Prop url="home/plant" position={[-2.1, 0.25, -5.4]} />
       <Prop url="home/plant" position={[2.1, 0.25, -5.4]} />
 
-      {/* いすと、すわっている 人 */}
+      {/* いす（キャスターの 無い いす。tomy さん 2026-11-23）と、すわっている 人 */}
       {ROWS.flatMap((z) =>
         COLS.map((x) => (
-          <Prop key={`${x},${z}`} url="home/chair" position={[x, 0, z]} rotationY={Math.PI} />
+          <Prop
+            key={`${x},${z}`}
+            url="office/seminar-chair"
+            position={[x, 0, z]}
+            rotationY={CHAIR_YAW}
+          />
         )),
       )}
       <Suspense fallback={null}>
         {people.map((p, i) => (
-          <group key={i} position={p.pos} rotation={[0, Math.PI, 0]}>
-            <Chibi config={p.look} motion="sitting" phase={i * 0.37} />
+          <group key={i} position={p.pos}>
+            <group rotation={[0, Math.PI, 0]}>
+              <Chibi config={p.look} motion="sitting" phase={i * 0.37} />
+            </group>
+            {p.name && <NameTag name={p.name} />}
           </group>
         ))}
       </Suspense>
@@ -578,5 +613,31 @@ export function OfficeHallScene() {
       </Interactable>
       <Ready />
     </>
+  );
+}
+
+/** 席の メンバーの 名前（頭の 上。いつも こちらを 向く）。名前は カタカナ（ふりがなは 要らない）。 */
+function NameTag({ name }: { name: string }) {
+  return (
+    <Billboard position={[0, 1.38, 0]}>
+      <CanvasPanel
+        width={0.62}
+        height={0.17}
+        fontText={name}
+        transparent
+        draw={(ctx, w, h) => {
+          ctx.font = `800 ${h * 0.56}px ${FONT_FAMILY}`;
+          const tw = Math.min(w * 0.96, ctx.measureText(name).width + h * 0.7);
+          ctx.fillStyle = "rgba(12, 30, 70, 0.78)";
+          ctx.beginPath();
+          ctx.roundRect((w - tw) / 2, h * 0.08, tw, h * 0.84, h * 0.42);
+          ctx.fill();
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(name, w / 2, h * 0.53, w * 0.9);
+        }}
+      />
+    </Billboard>
   );
 }

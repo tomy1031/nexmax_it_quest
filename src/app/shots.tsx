@@ -651,7 +651,12 @@ SHOTS["mae-no-seki"] = {
     <>
       {[0, 1, 2].flatMap((r) =>
         [-1.2, -0.4, 0.4, 1.2].map((x) => (
-          <Prop key={`${r},${x}`} url="home/chair" position={[x, 0, r * 1.2]} rotationY={Math.PI} />
+          <Prop
+            key={`${r},${x}`}
+            url="office/seminar-chair"
+            position={[x, 0, r * 1.2]}
+            rotationY={Math.PI}
+          />
         )),
       )}
       {[1, 2].flatMap((r) =>

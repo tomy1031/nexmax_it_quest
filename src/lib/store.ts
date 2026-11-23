@@ -126,6 +126,10 @@ export interface Profile {
   name: string;
   nickname: string;
   hasPhoto: boolean;
+  /** 学校（AUPP / CADT）。空は まだ えらんでいない。academy の profiles.university と同じ値。 */
+  university?: "" | "AUPP" | "CADT";
+  /** 何期生（1〜5）。0 は まだ えらんでいない。academy の profiles.cohort と同じ値。 */
+  cohort?: number;
 }
 
 export interface StageProgress {
@@ -170,7 +174,7 @@ interface GameState extends PersistedState {
 export const useGame = create<GameState>()(
   persist(
     (set, get) => ({
-      profile: { name: "", nickname: "", hasPhoto: false },
+      profile: { name: "", nickname: "", hasPhoto: false, university: "", cohort: 0 },
       avatar: DEFAULT_AVATAR,
       stages: {},
       inventory: [],

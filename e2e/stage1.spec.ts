@@ -48,6 +48,32 @@ test("ステージ1を最初から修了証まで通す（第2章の 声の 会�
   await page.getByTestId("title-settings").click();
   await page.getByTestId("settings-name").fill("ソク ピセット");
   await page.getByTestId("settings-nickname").fill("ソク");
+  // 学校と 期生（academy と 共有の ユーザーの 表に 書く。ここでは ログインしないので 端末だけ）
+  await page.getByTestId("settings-school-AUPP").click();
+  await page.getByTestId("settings-cohort-2").click();
+  await expect(page.getByTestId("settings-school-AUPP")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("settings-cohort-2")).toHaveAttribute("aria-pressed", "true");
+  // 会場の 席の メンバー（DB の 代わりに にせの メンバー。src/lib/classmates.ts）
+  await page.addInitScript(() => {
+    const names = [
+      "ソピア",
+      "ダラ",
+      "チャンナ",
+      "ソカ",
+      "ビチカ",
+      "ラタナ",
+      "スレイ",
+      "ボパ",
+      "コサル",
+      "リナ",
+    ];
+    (window as unknown as { __fakeClassmates: unknown }).__fakeClassmates = names.map((n, i) => ({
+      id: `e2e-${i}`,
+      name: n,
+      gender: i % 3 === 1 ? "female" : "male",
+      avatar: null,
+    }));
+  });
   await expect(page.getByTestId("settings-status")).toContainText("スタート");
   await page.screenshot({ path: `${SHOTS}/02-settings.png` });
 
