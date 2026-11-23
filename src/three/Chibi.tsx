@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { AvatarConfig } from "@/lib/store";
 import { useGLTF } from "@react-three/drei";
 import { faceTexture, type Expression } from "@/three/chibi";
-import { AVATAR_URL, pickParts, softMaterial } from "@/three/avatar-parts";
+import { AVATAR_URL, DRACO_URL, pickParts, softMaterial } from "@/three/avatar-parts";
 
 /** 頭の半径（tools/blender/build_avatar.py の R と同じ）。 */
 const HEAD_R = 0.29;
@@ -46,7 +46,7 @@ export function Chibi({
 }) {
   const key = JSON.stringify(config);
   // ブレンダーで作った部品（public/models/avatar/avatar.glb）から、設定に合うものを選ぶ
-  const gltf = useGLTF(AVATAR_URL);
+  const gltf = useGLTF(AVATAR_URL, DRACO_URL);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const parts = useMemo(() => pickParts(gltf.scene, config), [gltf, key]);
   const J = parts.joints;
@@ -272,4 +272,4 @@ function Held({ kind }: { kind: ChibiHolding }) {
   );
 }
 
-useGLTF.preload(AVATAR_URL);
+useGLTF.preload(AVATAR_URL, DRACO_URL);

@@ -6,7 +6,9 @@ import { createJSONStorage, persist } from "zustand/middleware";
  * 版（version）を上げたら migrate を足す。保存のキーは変えない（学生の進み具合が消える）。
  */
 
-export type Outfit = "suit" | "casual";
+export type Outfit = "suit" | "casual" | "kigurumi";
+/** 着ぐるみの どうぶつ（tomy さん 2026-11-23「服の中に着ぐるみをつくって」）。 */
+export type Kigurumi = "bear" | "cat" | "rabbit";
 export type HairStyle =
   | "model"
   | "spiky"
@@ -22,7 +24,17 @@ export type HairStyle =
   | "bun"
   | "halfup"
   | "braid"
-  | "twinbun";
+  | "twinbun"
+  | "shichisan"
+  | "allback"
+  | "twoblock"
+  | "mohawk"
+  | "afro"
+  | "sidetail"
+  | "lowpony"
+  | "hime"
+  | "longwave"
+  | "osage";
 export type Figure = "m" | "f";
 
 export interface AvatarConfig {
@@ -35,7 +47,24 @@ export interface AvatarConfig {
   /** 身長（cm）。モデルの大きさを、この高さに合わせる。 */
   height: number;
   /** 目の形（ちびキャラの顔）。 */
-  eyes: "round" | "smile" | "sparkle" | "calm" | "small";
+  eyes:
+    | "round"
+    | "smile"
+    | "sparkle"
+    | "calm"
+    | "small"
+    | "gloss"
+    | "flick"
+    | "twinkle"
+    | "heart"
+    | "egg"
+    | "lashes"
+    | "roly"
+    | "dot"
+    | "sharp"
+    | "bright"
+    | "star"
+    | "sleepy";
   /** ほっぺの赤み。 */
   blush: boolean;
   /** 髪のかざり。 */
@@ -44,6 +73,8 @@ export interface AvatarConfig {
   bag?: boolean;
   /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
   shoes?: string;
+  /** 着ぐるみの どうぶつ（服が着ぐるみのとき）。 */
+  kigurumi?: Kigurumi;
   /** 下の服（女性だけ選べる。無ければ、女性のスーツはスカート・ふだんの服はズボン。男性はいつもズボン）。 */
   bottom?: "pants" | "skirt";
   suit: string;

@@ -1,3 +1,4 @@
+import type { AvatarConfig } from "@/lib/store";
 import atlasJson from "@/three/face-atlas.json";
 
 /**
@@ -10,6 +11,30 @@ import atlasJson from "@/three/face-atlas.json";
  */
 
 export type FaceBox = [x: number, y: number, w: number, h: number];
+
+/**
+ * 目の形 → 表と行。face_eyes（はじめの表）と、tomy さんが足した表（2026-11-23。cute1・cute2・unique1）。
+ * にこにこ（smile）は まるい目の表を使い、ひらいた顔でも「にこにこ」の列を出す。
+ */
+export const EYE_SLOTS: Record<AvatarConfig["eyes"], [sheet: string, row: number]> = {
+  round: ["face_eyes", 0],
+  smile: ["face_eyes", 0],
+  sparkle: ["face_eyes", 1],
+  calm: ["face_eyes", 2],
+  small: ["face_eyes", 3],
+  gloss: ["face_eyes_cute1", 0],
+  flick: ["face_eyes_cute1", 1],
+  twinkle: ["face_eyes_cute1", 2],
+  heart: ["face_eyes_cute1", 3],
+  egg: ["face_eyes_cute2", 0],
+  lashes: ["face_eyes_cute2", 1],
+  roly: ["face_eyes_cute2", 2],
+  dot: ["face_eyes_cute2", 3],
+  sharp: ["face_eyes_unique1", 0],
+  bright: ["face_eyes_unique1", 1],
+  star: ["face_eyes_unique1", 2],
+  sleepy: ["face_eyes_unique1", 3],
+};
 interface Sheet {
   kind: "eyes" | "mouth" | "cheeks";
   url: string;

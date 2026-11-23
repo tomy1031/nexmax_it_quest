@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { AvatarConfig } from "@/lib/store";
+import type { AvatarConfig, Kigurumi } from "@/lib/store";
 
 /**
  * アバターの部品（ブレンダーで作った public/models/avatar/avatar.glb。作り方は tools/blender/build_avatar.py）。
@@ -8,6 +8,8 @@ import type { AvatarConfig } from "@/lib/store";
  */
 
 export const AVATAR_URL = `${import.meta.env.BASE_URL}models/avatar/avatar.glb`;
+/** avatar.glb は Draco で小さくしてある。読み手は外のサーバーでなく public/draco/ に置いたもの。 */
+export const DRACO_URL = `${import.meta.env.BASE_URL}draco/`;
 
 export interface AvatarJoints {
   head: THREE.Vector3;
@@ -31,7 +33,7 @@ export interface AvatarParts {
 
 /** 下の服（男性はズボン。女性はスカートかズボン）。 */
 export function bottomOf(cfg: AvatarConfig): "pants" | "skirt" {
-  if (cfg.figure !== "f") return "pants";
+  if (cfg.figure !== "f" || cfg.outfit === "kigurumi") return "pants";
   if (cfg.bottom) return cfg.bottom;
   return cfg.outfit === "suit" ? "skirt" : "pants";
 }
@@ -99,8 +101,46 @@ function boost(hex: string, k: number): string {
   return `#${c.getHexString()}`;
 }
 
+/** 着ぐるみの色（体・おなか・耳の内がわ・しっぽ）。 */
+const KIG_COLORS: Record<Kigurumi, { main: string; belly: string; inner: string; tail: string }> = {
+  bear: { main: "#9a6a48", belly: "#f0d9b8", inner: "#e2b98f", tail: "#9a6a48" },
+  cat: { main: "#f0b25e", belly: "#fff4e2", inner: "#f7a8b8", tail: "#f0b25e" },
+  rabbit: { main: "#f6f3ee", belly: "#ffffff", inner: "#f7b2c0", tail: "#ffffff" },
+};
+
+/** 着ぐるみのときの色（null なら使わない）。髪・人の耳・ふつうの服の小物は かくす。 */
+function kigurumiColor(name: string, cfg: AvatarConfig): string | null {
+  const kind = cfg.kigurumi ?? "bear";
+  const k = KIG_COLORS[kind];
+  const side = name.replace(/_[LR]$/, "");
+  switch (side) {
+    case "top_torso":
+      return cfg.figure === "f" ? null : k.main;
+    case "top_torsoF":
+      return cfg.figure === "f" ? k.main : null;
+    case "sleeve":
+    case "bottom_hips":
+    case "leg":
+    case "hand":
+      return k.main;
+    case "shoe":
+      return shade(k.main, 0.82);
+    case "glasses_frame":
+      return cfg.glasses ? "#2a2d35" : null;
+    case "kig_belly":
+      return k.belly;
+    default:
+      if (name === `kig_hood_${kind}`) return k.main;
+      if (name === `kig_inner_${kind}`) return k.inner;
+      if (name === `kig_tail_${kind}`) return k.tail;
+      return null;
+  }
+}
+
 /** 部品の名前 → 色（null なら この設定では使わない）。 */
 function colorFor(name: string, cfg: AvatarConfig): string | null {
+  if (cfg.outfit === "kigurumi") return kigurumiColor(name, cfg);
+  if (name.startsWith("kig_")) return null;
   const suit = cfg.outfit === "suit";
   const bottom = bottomOf(cfg);
   const top = suit ? cfg.suit : cfg.coat;
@@ -163,6 +203,7 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
 
 /** 部品の名前 → 布の模様（スーツは ツイル・パーカーは ニット・ふだんのズボンは デニム・ふだんのスカートは チェック）。 */
 function fabricFor(name: string, cfg: AvatarConfig): Fabric | undefined {
+  if (cfg.outfit === "kigurumi") return undefined;
   const suit = cfg.outfit === "suit";
   const side = name.replace(/_[LR]$/, "");
   if (side === "top_torso" || side === "top_torsoF" || side === "sleeve" || side === "top_suitHem")
@@ -207,7 +248,7 @@ export function pickParts(scene: THREE.Object3D, cfg: AvatarConfig): AvatarParts
       out.legL.push(m);
     } else if (/^(leg|shoe)_R$/.test(name)) {
       out.legR.push(m);
-    } else if (/^(hair_|ear_|glasses_|acc_)/.test(name)) {
+    } else if (/^(hair_|ear_|glasses_|acc_|kig_hood_|kig_inner_)/.test(name)) {
       m.position.copy(src.position).sub(joints.head);
       out.head.push(m);
     } else {

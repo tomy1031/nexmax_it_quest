@@ -318,7 +318,7 @@ def build_body():
 
     # 耳
     for side, sx in (("L", 1), ("R", -1)):
-        ellipsoid(f"ear_{side}", (sx * HX * 0.99, 0.01, HEAD_Z - 0.03), (0.024, 0.04, 0.045))
+        ellipsoid(f"ear_{side}", (sx * HX * 0.98, 0.012, HEAD_Z - 0.03), (0.03, 0.046, 0.05))
 
     # めがね
     gl = []
@@ -537,6 +537,20 @@ def oriented(name, center, axes, radii, kind="ellipsoid", seg=16):
     return new_obj(name, bm, subdiv=1 if kind != "cone" else 0)
 
 
+def gumdrop(name, center, axes, radii, taper=0.6):
+    """先の まるい 三角（ねこの耳など）。だ円体の上の方を細くする。axes は (横, 長さの向き, 外向き)。"""
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=14, radius=1.0)
+    ax, ay, az = axes
+    for v in bm.verts:
+        p = v.co.copy()
+        t = (p.z + 1) / 2  # 0 が根もと、1 が先
+        k = 1 - taper * t ** 1.4
+        w = ax * (p.x * radii[0] * k) + ay * (p.z * radii[1]) + az * (p.y * radii[2] * (1 - taper * 0.4 * t))
+        v.co = w + center
+    return new_obj(name, bm, subdiv=1)
+
+
 def finish_hair(name, parts, shine=True):
     """毛束を1つにまとめ、つやの帯（頭の上のまわりが明るい）を頂点の色で入れる。"""
     ob = join(name, parts) if len(parts) > 1 else parts[0]
@@ -557,6 +571,23 @@ def finish_hair(name, parts, shine=True):
         attr.data[i].color = (val, val, val, 1.0)
     me.color_attributes.active_color = attr
     return ob
+
+
+def braid(p0, p1, n=6, r0=0.062, name="braid"):
+    """みつあみ（p0 から p1 へ、少し ずらしながら だ円体を つなぐ）。もどり値は (みつあみの部品, むすぶ所の位置)。"""
+    seg = []
+    along = (p1 - p0).normalized()
+    side = along.cross(Vector((0, 1, 0)))
+    side = side.normalized() if side.length > 1e-3 else Vector((1, 0, 0))
+    out = side.cross(along).normalized()
+    for i in range(n):
+        t0 = (i + 0.5) / n
+        c = p0.lerp(p1, t0) + side * (0.012 if i % 2 else -0.012)
+        r = r0 - 0.016 * t0
+        seg.append(oriented(name, c, (side, along, out), (r, (p1 - p0).length / n * 0.75, r * 0.85)))
+    tip = p1 + along * 0.04
+    seg.append(oriented(name + "Tip", tip, (side, along, out), (0.038, 0.05, 0.03)))
+    return seg, p1 + along * 0.005
 
 
 def hair_styles():
@@ -685,23 +716,7 @@ def hair_styles():
     # みつあみ（右の肩の前へ、1本の みつあみ）
     shell = cap("hair_braid", hairline(tips(3, 0.8, 0.42, 0.08, 1.2), tied_side), puff(1.09, 0.05, 0.03),
                 taper=follow(tied_side))
-    p0 = Vector((-0.27, 0.06, HEAD_Z - 0.08))
-    p1 = Vector((-0.2, -0.1, HEAD_Z - 0.44))
-    seg = []
-    n = 6
-    for i in range(n):
-        t0 = (i + 0.5) / n
-        c = p0.lerp(p1, t0)
-        along = (p1 - p0).normalized()
-        side = along.cross(Vector((0, 1, 0))).normalized()
-        out = side.cross(along).normalized()
-        c = c + side * (0.012 if i % 2 else -0.012)
-        r = 0.062 - 0.016 * t0
-        seg.append(oriented("braid", c, (side, along, out), (r, (p1 - p0).length / n * 0.75, r * 0.85)))
-    tip = p1 + (p1 - p0).normalized() * 0.04
-    seg.append(oriented("btip", tip, (Vector((1, 0, 0)), (p1 - p0).normalized(), Vector((0, -1, 0))),
-                        (0.038, 0.05, 0.03)))
-    bt = p1 + (p1 - p0).normalized() * 0.005
+    seg, bt = braid(Vector((-0.27, 0.06, HEAD_Z - 0.08)), Vector((-0.2, -0.1, HEAD_Z - 0.44)))
     tie = ellipsoid("bt_tie", (bt.x, bt.y, bt.z), (0.03, 0.03, 0.022))
     tie.name = "acc_tie_braid"
     finish_hair("hair_braid", [shell] + seg)
@@ -714,6 +729,8 @@ def hair_styles():
         c = surf(0.5, sx * 1.05, 1.17)
         buns.append(ellipsoid("tb", (c.x, c.y, c.z), (0.1, 0.095, 0.095)))
     finish_hair("hair_twinbun", buns)
+
+    more_styles(short_side, tied_side, follow)
 
     # 髪のかざり（花・リボン）。右の耳の上
     c = surf(0.85, 1.05, 1.18)
@@ -755,10 +772,176 @@ def lighten():
             m.ratio = limit / tris
 
 
+def more_styles(short_side, tied_side, follow):
+    """髪型を足す（tomy さん「髪型はもっとバリエーション欲しい」2026-11-23）。"""
+    # 七三わけ（右で 七三に分け、おでこを少し出して 左へ なでつける。会社員らしい髪）
+    cut = lambda p: lerp(Z(lerp(0.72, 0.4, smoothstep(0.65, -0.8, p))), short_side(p), smoothstep(0.72, 1.0, abs(p)))
+    cap("hair_shichisan", cut, with_part(puff(1.1, 0.07, 0.04), 0.62, 0.035), taper=follow(short_side))
+    finish_hair("hair_shichisan", [bpy.data.objects["hair_shichisan"]])
+
+    # オールバック（前髪を全部 後ろへ。おでこを出し、前の上を ふっくら）
+    back_side = keys([(0.95, Z(0.3)), (1.3, D(0.04)), (1.45, Z(0.16)), (1.78, Z(0.16)), (2.0, D(0.12)),
+                      (2.4, D(0.22)), (math.pi, D(0.25))])
+    lift = [(0.55, 0.0, 0.06, 0.6, 1.5)]
+    cap("hair_allback", hairline(lambda p: 0.78 - 0.06 * (p / 0.8) ** 2, back_side),
+        with_bumps(puff(1.1, 0.06, 0.05), lift), taper=follow(back_side))
+    finish_hair("hair_allback", [bpy.data.objects["hair_allback"]])
+
+    # ツーブロック（上は長めで前髪あり・横と後ろの下は とても短い。2つの だんになる）
+    top_side = keys([(0.95, Z(0.32)), (1.4, Z(0.36)), (2.2, Z(0.3)), (math.pi, Z(0.25))])
+    top = cap("hair_twoblock", hairline(tips(3, 0.8, 0.44, 0.1, 1.6, shift=0.1), top_side), puff(1.15, 0.07, 0.05))
+    under_side = keys([(0.95, Z(0.1)), (1.25, Z(0.05)), (1.45, Z(0.2)), (1.78, Z(0.2)), (2.05, D(0.05)),
+                       (2.5, D(0.13)), (math.pi, D(0.15))])
+    under = cap("tb_under", hairline(lambda p: 0.6, under_side), puff(1.04, 0.02, 0.02), taper=follow(under_side),
+                thick=0.03)
+    finish_hair("hair_twoblock", [top, under])
+
+    # ソフトモヒカン（まん中を前から後ろへ 立てる・横は短い）
+    ridge = [(0.12 + 0.17 * i, 0.0 if i < 5 else math.pi, 0.17 - 0.012 * i, 0.3, 2.0) for i in range(5)]
+    ridge += [(0.25, math.pi, 0.14, 0.3, 2.0), (0.6, math.pi, 0.11, 0.3, 2.0)]
+    cap("hair_mohawk", hairline(tips(3, 0.6, 0.56, 0.07, 2.0), short_side),
+        with_bumps(puff(1.06, 0.02, 0.03), ridge), taper=follow(short_side), thick=0.035)
+    finish_hair("hair_mohawk", [bpy.data.objects["hair_mohawk"]])
+
+    # アフロ（大きく まるい くせ毛）
+    domes = []
+    for th, n, off in ((0.0, 1, 0.0), (0.38, 6, 0.0), (0.76, 10, 0.3), (1.14, 12, 0.0), (1.52, 12, 0.4)):
+        for i in range(n):
+            domes.append((th, -math.pi + 2 * math.pi * (i + off) / n, 0.13, 0.34, 0))
+    afro_side = keys([(0.95, Z(0.05)), (1.3, D(0.06)), (2.2, D(0.12)), (math.pi, D(0.16))])
+    afro_cut = hairline(lambda p: 0.46 - 0.05 * math.cos(p * 7), afro_side)
+    afro_full = with_bumps(puff(1.3, 0.1, 0.06), domes, dome=True)
+
+    def afro_vol(phi, th):
+        # 前の はえぎわの近くは、ふくらみを小さくして おでこに そわせる（つばの ような形にしない）
+        edge = afro_cut(phi)
+        k = afro_full(phi, th)
+        if edge >= math.pi / 2:
+            return k
+        f = smoothstep(edge, edge - 0.45, th)
+        return 1.03 + (k - 1.03) * (0.45 + 0.55 * f)
+
+    cap("hair_afro", afro_cut, afro_vol, taper=lambda p, f: 1 - 0.3 * f ** 1.5)
+    finish_hair("hair_afro", [bpy.data.objects["hair_afro"]])
+
+    # サイドテール（左の上で 1つに むすぶ）
+    shell = cap("hair_sidetail", hairline(tips(2, 0.8, 0.46, 0.1, 1.6, shift=0.35), tied_side), puff(1.08, 0.05, 0.03),
+                taper=follow(tied_side))
+    base = surf(0.75, 1.75, 1.08)
+    tail = lathe(
+        "st",
+        [(0.0, base.z - 0.36), (0.045, base.z - 0.3), (0.085, base.z - 0.16), (0.075, base.z - 0.02),
+         (0.05, base.z + 0.05), (0.0, base.z + 0.08)],
+        offset=(base.x + 0.04, base.y),
+    )
+    tie = ellipsoid("st_tie", (base.x + 0.01, base.y, base.z + 0.03), (0.035, 0.045, 0.035))
+    tie.name = "acc_tie_sidetail"
+    finish_hair("hair_sidetail", [shell, tail])
+
+    # ローポニー（うなじの所で 1つに むすぶ）
+    shell = cap("hair_lowpony", hairline(tips(3, 0.8, 0.42, 0.08, 1.2), tied_side), puff(1.08, 0.05, 0.03),
+                taper=follow(tied_side))
+    tail = lathe(
+        "lp",
+        [(0.0, HEAD_Z - 0.55), (0.04, HEAD_Z - 0.5), (0.07, HEAD_Z - 0.38), (0.065, HEAD_Z - 0.22), (0.0, HEAD_Z - 0.14)],
+        sx=1.0,
+        sy=0.8,
+        offset=(0.0, HY * 0.95),
+    )
+    tie = ellipsoid("lp_tie", (0.0, HY * 0.93, HEAD_Z - 0.17), (0.045, 0.035, 0.03))
+    tie.name = "acc_tie_lowpony"
+    finish_hair("hair_lowpony", [shell, tail])
+
+    # ひめカット（まっすぐな前髪・ほおの横で切りそろえた毛・後ろは長い）
+    hime_side = keys([(0.95, D(0.09)), (1.3, D(0.1)), (1.55, D(0.42)), (math.pi, D(0.46))])
+    cap("hair_hime", hairline(lambda p: 0.3, hime_side, 0.72, 0.9), puff(1.13, 0.05, 0.05),
+        taper=lambda p, f: 1 - 0.25 * smoothstep(0.2, 1.0, f) * smoothstep(1.3, 1.6, abs(p)))
+    finish_hair("hair_hime", [bpy.data.objects["hair_hime"]])
+
+    # ロングウェーブ（せなかまでの ゆるい波）
+    wave_side = lambda p: D(0.32 + 0.12 * smoothstep(0.95, 2.4, abs(p)) + 0.02 * math.cos(9 * p))
+    cap("hair_longwave", hairline(tips(2, 0.8, 0.4, 0.08, 1.4, shift=0.3), wave_side, 0.72, 0.95),
+        puff(1.16, 0.06, 0.06), taper=lambda p, f: 1 - 0.2 * f + 0.07 * math.sin(f * 3 * math.pi))
+    finish_hair("hair_longwave", [bpy.data.objects["hair_longwave"]])
+
+    # おさげ（左右の かたの前に、2本の みつあみ）
+    shell = cap("hair_osage", hairline(lambda p: 0.36 + 0.07 * (p / 0.8) ** 2, tied_side), puff(1.09, 0.05, 0.03),
+                taper=follow(tied_side))
+    parts = [shell]
+    ties = []
+    for sx in (-1, 1):
+        seg, bt = braid(Vector((sx * 0.27, 0.06, HEAD_Z - 0.08)), Vector((sx * 0.2, -0.1, HEAD_Z - 0.42)), r0=0.056)
+        parts += seg
+        ties.append(ellipsoid("os_tie", (bt.x, bt.y, bt.z), (0.028, 0.028, 0.02)))
+    join("acc_tie_osage", ties)
+    finish_hair("hair_osage", parts)
+
+
+def kigurumi():
+    """着ぐるみ（くま・ねこ・うさぎ）。耳つきのフード・耳の内がわ・おなか・しっぽ。胴・手足の形は ふだんの服と同じで、色だけ変える。
+    tomy さん「服の中に着ぐるみをつくって」（2026-11-23）。"""
+    # フード: 顔のまわりだけ あけて、頭を ふっくら つつむ（すそは肩まで）
+    hood_side = keys([(0.9, Z(0.46)), (1.15, D(0.2)), (1.6, D(0.23)), (math.pi, D(0.24))])
+    cut = lambda phi: lerp(Z(0.46 - 0.04 * (phi / 0.9) ** 2), hood_side(phi), smoothstep(0.88, 1.12, abs(phi)))
+    vol = puff(1.17, 0.04, 0.03)
+    taper = lambda p, f: 1 - 0.22 * smoothstep(0.2, 1.0, f)
+
+    def ear_frame(th, phi, lift=1.17):
+        c = surf(th, phi, lift)
+        n = (surf(th, phi) - Vector((0, 0, HEAD_Z))).normalized()
+        up = (n + Vector((0, 0, 0.6))).normalized()
+        side = up.cross(Vector((0, -1, 0))).normalized()
+        if side.length < 1e-3:
+            side = Vector((1, 0, 0))
+        front = side.cross(up).normalized()
+        return c, up, side, front
+
+    for kind in ("bear", "cat", "rabbit"):
+        hood = cap(f"kig_hood_{kind}", cut, vol, taper=taper, thick=0.06)
+        parts = [hood]
+        inner = []
+        for sx in (-1, 1):
+            if kind == "bear":
+                c, up, side, front = ear_frame(0.56, sx * 0.8, 1.2)
+                c = c + up * 0.035
+                parts.append(oriented("e", c, (side, up, front), (0.092, 0.088, 0.052)))
+                inner.append(oriented("i", c + front * 0.034 + up * 0.004, (side, up, front), (0.056, 0.052, 0.024)))
+            elif kind == "cat":
+                # ねこ: 先の まるい ふっくらした 三角
+                c, up, side, front = ear_frame(0.55, sx * 0.74, 1.14)
+                c = c + up * 0.05
+                parts.append(gumdrop("e", c, (side, up, front), (0.095, 0.1, 0.045), taper=0.5))
+                inner.append(gumdrop("i", c + front * 0.034 - up * 0.008, (side, up, front), (0.058, 0.068, 0.02), taper=0.5))
+            else:
+                # うさぎ: ふっくら太めで、先が まるい長い耳（少し外へ ひらく）
+                c, up, side, front = ear_frame(0.32, sx * 0.42, 1.12)
+                up = (up + side * 0.3 * sx).normalized()
+                parts.append(oriented("e", c + up * 0.12, (side, up, front), (0.062, 0.155, 0.038)))
+                inner.append(oriented("i", c + up * 0.125 + front * 0.03, (side, up, front), (0.034, 0.115, 0.016)))
+        join(f"kig_hood_{kind}", parts)
+        join(f"kig_inner_{kind}", inner)
+
+    hz = HIP[1]
+    ellipsoid("kig_belly", (0.0, -0.098, hz + 0.12), (0.082, 0.03, 0.1))
+    # しっぽ
+    ellipsoid("kig_tail_bear", (0.0, 0.12, hz - 0.01), (0.045, 0.04, 0.045))
+    ellipsoid("kig_tail_rabbit", (0.0, 0.125, hz - 0.01), (0.058, 0.05, 0.058))
+    pts = [Vector((0.0, 0.1 + 0.035 * i, hz - 0.02 + 0.02 * i * i)) for i in range(7)]
+    seg = []
+    for a, b in zip(pts, pts[1:]):
+        c = (a + b) / 2
+        along = (b - a).normalized()
+        side = Vector((1, 0, 0))
+        out = side.cross(along).normalized()
+        seg.append(oriented("t", c, (side, along, out), (0.024, (b - a).length * 0.75, 0.024)))
+    join("kig_tail_cat", seg)
+
+
 def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     build_body()
     hair_styles()
+    kigurumi()
     # 関節の位置（アプリが読む）
     empty("joint_head", (0, 0, HEAD_Z))
     for side, sx in (("L", 1), ("R", -1)):
@@ -775,6 +958,13 @@ def main():
         export_materials="NONE",
         export_normals=True,
         export_texcoords=True,
+        # Draco で小さくする（アプリは public/draco/ の読み手で読む）
+        export_draco_mesh_compression_enable=True,
+        export_draco_mesh_compression_level=6,
+        export_draco_position_quantization=14,
+        export_draco_normal_quantization=10,
+        export_draco_texcoord_quantization=12,
+        export_draco_color_quantization=10,
         export_vertex_color="ACTIVE",
     )
     names = sorted(o.name for o in bpy.data.objects)

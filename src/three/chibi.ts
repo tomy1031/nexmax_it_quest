@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { AvatarConfig } from "@/lib/store";
 import {
+  EYE_SLOTS,
   drawFacePart,
   faceAtlasReady,
   faceCell,
@@ -20,7 +21,7 @@ import {
  * 大きさは身長 168cm のとき 約1.2m（頭が全体の 4割）。身長の設定に合わせて全体を大きくする。
  */
 
-export type EyeStyle = "round" | "smile" | "sparkle" | "calm" | "small";
+export type EyeStyle = AvatarConfig["eyes"];
 
 const c = new THREE.Color();
 
@@ -502,9 +503,6 @@ onFaceAtlas(() => {
 });
 if (typeof window !== "undefined") void loadFaceAtlas();
 
-/** 目の形 → 表の行（face_eyes の 1行目 まる・2行目 キラキラ・3行目 おだやか・4行目 小さい）。 */
-const EYE_ROW: Record<EyeStyle, number> = { round: 0, smile: 0, sparkle: 1, calm: 2, small: 3 };
-
 /** まるい目の高さ（顔の絵の高さに対する わりあい）。tomy さん「目の大きさバランス整えて」（2026-11-23）で 0.2 → 0.16。 */
 const EYE_H = 0.16;
 
@@ -518,12 +516,12 @@ function paintFaceParts(
   expr: Expression,
 ) {
   const eyes = (cfg.eyes ?? "round") as EyeStyle;
-  const row = EYE_ROW[eyes] ?? 0;
+  const [sheet, row] = EYE_SLOTS[eyes] ?? ["face_eyes", 0];
   const r0 = faceCell("face_eyes", 0, 0);
   const ref = r0?.[3] ?? 81; // まるい目の高さ（表の px）
   const s = (H * EYE_H) / ref;
   // 目の形ごとの大きさの ちがいを ちぢめる（面積で くらべる。大きい キラキラは少し小さく、小さい目は少し大きく）
-  const rb = faceCell("face_eyes", 0, row);
+  const rb = faceCell(sheet, 0, row);
   const size = (b: typeof rb) => (b ? Math.sqrt(b[2] * b[3]) : 1);
   const se = r0 && rb ? s * (size(r0) / size(rb)) ** 0.7 : s;
   const cx = W * 0.25;
@@ -558,7 +556,7 @@ function paintFaceParts(
           ? 4
           : 0;
   for (const sx of [-1, 1]) {
-    drawFacePart(ctx, "face_eyes", col, row, cx + sx * gap, ey, se, {
+    drawFacePart(ctx, sheet, col, row, cx + sx * gap, ey, se, {
       mirror: sx > 0,
       anchor: [0, row],
     });

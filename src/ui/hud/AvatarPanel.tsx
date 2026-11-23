@@ -2,11 +2,11 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useRef, useState } from "react";
 import * as THREE from "three";
 import { playSfx } from "@/lib/audio";
-import { useGame, type AvatarConfig, type HairStyle } from "@/lib/store";
+import { useGame, type AvatarConfig, type HairStyle, type Kigurumi } from "@/lib/store";
 import { t, type UiKey } from "@/lib/t";
 import { bottomOf } from "@/three/avatar-parts";
 import { Chibi } from "@/three/Chibi";
-import { FACE_ATLAS, faceCell, faceSheetUrl } from "@/three/face-parts";
+import { EYE_SLOTS, FACE_ATLAS, faceCell, faceSheetUrl } from "@/three/face-parts";
 import { RubyText } from "@/ui/RubyText";
 import { IconCheck } from "@/ui/icons";
 
@@ -20,6 +20,7 @@ import { IconCheck } from "@/ui/icons";
 
 type Tab =
   | "outfit"
+  | "kigurumi"
   | "figure"
   | "height"
   | "skin"
@@ -42,6 +43,18 @@ const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["sparkle", "avatar.eyes.sparkle"],
   ["calm", "avatar.eyes.calm"],
   ["small", "avatar.eyes.small"],
+  ["gloss", "avatar.eyes.gloss"],
+  ["flick", "avatar.eyes.flick"],
+  ["twinkle", "avatar.eyes.twinkle"],
+  ["heart", "avatar.eyes.heart"],
+  ["egg", "avatar.eyes.egg"],
+  ["lashes", "avatar.eyes.lashes"],
+  ["roly", "avatar.eyes.roly"],
+  ["dot", "avatar.eyes.dot"],
+  ["sharp", "avatar.eyes.sharp"],
+  ["bright", "avatar.eyes.bright"],
+  ["star", "avatar.eyes.star"],
+  ["sleepy", "avatar.eyes.sleepy"],
 ];
 
 const BASE = import.meta.env.BASE_URL;
@@ -62,6 +75,16 @@ const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["halfup", "avatar.hs.halfup"],
   ["braid", "avatar.hs.braid"],
   ["twinbun", "avatar.hs.twinbun"],
+  ["shichisan", "avatar.hs.shichisan"],
+  ["allback", "avatar.hs.allback"],
+  ["twoblock", "avatar.hs.twoblock"],
+  ["mohawk", "avatar.hs.mohawk"],
+  ["afro", "avatar.hs.afro"],
+  ["sidetail", "avatar.hs.sidetail"],
+  ["lowpony", "avatar.hs.lowpony"],
+  ["hime", "avatar.hs.hime"],
+  ["longwave", "avatar.hs.longwave"],
+  ["osage", "avatar.hs.osage"],
 ];
 
 const ACCESSORIES: [NonNullable<AvatarConfig["accessory"]>, UiKey][] = [
@@ -84,6 +107,7 @@ const SHOES_CASUAL = ["#f4f4f2", "#24201f", "#d94b4b", "#3b6ea5", "#e8c547"];
 
 const LABEL: Record<Tab, UiKey> = {
   outfit: "avatar.outfit",
+  kigurumi: "avatar.kigurumiKind",
   figure: "avatar.figure",
   height: "avatar.height",
   skin: "avatar.skin",
@@ -104,6 +128,7 @@ const LABEL: Record<Tab, UiKey> = {
 /** タブごとのカメラの寄り（体の高さ・距離）。 */
 const FOCUS: Record<Tab, { y: number; d: number }> = {
   outfit: { y: 0.62, d: 2.2 },
+  kigurumi: { y: 0.7, d: 2.0 },
   figure: { y: 0.55, d: 2.2 },
   height: { y: 0.62, d: 2.4 },
   skin: { y: 0.9, d: 1.1 },
@@ -123,6 +148,19 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
 
+const OUTFIT_LABEL: Record<AvatarConfig["outfit"], UiKey> = {
+  suit: "avatar.suit",
+  casual: "avatar.casual",
+  kigurumi: "avatar.kigurumi",
+};
+
+/** 着ぐるみの どうぶつ。 */
+const KIGURUMI: [Kigurumi, UiKey][] = [
+  ["bear", "avatar.kig.bear"],
+  ["cat", "avatar.kig.cat"],
+  ["rabbit", "avatar.kig.rabbit"],
+];
+
 /** 体の形（男性・ズボン／女性・スカート／女性・ズボン）。 */
 const FIGURES = [
   { label: "avatar.figureM", figure: "m", bottom: "pants" },
@@ -141,37 +179,39 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
   const [warn, setWarn] = useState<UiKey | null>(null);
 
   const tabs: Tab[] =
-    avatar.outfit === "suit"
-      ? [
-          "outfit",
-          "figure",
-          "height",
-          "skin",
-          "eyes",
-          "hairStyle",
-          "hair",
-          "accessory",
-          "glasses",
-          "suit",
-          "tie",
-          "shirt",
-          "shoes",
-        ]
-      : [
-          "outfit",
-          "figure",
-          "height",
-          "skin",
-          "eyes",
-          "hairStyle",
-          "hair",
-          "accessory",
-          "glasses",
-          "coat",
-          "pants",
-          "shoes",
-          "bag",
-        ];
+    avatar.outfit === "kigurumi"
+      ? ["outfit", "kigurumi", "figure", "height", "skin", "eyes", "glasses"]
+      : avatar.outfit === "suit"
+        ? [
+            "outfit",
+            "figure",
+            "height",
+            "skin",
+            "eyes",
+            "hairStyle",
+            "hair",
+            "accessory",
+            "glasses",
+            "suit",
+            "tie",
+            "shirt",
+            "shoes",
+          ]
+        : [
+            "outfit",
+            "figure",
+            "height",
+            "skin",
+            "eyes",
+            "hairStyle",
+            "hair",
+            "accessory",
+            "glasses",
+            "coat",
+            "pants",
+            "shoes",
+            "bag",
+          ];
 
   const set = (a: Partial<AvatarConfig>) => {
     playSfx("click");
@@ -277,7 +317,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         <div className="min-h-32 rounded-2xl bg-white/5 p-4">
           {tab === "outfit" && (
             <div className="flex flex-wrap gap-3">
-              {(["suit", "casual"] as const).map((o) => (
+              {(["suit", "casual", "kigurumi"] as const).map((o) => (
                 <button
                   key={o}
                   type="button"
@@ -286,7 +326,22 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   data-testid={`avatar-outfit-${o}`}
                 >
                   {avatar.outfit === o && <IconCheck className="h-5 w-5" />}
-                  <RubyText text={t(o === "suit" ? "avatar.suit" : "avatar.casual")} />
+                  <RubyText text={t(OUTFIT_LABEL[o])} />
+                </button>
+              ))}
+            </div>
+          )}
+          {tab === "kigurumi" && (
+            <div className="flex flex-wrap gap-3">
+              {KIGURUMI.map(([k, key]) => (
+                <button
+                  key={k}
+                  type="button"
+                  className={`btn ${(avatar.kigurumi ?? "bear") === k ? "btn-primary" : "btn-ghost"}`}
+                  onClick={() => set({ kigurumi: k })}
+                  data-testid={`avatar-kigurumi-${k}`}
+                >
+                  <RubyText text={t(key)} />
                 </button>
               ))}
             </div>
@@ -321,7 +376,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </div>
           )}
           {tab === "eyes" && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex max-h-[318px] flex-wrap gap-2 overflow-y-auto pr-1">
               {EYES.map(([e, key]) => (
                 <button
                   key={e}
@@ -337,7 +392,8 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </div>
           )}
           {tab === "hairStyle" && (
-            <div className="flex flex-wrap gap-2">
+            // 髪型が多いので、3だんより多い分は中だけ動かして見る
+            <div className="flex max-h-[318px] flex-wrap gap-2 overflow-y-auto pr-1">
               {HAIR_STYLES.map(([hs, key]) => (
                 <button
                   key={hs}
@@ -485,14 +541,14 @@ function FocusCamera({ tab }: { tab: Tab }) {
 
 /** 目の形の絵（顔のパーツの表 face_eyes から。見る人の左の目と、反転した右の目）。 */
 function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string }) {
-  const row = { round: 0, smile: 0, sparkle: 1, calm: 2, small: 3 }[style] ?? 0;
+  const [name, row] = EYE_SLOTS[style] ?? ["face_eyes", 0];
   const col = style === "smile" ? 2 : 0;
-  const box = faceCell("face_eyes", col, row);
+  const box = faceCell(name, col, row);
   const ref = faceCell("face_eyes", 0, 0);
-  const sheet = FACE_ATLAS.face_eyes;
+  const sheet = FACE_ATLAS[name];
   if (!box || !ref || !sheet) return null;
   // まるい目の高さを 30px に。形ごとの大きさは、顔に貼るときと同じく面積で近づける（chibi.ts の paintFaceParts）
-  const rb = faceCell("face_eyes", 0, row) ?? ref;
+  const rb = faceCell(name, 0, row) ?? ref;
   const k = (30 / ref[3]) * (Math.sqrt(ref[2] * ref[3]) / Math.sqrt(rb[2] * rb[3])) ** 0.7;
   const eye = (flip: boolean) => (
     <span
@@ -500,7 +556,7 @@ function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string })
       style={{
         width: box[2] * k,
         height: box[3] * k,
-        backgroundImage: `url(${faceSheetUrl("face_eyes")})`,
+        backgroundImage: `url(${faceSheetUrl(name)})`,
         backgroundSize: `${sheet.w * k}px ${sheet.h * k}px`,
         backgroundPosition: `${-box[0] * k}px ${-box[1] * k}px`,
         transform: flip ? "scaleX(-1)" : undefined,

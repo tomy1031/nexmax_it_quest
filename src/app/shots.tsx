@@ -17,6 +17,7 @@ import { IcocaCard, Phone, Receipt } from "@/factory/small-parts";
 import { Noren, VSign } from "@/factory/town-parts";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { Chibi } from "@/three/Chibi";
+import { EYE_SLOTS } from "@/three/face-parts";
 import { NexmaxModel } from "@/three/Nexmax";
 import { Crowd } from "@/three/Crowd";
 import { Lights } from "@/three/helpers";
@@ -251,6 +252,16 @@ const STYLES: HairStyle[] = [
   "halfup",
   "braid",
   "twinbun",
+  "shichisan",
+  "allback",
+  "twoblock",
+  "mohawk",
+  "afro",
+  "sidetail",
+  "lowpony",
+  "hime",
+  "longwave",
+  "osage",
 ];
 
 /** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */
@@ -459,7 +470,7 @@ function hairRows(yaw: number) {
       {STYLES.map((hs, i) => (
         <group
           key={hs}
-          position={[-2.4 + (i % 5) * 1.2, i < 5 ? 0.62 : -0.62, 0]}
+          position={[-2.4 + (i % 5) * 1.2, 2.3 - Math.floor(i / 5) * 1.25, 0]}
           rotation={[0, yaw, 0]}
         >
           <Chibi
@@ -468,7 +479,7 @@ function hairRows(yaw: number) {
               outfit: "casual",
               hairStyle: hs,
               hair: "#5e4030",
-              figure: i < 5 && i !== 3 ? "m" : "f",
+              figure: i % 2 ? "f" : "m",
             }}
             phase={0.4 + i * 0.07}
           />
@@ -478,12 +489,12 @@ function hairRows(yaw: number) {
   );
 }
 SHOTS["hair-styles"] = {
-  camera: { pos: [0, 1.2, 5.2], look: [0, 0.75, 0], fov: 34 },
+  camera: { pos: [0, 0.4, 9.2], look: [0, 0.35, 0], fov: 42 },
   light: "day",
   scene: () => hairRows(0.25),
 };
 SHOTS["hair-back"] = {
-  camera: { pos: [0, 1.2, 5.2], look: [0, 0.75, 0], fov: 34 },
+  camera: { pos: [0, 0.4, 9.2], look: [0, 0.35, 0], fov: 42 },
   light: "day",
   scene: () => hairRows(2.5),
 };
@@ -543,6 +554,59 @@ SHOTS.fabrics = {
           <Chibi config={{ ...DEFAULT_AVATAR, hairStyle: "side", ...c }} phase={0.2 + i * 0.3} />
         </group>
       ))}
+    </>
+  ),
+};
+
+/** 見本（開発用）: 目の形 全部（頭だけ。上の段から順に）。/factory?shot=eyes-all */
+SHOTS["eyes-all"] = {
+  camera: { pos: [0, 1.05, 6.2], look: [0, 0.75, 0], fov: 34 },
+  light: "day",
+  scene: () => (
+    <>
+      {(Object.keys(EYE_SLOTS) as AvatarConfig["eyes"][]).map((e, i) => (
+        <group key={e} position={[-2.4 + (i % 6) * 0.96, 1.05 - Math.floor(i / 6) * 0.95, 0]}>
+          <Chibi
+            config={{
+              ...DEFAULT_AVATAR,
+              outfit: "casual",
+              eyes: e,
+              hairStyle: "buzz",
+              skin: ["#c68e64", "#e0ac83", "#a8714a"][i % 3]!,
+            }}
+            phase={0.15}
+          />
+        </group>
+      ))}
+    </>
+  ),
+};
+
+/** 見本（開発用）: 着ぐるみ（くま・ねこ・うさぎ。前と後ろ）。/factory?shot=kigurumi */
+SHOTS.kigurumi = {
+  camera: { pos: [0, 0.8, 3.6], look: [0, 0.6, 0], fov: 36 },
+  light: "day",
+  scene: () => (
+    <>
+      {(["bear", "cat", "rabbit"] as const).flatMap((k, i) =>
+        [0, 1].map((back) => (
+          <group
+            key={`${k}${back}`}
+            position={[-1.5 + i * 1.05 + back * 0.5, 0, back * -0.3]}
+            rotation={[0, back ? 2.6 : 0.2, 0]}
+          >
+            <Chibi
+              config={{
+                ...DEFAULT_AVATAR,
+                outfit: "kigurumi",
+                kigurumi: k,
+                figure: i === 1 ? "f" : "m",
+              }}
+              phase={0.2 + i * 0.3}
+            />
+          </group>
+        )),
+      )}
     </>
   ),
 };

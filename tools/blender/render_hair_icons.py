@@ -24,7 +24,7 @@ R = 0.29
 HX, HY, HZ = R * 1.08, R * 1.0, R * 0.95
 HEAD_Z = 0.86
 STYLES = ["model", "spiky", "side", "wavy", "curly", "buzz", "center", "bob", "long", "ponytail", "twin", "bun",
-          "halfup", "braid", "twinbun"]
+          "halfup", "braid", "twinbun", "shichisan", "allback", "twoblock", "mohawk", "afro", "sidetail", "lowpony", "hime", "longwave", "osage"]
 
 
 def material(name, rgb, rough=0.6):

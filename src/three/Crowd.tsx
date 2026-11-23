@@ -20,7 +20,7 @@ export interface NpcSpec {
 }
 
 /** 人ごとに決まる、持ち物（スーツの人はカバン・ふだんの服の人はスマホかコーヒー）。 */
-export function npcHolding(i: number, outfit: "suit" | "casual"): ChibiHolding | undefined {
+export function npcHolding(i: number, outfit: AvatarConfig["outfit"]): ChibiHolding | undefined {
   if (outfit === "suit") return i % 3 === 0 ? "briefcase" : i % 5 === 1 ? "phone" : undefined;
   return i % 2 === 0 ? "phone" : i % 5 === 3 ? "coffee" : undefined;
 }
@@ -46,6 +46,16 @@ const STYLES: AvatarConfig["hairStyle"][] = [
   "center",
   "braid",
   "twinbun",
+  "shichisan",
+  "allback",
+  "twoblock",
+  "mohawk",
+  "afro",
+  "sidetail",
+  "lowpony",
+  "hime",
+  "longwave",
+  "osage",
 ];
 const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle", "small"];
 
@@ -169,7 +179,7 @@ export interface WalkerSpec {
 }
 
 /** 歩く人の持ち物（歩きスマホはしない。カバンかコーヒーだけ）。 */
-function walkerHolding(i: number, outfit: "suit" | "casual"): ChibiHolding | undefined {
+function walkerHolding(i: number, outfit: AvatarConfig["outfit"]): ChibiHolding | undefined {
   if (outfit === "suit") return i % 2 === 0 ? "briefcase" : undefined;
   return i % 3 === 1 ? "coffee" : undefined;
 }
