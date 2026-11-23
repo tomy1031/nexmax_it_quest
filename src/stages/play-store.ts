@@ -48,7 +48,9 @@ export interface PlayState {
   tip: string | null;
   panel: { id: PanelId; mode?: string } | null;
   verdict: { ok: boolean; text: string } | null;
-  dream: { text: string; icon: string }[] | null;
+  dream: { text: string; icon: string; x?: number; y?: number }[] | null;
+  /** 思いうかべる場面の絵（なければ絵文字を出す）。 */
+  dreamImage: string | null;
   focus: string | null;
   chapterBanner: number | null;
   log: Line[];
@@ -76,6 +78,7 @@ export const initialPlay: PlayState = {
   panel: null,
   verdict: null,
   dream: null,
+  dreamImage: null,
   focus: null,
   chapterBanner: null,
   log: [],
