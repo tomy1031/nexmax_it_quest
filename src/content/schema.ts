@@ -107,7 +107,7 @@ type BeatShape =
   | { t: "memo-add"; id: string; title: string; text: string }
   | { t: "wear"; outfit: "suit" | "casual" | "kigurumi" | "pajama" }
   | { t: "pose"; pose: "bow" | "sit" | "stand"; anchor?: string }
-  | { t: "dream"; items: { text: string; icon: string }[] }
+  | { t: "dream"; image?: string; items: { text: string; icon: string; x?: number; y?: number }[] }
   | { t: "end" };
 
 export const beat: z.ZodType<BeatShape> = z.lazy(() =>
@@ -174,7 +174,19 @@ export const beat: z.ZodType<BeatShape> = z.lazy(() =>
     }),
     z.object({
       t: z.literal("dream"),
-      items: z.array(z.object({ text: learnerText, icon: z.string() })).min(1),
+      /** 思いうかべる場面の絵（public/ からの道。例 "/img/dream/weekend.webp"）。あれば絵文字の代わりに出す。 */
+      image: z.string().optional(),
+      /** x・y は、絵の中で その名前を出す所（絵の左上からの %）。 */
+      items: z
+        .array(
+          z.object({
+            text: learnerText,
+            icon: z.string(),
+            x: z.number().min(0).max(100).optional(),
+            y: z.number().min(0).max(100).optional(),
+          }),
+        )
+        .min(1),
     }),
     z.object({ t: z.literal("end") }),
   ]),
