@@ -348,10 +348,10 @@ export class StageRunner {
         return;
       }
       case "dream": {
-        usePlay.setState({ dream: beat.items });
+        usePlay.setState({ dream: beat.items, dreamImage: beat.image ?? null });
         await this.waitFor("next");
         this.check();
-        usePlay.setState({ dream: null });
+        usePlay.setState({ dream: null, dreamImage: null });
         return;
       }
       case "end": {

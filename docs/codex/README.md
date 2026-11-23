@@ -94,3 +94,30 @@ UI を良くするための改善案を、効果の大きい順に10個くださ
 - 進むのに要る情報（看板・電光掲示板）は 3D の中にも置く（あとで VR にするため）。
 - タイトルの見た目（濃い青・シアンの光・ガラスの板）に合わせる。
 ```
+
+---
+
+## 3. 「週末に行ってみたいな」の絵（2026-11-23）
+
+`public/img/dream/weekend.webp`（券売機のあとの、思いうかべる場面）。参考の絵は `public/img/tips/suit.webp` の左の男の人を切り出し、白い背景にしたもの。
+`codex exec -m gpt-5.6-sol -i <参考の絵> -` に下の文を渡した（1536x1024 で作り、1200x800 の webp にした）。
+
+```text
+プロンプト（英語のまま使う）:
+Style: match the attached reference exactly - original cute chibi character rendered like a soft toon-shaded 3D figure,
+about 2.5 heads tall, very big round head, small soft body, short stubby arms, round mitten hands,
+big glossy dark-brown round eyes with white highlights, small curved eyebrows, tiny smiling mouth, soft pink cheeks, tiny dot nose.
+Soft pastel colors, gentle soft shading, no harsh black, no thick outlines, cozy and warm mood.
+Character: the young man on the left of the reference (warm tan skin, short brown hair, dark navy business suit, white shirt, red tie),
+standing at the lower left (full body, feet visible), holding a small plain light-blue IC transit card in one hand,
+the other hand touching his cheek, looking up dreamily with sparkling happy eyes and a big excited smile (clearly exaggerated happy expression).
+Thought bubble: a very big fluffy white cloud-shaped thought bubble in the upper right, connected to his head by three small round puffs.
+Inside the bubble, three small round vignettes side by side, each clearly readable at small size:
+1) a zoo: a cute friendly giraffe peeking over a wooden fence with green trees,
+2) takoyaki: six round takoyaki balls on a small boat-shaped paper tray with sauce, mayonnaise lines and bonito flakes, warm steam,
+3) shopping: a lively covered shopping street with colorful shop awnings and two cute shopping bags in front.
+Background: evenly lit plain soft white over the WHOLE image with a very faint pastel pink and sky-blue tint, bright corners, absolutely no dark vignette, no dark or black edges or corners. Small sparkles around the bubble.
+Never: readable text, letters, numbers, logos, signs with writing, realistic proportions, small eyes, scary faces, extra fingers,
+animal ears on the person, copying characters from any existing game.
+Composition: the character and the bubble fill the frame in a balanced way, the bubble spans from the top center to the right edge and reaches down to the middle; little empty space at the bottom right.
+```

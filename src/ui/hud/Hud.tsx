@@ -326,7 +326,13 @@ function Verdict() {
 
 function Dream() {
   const dream = usePlay((s) => s.dream);
+  const dreamImage = usePlay((s) => s.dreamImage);
+  const [imgOk, setImgOk] = useState(true);
   if (!dream) return null;
+  const showImg = Boolean(dreamImage) && imgOk;
+  // 絵があり、位置の決まった名前は絵の中に。それ以外は下に絵文字つきで並べる。
+  const placed = showImg ? dream.filter((d) => d.x !== undefined && d.y !== undefined) : [];
+  const rest = dream.filter((d) => !placed.includes(d));
   return (
     <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[radial-gradient(circle,rgba(255,183,213,0.35),rgba(7,26,70,0.6))] p-4">
       <button
@@ -338,8 +344,30 @@ function Dream() {
         <p className="text-xl font-extrabold">
           <RubyText text={t("hud.dream")} />
         </p>
+        {showImg && dreamImage && (
+          <div className="@container relative w-[min(80vw,760px,calc((100vh-15rem)*1.5))]">
+            <img
+              src={`${BASE}${dreamImage.replace(/^\//, "")}`}
+              alt=""
+              className="block aspect-[3/2] w-full rounded-[2rem] object-contain"
+              onError={() => setImgOk(false)}
+              data-testid="dream-image"
+            />
+            {/* 絵の中の丸の すぐ下に、どこで 何をするかを重ねる */}
+            {placed.map((d) => (
+              <span
+                key={d.text}
+                className="absolute -translate-x-1/2 rounded-full border-2 border-[#0a63d6]/30 bg-white px-[1.6cqw] py-[0.6cqw] text-[clamp(0.7rem,2.1cqw,1rem)] leading-tight font-extrabold whitespace-nowrap shadow-md"
+                style={{ left: `${d.x}%`, top: `${d.y}%` }}
+                data-testid="dream-label"
+              >
+                <RubyText text={d.text} />
+              </span>
+            ))}
+          </div>
+        )}
         <div className="flex flex-wrap justify-center gap-5">
-          {dream.map((d) => (
+          {rest.map((d) => (
             <div
               key={d.text}
               className="flex w-40 flex-col items-center gap-2 rounded-3xl bg-sky-50 p-4"
