@@ -63,6 +63,17 @@ function place(g: THREE.BufferGeometry, o: PartOpts): THREE.BufferGeometry {
   return g;
 }
 
+/** 輪（ドーナツの形）。輪は XY の面にある（+z の方から見ると まるい）。r は輪の半径、tube は太さ。 */
+export function ring(
+  r: number,
+  tube: number,
+  color: string,
+  o: PartOpts = {},
+  seg = 20,
+): THREE.BufferGeometry {
+  return place(paint(new THREE.TorusGeometry(r, tube, 6, seg), color), o);
+}
+
 /** 箱。pos は箱の中心。 */
 export function box(
   w: number,

@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { t } from "@/lib/t";
 import { CanvasPanel } from "@/factory/CanvasPanel";
-import { block, box, cyl, FLAT, merge, shade } from "@/factory/kit";
+import { block, box, cyl, FLAT, merge, ring, shade } from "@/factory/kit";
 import {
   drawLed,
   drawLineSign,
@@ -625,9 +625,11 @@ export function TrainInterior({
       }
       // つり革のバー
       p.push(cyl(0.02, len, "#c0c4ca", { pos: [side * 0.75, 2.05, 0], rot: [Math.PI / 2, 0, 0] }));
+      // つり革: バーから下がる 平たいベルトと、まるい輪（通路から見て まるく見える向き）
       for (let z = -len / 2 + 0.6; z < len / 2; z += 0.6) {
-        p.push(box(0.012, 0.22, 0.012, "#ddd", { pos: [side * 0.75, 1.93, z] }));
-        p.push(box(0.12, 0.12, 0.02, "#f5f5f5", { pos: [side * 0.75, 1.78, z] }));
+        p.push(box(0.03, 0.2, 0.008, "#d9dadc", { pos: [side * 0.75, 1.94, z] }));
+        p.push(box(0.04, 0.03, 0.02, "#b8bcc2", { pos: [side * 0.75, 1.835, z] }));
+        p.push(ring(0.065, 0.011, "#f6f4ee", { pos: [side * 0.75, 1.755, z] }));
       }
     }
     p.push(box(2.7, 0.06, 0.4, color, { pos: [0, 2.3, 0] }));
