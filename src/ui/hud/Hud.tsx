@@ -76,11 +76,17 @@ export function Hud() {
 
 function ObjectiveBar() {
   const objective = usePlay((s) => s.objective);
+  // ヒントを ひらいた「いま すること」（ちがう目的に かわったら、自然に とじる）
+  const [hintFor, setHintFor] = useState<unknown>(null);
   if (!objective) return null;
+  const hintOpen = hintFor === objective;
+  const hint = objective.hints[0];
   return (
     <div
-      className="glass pop flex max-w-[min(70vw,560px)] items-center gap-3 rounded-2xl px-4 py-2.5"
+      className={`glass pop flex max-w-[min(70vw,560px)] flex-wrap items-center gap-3 rounded-2xl px-4 py-2.5 ${hint ? "pointer-events-auto cursor-pointer" : ""}`}
       data-testid="objective"
+      // 押すと ヒントを1つ出す（Codex の UI の相談 3）
+      onClick={() => hint && setHintFor(hintOpen ? null : objective)}
     >
       <span className="shrink-0 rounded-full bg-[#0a63d6] px-2.5 py-0.5 text-xs font-extrabold text-white">
         <RubyText text={t("hud.objective")} />
@@ -88,9 +94,23 @@ function ObjectiveBar() {
       {objective.lines.map((id) => (
         <LineMark key={id} id={id} />
       ))}
-      <span className="text-lg font-extrabold">
+      <span className="text-xl font-extrabold">
         <RubyText text={objective.text} />
       </span>
+      {hint && !hintOpen && (
+        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white">
+          <RubyText text={t("hud.objectiveTap")} />
+        </span>
+      )}
+      {hint && hintOpen && (
+        <span className="w-full text-[17px] font-bold text-white">
+          <span className="bg-sun text-ink mr-2 inline-flex items-center gap-1 rounded-full px-2 text-xs">
+            <IconBulb className="h-3.5 w-3.5" />
+            <RubyText text={t("hud.hint")} />
+          </span>
+          <RubyText text={hint} />
+        </span>
+      )}
     </div>
   );
 }
@@ -235,7 +255,8 @@ function Dialogue() {
             <RubyText text={text} />
           </span>
         </span>
-        <span className="shrink-0 self-end rounded-full bg-[#0a63d6] px-3 py-1 text-sm font-extrabold text-white">
+        {/* つぎへ（大きめ。パネルの どこを押しても 進む） */}
+        <span className="flex min-h-11 min-w-28 shrink-0 items-center justify-center gap-1 self-end rounded-2xl bg-[#0a63d6] px-4 py-2 text-base font-extrabold text-white shadow-[0_0_12px_rgba(56,216,255,0.5)]">
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>

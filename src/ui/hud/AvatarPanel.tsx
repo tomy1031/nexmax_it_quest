@@ -86,6 +86,20 @@ const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["hime", "avatar.hs.hime"],
   ["longwave", "avatar.hs.longwave"],
   ["osage", "avatar.hs.osage"],
+  ["swirl", "avatar.hs.swirl"],
+  ["messy", "avatar.hs.messy"],
+  ["topknot", "avatar.hs.topknot"],
+  ["mash", "avatar.hs.mash"],
+  ["wolf", "avatar.hs.wolf"],
+  ["tucked", "avatar.hs.tucked"],
+  ["pixie", "avatar.hs.pixie"],
+  ["lob", "avatar.hs.lob"],
+  ["budtail", "avatar.hs.budtail"],
+  ["crown", "avatar.hs.crown"],
+  ["perm", "avatar.hs.perm"],
+  ["lowpuff", "avatar.hs.lowpuff"],
+  ["clipbob", "avatar.hs.clipbob"],
+  ["headband", "avatar.hs.headband"],
 ];
 
 const ACCESSORIES: [NonNullable<AvatarConfig["accessory"]>, UiKey][] = [

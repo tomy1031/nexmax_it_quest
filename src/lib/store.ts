@@ -34,7 +34,21 @@ export type HairStyle =
   | "lowpony"
   | "hime"
   | "longwave"
-  | "osage";
+  | "osage"
+  | "swirl"
+  | "messy"
+  | "topknot"
+  | "mash"
+  | "wolf"
+  | "tucked"
+  | "pixie"
+  | "lob"
+  | "budtail"
+  | "crown"
+  | "perm"
+  | "lowpuff"
+  | "clipbob"
+  | "headband";
 export type Figure = "m" | "f";
 
 export interface AvatarConfig {

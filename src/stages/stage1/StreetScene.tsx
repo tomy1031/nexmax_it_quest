@@ -43,17 +43,20 @@ const SIDEWALK: Rect = { minX: -2, maxX: 27.3, minZ: 0.5, maxZ: 2.65 };
 const CROSSING: Rect = { minX: 27.3, maxX: 37.2, minZ: 0.7, maxZ: 2.7 };
 const FAR_SIDE: Rect = { minX: 37.2, maxX: 42.4, minZ: 0.5, maxZ: 3.2 };
 
-/** 通りを行き来する人（朝の通勤・通学）。自分の歩く線（z=1.7）からは少しはなす。 */
+/**
+ * 通りを行き来する人（朝の通勤・通学）。自分の歩く線（z=1.7）からは少しはなす。
+ * 物（自動販売機・自転車・木・ガードレール・角の店）に めりこまない線を歩く（tomy さん 2026-11-23）。
+ */
 const WALKERS: WalkerSpec[] = [
-  { from: [-12, 0.55], to: [24, 0.55], speed: 1.0, at: 0.3 },
+  { from: [-12, 1.15], to: [24, 1.15], speed: 1.0, at: 0.3 },
   // ガードレール（z=3.0）に めりこまないよう、少し内がわを歩く（tomy さん 2026-11-23）
   { from: [3, 2.35], to: [21, 2.35], speed: 1.25, at: 0.7 },
-  { from: [-16, 12.0], to: [26, 12.0], speed: 1.1, at: 0.2 },
-  { from: [-10, 12.7], to: [24, 12.7], speed: 0.9, at: 0.8, casual: true },
-  { from: [26.6, -30], to: [26.6, -1], speed: 1.15, at: 0.5 },
-  { from: [26.4, 14], to: [26.4, 34], speed: 1.0, at: 0.1, casual: true },
+  { from: [-16, 12.25], to: [6, 12.25], speed: 1.1, at: 0.2 },
+  { from: [8, 12.25], to: [24, 12.25], speed: 0.9, at: 0.8, casual: true },
+  { from: [25.65, -30], to: [25.65, -1], speed: 1.15, at: 0.5 },
+  { from: [25.65, 18.4], to: [25.65, 34], speed: 1.0, at: 0.1, casual: true },
   { from: [37.4, -26], to: [37.4, -1], speed: 1.2, at: 0.6 },
-  { from: [37.6, 4], to: [37.6, 30], speed: 1.0, at: 0.4 },
+  { from: [37.6, 4.6], to: [37.6, 30], speed: 1.0, at: 0.4 },
   { from: [48, 2.4], to: [58, 2.4], speed: 0.95, at: 0.5, casual: true },
 ];
 
@@ -293,7 +296,23 @@ function CrossTraffic({ light }: { light: CarLight }) {
   const turned = useRef(0);
 
   useEffect(() => {
-    if (light === "red-arrow") turned.current = 0;
+    if (light !== "red-arrow") return;
+    turned.current = 0;
+    // 矢印が出たら、南へ行く車を 曲がる所の手前に ならべなおす。もう通りすぎた車・遠くの車は、
+    // カメラの うしろ（見えない所。z ≥ 23）から また来るようにする（矢印の間に 必ず3台 曲がるように。tomy さん 2026-11-23）
+    const south = state.current
+      .filter((c) => c.dir < 0 && c.turn === null)
+      .sort((a, b) => a.z - b.z);
+    let next = TURN_START_Z;
+    for (const c of south) {
+      if (c.z >= next + 0.5 && c.z < 19) {
+        next = c.z + 7;
+        continue;
+      }
+      c.z = Math.max(next + 7, 23);
+      c.speed = 6;
+      next = c.z;
+    }
   }, [light]);
 
   useFrame((_, rawDt) => {
@@ -332,17 +351,20 @@ function CrossTraffic({ light }: { light: CarLight }) {
       // 南へ行く車は、左に曲がる所（TURN_START_Z）の手前で止まる。北へ行く車は 交差点の手前（z=-2.4）
       const stopZ = c.dir < 0 ? TURN_START_Z + Math.max(0, order) * 5.5 : -2.4;
       const beforeStop = c.dir < 0 ? c.z > stopZ - 0.01 : c.z < stopZ;
-      // 矢印: いちばん前の車が 曲がる所に着いたら、前の車が少し進んでから 曲がりはじめる（3台まで）
-      if (
-        arrow &&
-        c.dir < 0 &&
-        order === 0 &&
-        !turning &&
-        turned.current < 3 &&
-        c.z < TURN_START_Z + 1.2
-      ) {
-        c.turn = 0;
-        turned.current += 1;
+      // 矢印: 南へ行く車は 止まらずに 進み、曲がる所に着いたら 左に曲がる（3台まで）。前の車とは あいだを あける
+      if (arrow && c.dir < 0 && turned.current < 3) {
+        if (order === 0 && !turning && c.z <= TURN_START_Z + 0.3) {
+          c.turn = 0;
+          turned.current += 1;
+          return;
+        }
+        const ahead = order > 0 ? queue[order - 1]!.z : turning ? TURN_START_Z : -Infinity;
+        const room = c.z - ahead - 7;
+        const want = order === 0 && !turning ? 6 : Math.max(0, Math.min(6, room * 1.5));
+        c.speed += (want - c.speed) * Math.min(1, dt * 2);
+        c.z = Math.max(order === 0 && !turning ? -100 : ahead + 6.5, c.z - c.speed * dt);
+        g.position.set(c.lane, 0, c.z);
+        g.rotation.y = Math.PI;
         return;
       }
       const free = go || !beforeStop;

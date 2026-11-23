@@ -149,8 +149,9 @@ export function HommachiScene() {
         people={[
           { from: [0.6, -14], to: [0.6, 14], speed: 1.0, at: 0.6 },
           {
-            from: [-1.0, 12],
-            to: [-1.0, -12],
+            // ベンチ（x=-1.4）に めりこまないよう
+            from: [-0.75, 12],
+            to: [-0.75, -12],
             speed: 0.85,
             at: 0.2,
             look: { hairStyle: "side", suit: "#4b505a", height: 176, eyes: "calm" },
