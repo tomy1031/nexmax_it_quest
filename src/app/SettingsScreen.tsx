@@ -287,13 +287,20 @@ function CameraModal({
 }
 
 function LoginSection() {
+  const [, navigate] = useLocation();
   const session = useAuth((s) => s.session);
   const email = useAuth((s) => s.email);
+  const isAdmin = useAuth((s) => s.isAdmin);
+  const problem = useAuth((s) => s.problem);
   return (
     <Section title={t("settings.loginTitle")}>
       {!isSupabaseConfigured ? (
         <p className="text-white">
           <RubyText text={t("settings.loginDemo")} />
+        </p>
+      ) : problem && !session ? (
+        <p className="text-sun font-bold" data-testid="login-down">
+          <RubyText text={t("settings.loginDown")} />
         </p>
       ) : session ? (
         <div className="flex flex-wrap items-center gap-3">
@@ -305,6 +312,16 @@ function LoginSection() {
           <button type="button" className="btn btn-ghost" onClick={() => void signOut()}>
             <RubyText text={t("settings.logout")} />
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => navigate("/admin")}
+              data-testid="settings-admin"
+            >
+              <RubyText text={t("settings.admin")} />
+            </button>
+          )}
         </div>
       ) : (
         <button

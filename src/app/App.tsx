@@ -13,6 +13,9 @@ const DiveScreen = lazy(() => import("@/app/DiveScreen"));
 const StageScreen = lazy(() => import("@/app/StageScreen"));
 const CertificatePage = lazy(() => import("@/app/CertificatePage"));
 const FactoryScreen = lazy(() => import("@/app/FactoryScreen"));
+const AdminScreen = lazy(() =>
+  import("@/app/AdminScreen").then((m) => ({ default: m.AdminScreen })),
+);
 
 function Loading() {
   return (
@@ -64,6 +67,7 @@ export function App() {
           <Route path="/certificate/:id">
             {(params) => <CertificatePage stageId={params.id} />}
           </Route>
+          <Route path="/admin" component={AdminScreen} />
           <Route path="/factory" component={FactoryScreen} />
           <Route>
             <Redirect to="/" />

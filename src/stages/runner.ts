@@ -3,6 +3,8 @@ import { playSfx, stopAllSfx } from "@/lib/audio";
 import { useGame } from "@/lib/store";
 import { questEvents } from "@/stages/events";
 import { initialPlay, usePlay, waits } from "@/stages/play-store";
+import { useLayout } from "@/three/layout";
+import { placePlayer, player } from "@/three/player";
 
 /**
  * 台本（content/stages/*.json）を1こまずつ進める。
@@ -335,6 +337,28 @@ export class StageRunner {
       case "wear":
         useGame.getState().setAvatar({ outfit: beat.outfit });
         return;
+      case "pose": {
+        if (beat.pose === "bow") {
+          player.emote = { kind: "bow", until: performance.now() + 1400 };
+          await this.sleep(1400);
+          return;
+        }
+        const a = beat.anchor ? useLayout.getState().anchors[beat.anchor] : undefined;
+        if (beat.pose === "sit" && a) {
+          player.target = null;
+          player.path = [];
+          player.pose = { kind: "sit", pos: a.pos, yaw: a.yaw ?? 0 };
+          await this.sleep(400);
+        } else if (beat.pose === "stand") {
+          player.pose = null;
+          // すわる前に 立っていた所（席の 前）に もどる
+          const back = beat.anchor
+            ? useLayout.getState().anchors[`${beat.anchor}-stand`]
+            : undefined;
+          if (back) placePlayer(back.pos[0], back.pos[2], back.yaw ?? player.yaw);
+        }
+        return;
+      }
       case "memo-add":
         addMemo(beat.id, beat.title, beat.text);
         if (!this.opts.fast) playSfx("pi");

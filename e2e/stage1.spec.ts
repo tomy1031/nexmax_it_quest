@@ -20,7 +20,7 @@ type Play = {
   dream: unknown[] | null;
   tip: string | null;
   choice: { options: string[] } | null;
-  panel: { id: string } | null;
+  panel: { id: string; mode?: string } | null;
   waitingFor: string | null;
   chapterBanner: number | null;
   ended: boolean;
@@ -37,7 +37,7 @@ const quest = (page: Page, fn: string, arg?: unknown) =>
     [fn, arg] as const,
   );
 
-test("ステージ1を最初から修了証まで通す", async ({ page }) => {
+test("ステージ1を最初から修了証まで通す（第2章の 声の 会話は にせの 相手）", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
@@ -148,6 +148,51 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
           await page.screenshot({ path: `${SHOTS}/panel-report-sent.png` });
           await page.getByTestId("report-close").click();
           break;
+        case "talk": {
+          // 声の 会話（Gemini Live）。テストでは にせの 相手（src/lib/ai/live-fake.ts）に つなぐ。
+          // 1回目は わざと まちがえる（受付: 大事な ことばが 足りない / ヘンディさん: あいさつが ちがう）
+          const answers =
+            p.panel.mode === "reception"
+              ? [
+                  "よろしくお願いします",
+                  "わたくし、本日入社するソクピセットと申します。よろしくお願いいたします。",
+                ]
+              : [
+                  "こんにちは",
+                  "おはようございます",
+                  "ソクピセットです",
+                  "カンボジアのプノンペンから来ました",
+                  "ITを勉強しました",
+                  "サッカーです",
+                  "ラーメンが好きです",
+                ];
+          await page.evaluate((a) => {
+            (window as unknown as { __fakeLive: unknown }).__fakeLive = {
+              answers: a,
+              reply: "いいですね",
+            };
+          }, answers);
+          await page.getByTestId("talk-start").click();
+          for (let i = 0; i < 40; i += 1) {
+            await page.waitForTimeout(500);
+            if (await page.getByTestId("talk-next").isVisible()) break;
+            const mic = page.getByTestId("talk-mic");
+            if ((await mic.isVisible()) && (await mic.isEnabled())) {
+              await mic.click();
+              await page.waitForTimeout(300);
+              await mic.click();
+              await page.waitForTimeout(900);
+              const shot = `talk-${p.panel.mode}-${i}`;
+              if (!seen.has(shot) && i < 6) {
+                seen.add(shot);
+                await page.screenshot({ path: `${SHOTS}/${shot}.png` });
+              }
+            }
+          }
+          await page.screenshot({ path: `${SHOTS}/talk-${p.panel.mode}-done.png` });
+          await page.getByTestId("talk-next").click();
+          break;
+        }
         case "certificate":
           await page.waitForTimeout(800);
           await page.screenshot({ path: `${SHOTS}/zz-certificate.png` });
@@ -200,7 +245,15 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
         "click:gate-M": "click:gate-T",
         "click:train-2": "click:train-1",
         "click:stairs-C": "click:stairs-Y",
+        "floor:7": "floor:wrong",
+        "click:seat-front": "click:seat-back",
       };
+      if (w === "emote:bow") {
+        await page.screenshot({ path: `${SHOTS}/emote-bow.png` });
+        await page.getByTestId("emote-bow").click();
+        await page.waitForTimeout(1600);
+        continue;
+      }
       const key = `${p.sectionId}:${w}`;
       if (wrong[w] && !wrongDone.has(key)) {
         wrongDone.add(key);

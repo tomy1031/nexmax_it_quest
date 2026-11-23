@@ -16,6 +16,7 @@ import ts from "typescript";
 import type { z } from "zod";
 import {
   charactersFile,
+  talksFile,
   chatFile,
   furiganaFile,
   metroFile,
@@ -86,6 +87,10 @@ const SKIP_KEYS = new Set([
   "lines",
   "stations",
   "look",
+  "persona",
+  "voice",
+  "partner",
+  "kind",
 ]);
 
 const texts: { where: string; text: string }[] = [];
@@ -108,6 +113,7 @@ const contentFiles: [string, z.ZodType<unknown>][] = [
   ["content/metro.json", metroFile],
   ["content/places.json", placesFile],
   ["content/characters.json", charactersFile],
+  ["content/talks.json", talksFile],
 ];
 for (const f of readdirSync(join(ROOT, "content/stages"))) {
   if (f.endsWith(".json")) contentFiles.push([`content/stages/${f}`, stageFile]);

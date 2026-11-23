@@ -29,7 +29,7 @@ import { useLayout, type Rect } from "@/three/layout";
  * 座標: 歩道は x の方向（家 x=0 → 交差点 x=27）。横断歩道は x=28〜36 の道を渡る。メトロの入口は x=40。
  * 信号の動き（台本の fx）:
  *   はじめ 歩行者=青・車=赤 → ped-blink（点滅→赤、車=青で車が流れる）→ button-pressed（おまちください）
- *   → car-yellow → car-arrow（赤＋左折の矢印 ←。手前から来る車が3台 つづけて左に曲がる）→ car-red → ped-green（渡れる）
+ *   → car-yellow → car-arrow（赤＋左折の矢印 ←。手前から来る車が 矢印の間ずっと 左に曲がる）→ car-red → ped-green（渡れる）
  * 実際の押しボタンの信号に矢印が付くのはめずらしい。教材として「家の近くの交差点」にまとめた（docs/design/01_ステージ1.md）。
  */
 
@@ -293,13 +293,10 @@ function CrossTraffic({ light }: { light: CarLight }) {
     { lane: 34, dir: 1, z: -12, speed: 0, kind: "street/taxi", turn: null, away: 0 },
     { lane: 34, dir: 1, z: -22, speed: 0, kind: "street/kei-van", turn: null, away: 0 },
   ]);
-  const turned = useRef(0);
-
   useEffect(() => {
     if (light !== "red-arrow") return;
-    turned.current = 0;
     // 矢印が出たら、南へ行く車を 曲がる所の手前に ならべなおす。もう通りすぎた車・遠くの車は、
-    // カメラの うしろ（見えない所。z ≥ 23）から また来るようにする（矢印の間に 必ず3台 曲がるように。tomy さん 2026-11-23）
+    // カメラの うしろ（見えない所。z ≥ 23）から また来るようにする（矢印が出たら すぐ 曲がりはじめるように。tomy さん 2026-11-23）
     const south = state.current
       .filter((c) => c.dir < 0 && c.turn === null)
       .sort((a, b) => a.z - b.z);
@@ -341,8 +338,17 @@ function CrossTraffic({ light }: { light: CarLight }) {
           if (c.away > 45) {
             c.turn = null;
             c.away = 0;
-            c.z = 46 + i * 4;
-            c.speed = 0;
+            if (arrow) {
+              // 矢印の間は、見えない所（z ≥ 23）の いちばん うしろに もどして、また曲がりに来る
+              const last = state.current
+                .filter((o) => o !== c && o.dir < 0 && o.turn === null)
+                .reduce((m, o) => Math.max(m, o.z), -Infinity);
+              c.z = Math.max(23, last + 7);
+              c.speed = 6;
+            } else {
+              c.z = 46 + i * 4;
+              c.speed = 0;
+            }
           }
         }
         return;
@@ -351,11 +357,11 @@ function CrossTraffic({ light }: { light: CarLight }) {
       // 南へ行く車は、左に曲がる所（TURN_START_Z）の手前で止まる。北へ行く車は 交差点の手前（z=-2.4）
       const stopZ = c.dir < 0 ? TURN_START_Z + Math.max(0, order) * 5.5 : -2.4;
       const beforeStop = c.dir < 0 ? c.z > stopZ - 0.01 : c.z < stopZ;
-      // 矢印: 南へ行く車は 止まらずに 進み、曲がる所に着いたら 左に曲がる（3台まで）。前の車とは あいだを あける
-      if (arrow && c.dir < 0 && turned.current < 3) {
+      // 矢印: 南へ行く車は 止まらずに 進み、曲がる所に着いたら 左に曲がる（矢印が消えるまで ずっと。
+      // 説明のセリフの間も 曲がりつづける。tomy さん 2026-11-23）。前の車とは あいだを あける
+      if (arrow && c.dir < 0) {
         if (order === 0 && !turning && c.z <= TURN_START_Z + 0.3) {
           c.turn = 0;
-          turned.current += 1;
           return;
         }
         const ahead = order > 0 ? queue[order - 1]!.z : turning ? TURN_START_Z : -Infinity;

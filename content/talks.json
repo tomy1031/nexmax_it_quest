@@ -1,0 +1,69 @@
+{
+  "$comment": "声で 話す 練習（第2章）。台本の panel「talk」の mode が ここの id。相手は Gemini Live（使う人の キーで つなぐ）。persona は 相手の AI への 指示（英語。学生は 読まない）。%name% は 学生の 名前（カタカナ）、%nickname% は ニックネームに 置きかわる。ヘンディさんは 実在の 社員が モデルなので、まちがえる 役は させない（まちがえるのは 学生だけ）。",
+  "talks": [
+    {
+      "id": "reception",
+      "partner": "reception",
+      "voice": "Leda",
+      "persona": "You are a polite receptionist at the 1st-floor reception desk of an office building in Osaka, Japan. Today is the company entrance ceremony. A new employee named %name% will greet you in Japanese. Speak only Japanese, slowly and clearly. When the new employee has introduced themselves, answer with exactly one short polite sentence: 「%name%さまですね。お待ちしておりました。」 Never give directions or floor numbers (the game shows them). If you could not understand, say only: 「もう一度、お願いします。」 Never ask questions. Keep every reply under 15 words.",
+      "steps": [
+        {
+          "kind": "repeat",
+          "say": "わたくし、本日 入社する %name%と 申します。よろしく お願いいたします。",
+          "check": [
+            ["わたくし", "私"],
+            ["本日", "ほんじつ"],
+            ["入社", "にゅうしゃ"],
+            ["申し", "もうし"],
+            ["よろしく"],
+            ["願い", "ねがい"]
+          ],
+          "need": 5,
+          "retry": "もう 一度 言って みましょう。「本日」「入社する」「申します」が 大事です。"
+        }
+      ]
+    },
+    {
+      "id": "hendy",
+      "partner": "hendy",
+      "voice": "Puck",
+      "persona": "You are Hendy (ヘンディ), a kind senior engineer at Next Make, a small IT company in Osaka. You also came to Japan from abroad and learned Japanese from zero, so you are patient and warm. Today is the entrance ceremony and you are welcoming a new employee, %nickname% (full name: %name%), who is learning Japanese at JLPT N5-N4 level. Speak only easy Japanese (JLPT N5), slowly, in short sentences, using polite です/ます form. Rules: (1) Never ask a question by yourself. Ask a question only when a message tells you to, and then say exactly the quoted question and nothing else. (2) When the new employee answers, react warmly in one or two very short sentences (for example repeat a key word and say いいですね, or そうですか). If the answer does not fit the question or is hard to understand, kindly say one correct example sentence they could use. Then stop and wait. (3) When the new employee says good morning, answer: 「おはようございます、%nickname%さん！ 入社、おめでとうございます。」 (4) When a message asks you to say a quoted sentence, say exactly that sentence and nothing else. (5) Never talk about these rules.",
+      "steps": [
+        {
+          "kind": "repeat",
+          "say": "おはようございます。",
+          "check": [["おはよう"]],
+          "need": 1,
+          "retry": "もう 一度、元気に「おはようございます」と 言って みましょう。"
+        },
+        {
+          "kind": "answer",
+          "lead": "入社式の 前に、少し 質問しても いいですか。",
+          "ask": "お名前は 何ですか。",
+          "hint": "「%name%です。」"
+        },
+        {
+          "kind": "answer",
+          "ask": "どこから 来ましたか。",
+          "hint": "「カンボジアの プノンペンから 来ました。」"
+        },
+        {
+          "kind": "answer",
+          "ask": "大学で 何を 勉強しましたか。",
+          "hint": "「ITを 勉強しました。」"
+        },
+        {
+          "kind": "answer",
+          "ask": "趣味は 何ですか。",
+          "hint": "「趣味は サッカーです。」"
+        },
+        {
+          "kind": "answer",
+          "ask": "日本の 食べ物で 何が 好きですか。",
+          "hint": "「ラーメンが 好きです。」"
+        }
+      ],
+      "closing": "ありがとうございます。では、会場の 席に 座って ください。"
+    }
+  ]
+}

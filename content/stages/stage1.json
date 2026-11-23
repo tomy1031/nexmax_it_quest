@@ -1344,6 +1344,327 @@
           "t": "say",
           "who": "nexmax",
           "pose": "cheer",
+          "text": "連絡 できましたね！"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "では、会社へ 行きましょう。会社の ビルは 駅から 歩いて すぐです。"
+        }
+      ]
+    },
+    {
+      "id": "s14-reception",
+      "chapter": 2,
+      "title": "受付",
+      "scene": "office-lobby",
+      "spawn": "entrance",
+      "beats": [
+        {
+          "t": "todo-add",
+          "id": "ceremony",
+          "text": "入社式に 出る"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "ここが ネクストメイクの ビルだ。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "まず、受付で 名前を 言いましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "受付へ 行こう",
+          "target": "reception",
+          "arrow": true,
+          "hints": ["入口の 左に カウンターが あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:reception"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "reception"
+        },
+        {
+          "t": "say",
+          "who": "reception",
+          "text": "おはようございます。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "hello",
+          "text": "このセリフを 言って みよう！ マイクで 話します。"
+        },
+        {
+          "t": "panel",
+          "id": "talk",
+          "mode": "reception"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "あいさつの あとは、おじぎを しましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "おじぎを しよう",
+          "hints": ["下の「おじぎ」の ボタンを 押しましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "emote:bow"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "say",
+          "who": "reception",
+          "text": "入社式の 会場は 7階です。エレベーターで どうぞ。"
+        },
+        {
+          "t": "memo-add",
+          "id": "floor",
+          "title": "入社式の 会場",
+          "text": "7階。エレベーターで 行く。"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "7階ですね。ありがとうございます。"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "objective",
+          "text": "エレベーターで 7階へ 行こう",
+          "target": "elevator",
+          "arrow": true,
+          "hints": ["右の おくに エレベーターが あります。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:elevator"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "elevator-open"
+        },
+        {
+          "t": "pause",
+          "ms": 900
+        },
+        {
+          "t": "goto",
+          "anchor": "in-elevator"
+        },
+        {
+          "t": "pause",
+          "ms": 900
+        },
+        {
+          "t": "focus",
+          "target": "elevator-panel"
+        },
+        {
+          "t": "say",
+          "who": "me",
+          "text": "あれ？ 1階の 下に「G」の ボタンが ない。"
+        },
+        {
+          "t": "tip",
+          "id": "no-g"
+        },
+        {
+          "t": "objective",
+          "text": "7階の ボタンを 押そう",
+          "hints": ["会場は 7階でした。「7」の ボタンです。"]
+        },
+        {
+          "t": "wait",
+          "event": "floor:7",
+          "else": {
+            "floor:wrong": [
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "guide",
+                "text": "会場は 7階です。「7」の ボタンを 押しましょう。"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "fx",
+          "id": "elevator-go"
+        },
+        {
+          "t": "pause",
+          "ms": 2600
+        }
+      ]
+    },
+    {
+      "id": "s15-hall",
+      "chapter": 2,
+      "title": "入社式の 会場",
+      "scene": "office-hall",
+      "spawn": "door",
+      "beats": [
+        {
+          "t": "say",
+          "who": "me",
+          "text": "7階に 着いた。ここが 入社式の 会場だ。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ヘンディさんが います。マイクで あいさつしましょう。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "hello",
+          "text": "ここからは、ヘンディさんと 声で 話します。質問に 答えましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "ヘンディさんに あいさつしよう",
+          "target": "hendy",
+          "arrow": true
+        },
+        {
+          "t": "wait",
+          "event": "click:hendy"
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "focus",
+          "target": "hendy"
+        },
+        {
+          "t": "panel",
+          "id": "talk",
+          "mode": "hendy"
+        },
+        {
+          "t": "unfocus"
+        },
+        {
+          "t": "fx",
+          "id": "hendy-front"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "前の 席と 後ろの 席が あいて います。"
+        },
+        {
+          "t": "objective",
+          "text": "席に 座ろう",
+          "hints": ["あいて いる 席を クリックしましょう。", "前の 方の 席に しましょう。"]
+        },
+        {
+          "t": "wait",
+          "event": "click:seat-front",
+          "else": {
+            "click:seat-back": [
+              {
+                "t": "pose",
+                "pose": "sit",
+                "anchor": "seat-back"
+              },
+              {
+                "t": "say",
+                "who": "hendy",
+                "text": "%nickname%さん、前の 方に 来て ください〜。"
+              },
+              {
+                "t": "pose",
+                "pose": "stand",
+                "anchor": "seat-back"
+              },
+              {
+                "t": "say",
+                "who": "nexmax",
+                "pose": "guide",
+                "text": "前の 席に 座りましょう。"
+              }
+            ]
+          }
+        },
+        {
+          "t": "clear-objective"
+        },
+        {
+          "t": "pose",
+          "pose": "sit",
+          "anchor": "seat-front"
+        },
+        {
+          "t": "tip",
+          "id": "mae-no-seki"
+        },
+        {
+          "t": "focus",
+          "target": "stage"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "みなさん、おはようございます。"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "ネクストメイクへ ようこそ。入社、おめでとうございます。"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "わたしも 外国から 来て、日本語を ゼロから 勉強しました。"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "わからない ことが あったら、いつでも 聞いて ください。いっしょに がんばりましょう。"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "今後の ことに ついては、%teacher%先生から お話が あります。"
+        },
+        {
+          "t": "todo-done",
+          "id": "ceremony"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
           "text": "ステージ1 クリアです！"
         },
         {

@@ -6,7 +6,7 @@ import { questEvents } from "@/stages/events";
 import { usePlay } from "@/stages/play-store";
 import { Chibi, type ChibiMotion } from "@/three/Chibi";
 import { insideWalk, useLayout } from "@/three/layout";
-import { placePlayer, player } from "@/three/player";
+import { placePlayer, player, walkTo } from "@/three/player";
 import { cameraYaw } from "@/three/CameraRig";
 import { fireInteractable, interactables } from "@/three/Interactable";
 import type { Expression } from "@/three/chibi";
@@ -49,6 +49,21 @@ export function Player() {
       if (s.anchors !== prev.anchors) place();
     });
   }, [spawn, sceneKey]);
+
+  // 台本の goto: 名前のある地点まで 歩く（エレベーターに 乗る など）
+  useEffect(
+    () =>
+      questEvents.on((name) => {
+        if (!name.startsWith("goto:")) return;
+        const a = useLayout.getState().anchors[name.slice(5)];
+        if (!a) return;
+        player.pose = null;
+        walkTo(a.pos[0], a.pos[2], () => {
+          if (a.yaw !== undefined) player.yaw = a.yaw;
+        });
+      }),
+    [],
+  );
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -179,6 +194,13 @@ export function Player() {
         } else if (d > 0.8 && touched.current === want) touched.current = null;
       }
     }
+    if (player.pose?.kind === "sit") {
+      // 席に すわっている（いすの 上。足を 前に）
+      motion.current = "sitting";
+      g.position.set(...player.pose.pos);
+      g.rotation.set(0, player.pose.yaw, 0);
+      return;
+    }
     if (player.pose?.kind === "sleep") {
       // ベッドで あおむけに寝ている（頭は yaw の向き。顔は上）
       motion.current = "sleep";
@@ -186,7 +208,9 @@ export function Player() {
       g.rotation.set(-Math.PI / 2, player.pose.yaw, 0, "YXZ");
       return;
     }
-    motion.current = moving ? "walk" : "idle";
+    const bowing = !moving && player.emote && performance.now() < player.emote.until;
+    if (player.emote && !bowing) player.emote = null;
+    motion.current = moving ? "walk" : bowing ? "bow" : "idle";
     g.position.copy(player.pos);
     g.rotation.set(0, player.yaw, 0);
 

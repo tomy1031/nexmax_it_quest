@@ -15,8 +15,10 @@ export const player = {
   moving: false,
   /** 場面の切りかえ・アップの間は歩かない。 */
   frozen: false,
-  /** ふつうと ちがう姿勢（ベッドで寝ている など）。null なら立っている。 */
-  pose: null as null | { kind: "sleep"; pos: [number, number, number]; yaw: number },
+  /** ふつうと ちがう姿勢（ベッドで寝ている・席に すわっている）。null なら立っている。 */
+  pose: null as null | { kind: "sleep" | "sit"; pos: [number, number, number]; yaw: number },
+  /** みじかい 動き（おじぎ）。until（performance.now の ミリ秒）まで する。 */
+  emote: null as null | { kind: "bow"; until: number },
 };
 
 export function walkTo(x: number, z: number, onArrive?: () => void): void {

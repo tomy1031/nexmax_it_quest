@@ -3,7 +3,10 @@ import tipsJson from "@content/tips.json";
 import type { Tip } from "@/content/schema";
 import { useGame, useSettings } from "@/lib/store";
 import { fill, t, type UiKey } from "@/lib/t";
+import { useAppSettings } from "@/lib/app-settings";
 import { playActions, usePlay } from "@/stages/play-store";
+import { questEvents } from "@/stages/events";
+import { player } from "@/three/player";
 import { RubyText } from "@/ui/RubyText";
 import { IconBulb, IconCheck, IconClose, IconMenu } from "@/ui/icons";
 import { usePhotoUrl } from "@/ui/use-photo";
@@ -64,12 +67,43 @@ export function Hud() {
       <HintBubble />
       <ChapterBanner />
       <Dialogue />
+      <EmoteButton />
       <Choice />
       <Verdict />
       <Dream />
       <TipCard />
       <Panels />
       {menu && <Menu onClose={() => setMenu(false)} />}
+    </div>
+  );
+}
+
+/**
+ * おじぎの ボタン（企画メモ「お辞儀のエモートボタンクリック」）。台本が「おじぎ」を 待っている ときに出る。
+ * 押すと 自分が おじぎを して、おわったら 台本へ 合図を 出す。
+ */
+function EmoteButton() {
+  const waiting = usePlay((s) => s.waitingFor === "emote:bow" && !s.line && !s.panel);
+  const [busy, setBusy] = useState(false);
+  if (!waiting) return null;
+  return (
+    <div className="pointer-events-auto absolute bottom-6 left-1/2 -translate-x-1/2">
+      <button
+        type="button"
+        className="btn btn-primary pop min-h-16 px-8 text-2xl"
+        disabled={busy}
+        onClick={() => {
+          setBusy(true);
+          player.emote = { kind: "bow", until: performance.now() + 1400 };
+          window.setTimeout(() => {
+            setBusy(false);
+            questEvents.emit("emote:bow");
+          }, 1300);
+        }}
+        data-testid="emote-bow"
+      >
+        🙇 <RubyText text={t("emote.bow")} />
+      </button>
     </div>
   );
 }
@@ -219,9 +253,11 @@ function speakerName(who: string, nickname: string): string {
 function Dialogue() {
   const line = usePlay((s) => s.line);
   const nickname = useGame((s) => s.profile.nickname);
+  const name = useGame((s) => s.profile.name);
+  const teacher = useAppSettings((s) => s.teacherName);
   const photo = usePhotoUrl();
   if (!line) return null;
-  const text = fill(line.text, { nickname });
+  const text = fill(line.text, { nickname, name, teacher });
   const face =
     line.who === "nexmax"
       ? `${BASE}img/nexmax/${line.pose ?? "guide"}.webp`

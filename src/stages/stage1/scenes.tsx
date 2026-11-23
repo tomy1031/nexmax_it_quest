@@ -5,6 +5,7 @@ import { ConcourseScene } from "@/stages/stage1/ConcourseScene";
 import { PlatformScene } from "@/stages/stage1/PlatformScene";
 import { TrainScene } from "@/stages/stage1/TrainScene";
 import { HommachiScene } from "@/stages/stage1/HommachiScene";
+import { OfficeHallScene, OfficeLobbyScene } from "@/stages/stage1/OfficeScenes";
 
 /** 台本の scene の名前 → 3D の場面。 */
 export function Stage1Scene({ id }: { id: SceneId }) {
@@ -27,5 +28,9 @@ export function Stage1Scene({ id }: { id: SceneId }) {
       return <TrainScene line="chuo" crowded={false} />;
     case "awaza":
       return <PlatformScene placeId="awaza" />;
+    case "office-lobby":
+      return <OfficeLobbyScene />;
+    case "office-hall":
+      return <OfficeHallScene />;
   }
 }

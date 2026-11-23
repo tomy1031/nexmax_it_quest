@@ -21,6 +21,8 @@ import { NexmaxModel } from "@/three/Nexmax";
 import { Crowd } from "@/three/Crowd";
 import { Lights } from "@/three/helpers";
 import charactersJson from "@content/characters.json";
+import { CarPanel } from "@/stages/stage1/OfficeScenes";
+import { npcLook } from "@/three/Crowd";
 import type { AvatarConfig, HairStyle } from "@/lib/store";
 
 const PLACES = placesJson as PlacesFile;
@@ -630,6 +632,42 @@ SHOTS.shoes = {
           <Chibi config={{ ...DEFAULT_AVATAR, outfit: "casual", shoeType: st }} phase={0.1} />
         </group>
       ))}
+    </>
+  ),
+};
+
+/** 豆知識「日本の エレベーター」: 1階の 下は B1。「G」が 無い ボタン。 */
+SHOTS["no-g"] = {
+  camera: { pos: [0, 0, 1.05], look: [0, 0, 0], fov: 42 },
+  light: "underground",
+  scene: () => <CarPanel floor={1} lit="1" position={[0, 0, 0]} rotation={[0, 0, 0]} />,
+};
+
+/** 豆知識「前の 席に 座る」: 前の 列に すわった 自分と、うしろの 列。 */
+SHOTS["mae-no-seki"] = {
+  camera: { pos: [0.5, 1.45, -2.3], look: [-0.15, 0.6, 0.9], fov: 46 },
+  light: "room",
+  scene: () => (
+    <>
+      {[0, 1, 2].flatMap((r) =>
+        [-1.2, -0.4, 0.4, 1.2].map((x) => (
+          <Prop key={`${r},${x}`} url="home/chair" position={[x, 0, r * 1.2]} rotationY={Math.PI} />
+        )),
+      )}
+      {[1, 2].flatMap((r) =>
+        [-1.2, -0.4, 0.4, 1.2].map((x, i) => (
+          <group key={`p${r},${x}`} position={[x, 0, r * 1.2 + 0.05]} rotation={[0, Math.PI, 0]}>
+            <Chibi config={{ ...npcLook(r * 4 + i, "suit"), bag: false }} motion="sitting" />
+          </group>
+        )),
+      )}
+      <group position={[-0.4, 0, 0.05]} rotation={[0, Math.PI, 0]}>
+        <Chibi
+          config={{ ...DEFAULT_AVATAR, outfit: "suit", bag: false }}
+          motion="sitting"
+          expression="happy"
+        />
+      </group>
     </>
   ),
 };

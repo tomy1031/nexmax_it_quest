@@ -31,7 +31,16 @@ export const uiFile = z.object({
 
 // ── 台本 ──────────────────────────────────────────────
 
-export const speakerId = z.enum(["me", "nexmax", "hendy", "staff", "announce", "people", "phone"]);
+export const speakerId = z.enum([
+  "me",
+  "nexmax",
+  "hendy",
+  "staff",
+  "reception",
+  "announce",
+  "people",
+  "phone",
+]);
 export type SpeakerId = z.infer<typeof speakerId>;
 
 export const sceneId = z.enum([
@@ -44,6 +53,8 @@ export const sceneId = z.enum([
   "hommachi-chuo",
   "train-chuo",
   "awaza",
+  "office-lobby",
+  "office-hall",
 ]);
 export type SceneId = z.infer<typeof sceneId>;
 
@@ -54,6 +65,7 @@ export const panelId = z.enum([
   "memo",
   "report",
   "certificate",
+  "talk",
 ]);
 export type PanelId = z.infer<typeof panelId>;
 
@@ -94,6 +106,7 @@ type BeatShape =
   | { t: "todo-done"; id: string }
   | { t: "memo-add"; id: string; title: string; text: string }
   | { t: "wear"; outfit: "suit" | "casual" | "kigurumi" | "pajama" }
+  | { t: "pose"; pose: "bow" | "sit" | "stand"; anchor?: string }
   | { t: "dream"; items: { text: string; icon: string }[] }
   | { t: "end" };
 
@@ -153,6 +166,12 @@ export const beat: z.ZodType<BeatShape> = z.lazy(() =>
     z.object({ t: z.literal("memo-add"), id: z.string(), title: learnerText, text: learnerText }),
     /** 服を着せる（朝は 寝巻きで 起きる）。 */
     z.object({ t: z.literal("wear"), outfit: z.enum(["suit", "casual", "kigurumi", "pajama"]) }),
+    /** 自分の しせい（おじぎ・席に すわる・立つ）。sit は anchor の 場所に すわる。 */
+    z.object({
+      t: z.literal("pose"),
+      pose: z.enum(["bow", "sit", "stand"]),
+      anchor: z.string().optional(),
+    }),
     z.object({
       t: z.literal("dream"),
       items: z.array(z.object({ text: learnerText, icon: z.string() })).min(1),
@@ -338,3 +357,44 @@ export const charactersFile = z.object({
     }),
   ),
 });
+
+// ── 声で 話す 練習（第2章。Gemini Live） ─────────────────
+
+/** 聞きとった 文に、どれか 1つが 入っていれば よい ことばの 組（漢字でも かなでも 聞きとられるので 両方 書く）。 */
+const checkGroup = z.array(z.string().min(1)).min(1);
+
+export const talkStep = z.discriminatedUnion("kind", [
+  /** 決まった セリフを 言う（受付の あいさつ・おはようございます）。 */
+  z.object({
+    kind: z.literal("repeat"),
+    say: learnerText,
+    check: z.array(checkGroup).min(1),
+    /** いくつの 組が 入っていれば 合格か。 */
+    need: z.number().int().min(1),
+    retry: learnerText,
+  }),
+  /** 相手の 質問に 自分の ことばで 答える（選択式に しない。必ず守るルール3）。 */
+  z.object({
+    kind: z.literal("answer"),
+    /** 質問の 前に 言う 一言。 */
+    lead: learnerText.optional(),
+    ask: learnerText,
+    /** 答え方の 見本（ヒント）。 */
+    hint: learnerText,
+  }),
+]);
+export type TalkStep = z.infer<typeof talkStep>;
+
+export const talk = z.object({
+  id: z.string(),
+  partner: speakerId,
+  /** 相手の 声（Gemini の 声の 名前）。 */
+  voice: z.string().optional(),
+  /** 相手の AI への 指示（英語。学生は 読まない）。 */
+  persona: z.string().min(1),
+  steps: z.array(talkStep).min(1),
+  /** さいごに 相手が 言う 文。 */
+  closing: learnerText.optional(),
+});
+export const talksFile = z.object({ $comment: z.string().optional(), talks: z.array(talk) });
+export type Talk = z.infer<typeof talk>;

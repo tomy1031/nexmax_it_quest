@@ -31,9 +31,13 @@ jobs:
       - run: npm run lint:content
       - run: npm test
       # URL の頭にリポジトリの名前が付く（/nexmax_it_quest/）
+      # Supabase（Google ログイン・管理者の印・先生の名前）。academy と同じプロジェクト。
+      # URL と publishable key は、ブラウザに そのまま入る 公開してよい値（DB は 行の権限で守る）。秘密の値は ここに書かない
       - run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
+          VITE_SUPABASE_URL: https://ytlmwhovgvpdmmxyfmuz.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_tRwnQh1I80EYLoLDb3EekQ_WRZbXt37
       # GitHub Pages は「ページが無い」ときに 404.html を返す。中身をアプリと同じにして、
       # /nexmax_it_quest/stages のような URL を直接開いても動くようにする
       - run: cp dist/index.html dist/404.html

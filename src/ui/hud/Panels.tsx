@@ -9,6 +9,7 @@ import { MemoList } from "@/ui/hud/MemoPanel";
 import { RubyText } from "@/ui/RubyText";
 import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
+import { TalkPanel } from "@/ui/hud/TalkPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
 
@@ -19,6 +20,8 @@ export function Panels() {
   const [, navigate] = useLocation();
   if (!panel) return <PhoneOverlay />;
   const close = () => playActions.closePanel();
+  // 声で 話す 練習は、3D の 相手が 見えるように 下に 出す（画面を 暗くしない）
+  if (panel.id === "talk") return <TalkPanel talkId={panel.mode ?? ""} onDone={close} />;
   return (
     <div className="bg-deep/45 pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto p-3">
       {panel.id === "nmchat" && (

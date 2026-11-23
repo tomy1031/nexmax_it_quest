@@ -117,6 +117,24 @@
       "en": "Don't answer calls on the train. Use silent mode and call back later.",
       "image": "/img/tips/densha-denwa.webp",
       "pose": "listen"
+    },
+    {
+      "id": "no-g",
+      "title": "日本の エレベーター",
+      "text": "日本では、地面の 階が 1階です。「G」の ボタンは ありません。",
+      "more": "地下は「B1」（地下1階）、「B2」（地下2階）と 数えます。",
+      "en": "In Japan the ground floor is the 1st floor (1F). There is no 'G' button. Basement floors are B1, B2, and so on.",
+      "image": "/img/tips/no-g.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "mae-no-seki",
+      "title": "前の 席に 座る",
+      "text": "日本の 会社の 会では、前の 席に 座ると「やる気が ある」と 思われます。",
+      "more": "後ろの 席が あいて いても、前から 座りましょう。",
+      "en": "At Japanese company events, sitting in the front rows shows you are motivated. Fill the front seats first.",
+      "image": "/img/tips/mae-no-seki.webp",
+      "pose": "cheer"
     }
   ]
 }

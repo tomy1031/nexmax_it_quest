@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { FURIGANA } from "@/lib/furigana-index";
-import { annotateRuby } from "@/lib/text/furigana";
+import { useFuriganaIndex } from "@/lib/furigana-index";
+import { annotateRuby, buildFuriganaIndex, type FuriganaEntry } from "@/lib/text/furigana";
 import { useSettings } from "@/lib/store";
 
 /**
@@ -19,9 +19,31 @@ function squeeze(base: string, reading: string): React.CSSProperties | undefined
   return { letterSpacing: `${ls.toFixed(3)}em` };
 }
 
-export function RubyText({ text, className }: { text: string; className?: string }) {
+export function RubyText({
+  text,
+  className,
+  extra,
+}: {
+  text: string;
+  className?: string;
+  /** この文だけに足す読み（管理者の画面の見本で、入れている途中の読みを見せる）。 */
+  extra?: FuriganaEntry[];
+}) {
   const show = useSettings((s) => s.furigana);
-  const segments = useMemo(() => (show ? annotateRuby(text, FURIGANA) : [{ text }]), [text, show]);
+  const base = useFuriganaIndex();
+  const extraKey = extra ? JSON.stringify(extra) : "";
+  const index = useMemo(
+    () =>
+      extra?.length
+        ? buildFuriganaIndex([...base.entries, ...extra.filter(([b, r]) => b && r)])
+        : base,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [base, extraKey],
+  );
+  const segments = useMemo(
+    () => (show ? annotateRuby(text, index) : [{ text }]),
+    [text, show, index],
+  );
   return (
     <span className={className}>
       {segments.map((seg, i) =>
