@@ -17,8 +17,9 @@ export function fill(text: string, vars: Record<string, string>): string {
   return text.replace(/%([a-z]+)%/g, (m, k: string) => vars[k] ?? m);
 }
 
-/** 今日の日付（例: 11月21日 土曜日）。NMChat の入社式の日時に使う（企画メモ「日付はnowDate」）。 */
-export function todayJa(d = new Date()): string {
+/** 日付（例: 4月1日 木曜日）。NMChat の入社式の日時に使う。
+ * 企画メモでは「日付はnowDate」だったが、tomy さんの指示（2026-11-23「入社式は4月1日にして」）で、ゲームの中の日（gameDate）を渡す。 */
+export function dateJa(d = new Date()): string {
   const week = t(`date.week${d.getDay()}` as UiKey);
   return t("date.format", { m: d.getMonth() + 1, d: d.getDate(), w: week });
 }

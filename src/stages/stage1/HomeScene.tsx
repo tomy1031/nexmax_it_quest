@@ -6,6 +6,10 @@ import { usePlay } from "@/stages/play-store";
 import { CanvasPanel } from "@/factory/CanvasPanel";
 import { block, box, FLAT, merge } from "@/factory/kit";
 import { Prop } from "@/factory/props";
+import { drawWindowTrees } from "@/factory/season-parts";
+import { drawRuby, FONT_FAMILY } from "@/factory/text-canvas";
+import { currentSeason, gameDate } from "@/lib/season";
+import { t } from "@/lib/t";
 import { Poster } from "@/factory/subway-parts";
 import { Interactable } from "@/three/Interactable";
 import { Lights, Ready, useSceneLayout, WalkSurface } from "@/three/helpers";
@@ -95,7 +99,6 @@ export function HomeScene() {
         box(1.8, 0.6, 0.15, "#efe3d0", { pos: [0, 2.4, 2.3] }),
         box(5.0, 0.1, 4.6, "#fbf7f0", { pos: [0, 2.72, 0] }),
         // 窓（朝の光）
-        box(1.6, 1.1, 0.05, "#bfe6ff", { pos: [-0.3, 1.55, -2.21] }),
         box(1.7, 0.08, 0.1, "#ffffff", { pos: [-0.3, 2.12, -2.2] }),
         box(1.7, 0.08, 0.1, "#ffffff", { pos: [-0.3, 0.98, -2.2] }),
         box(0.06, 1.1, 0.08, "#ffffff", { pos: [-0.3, 1.55, -2.18] }),
@@ -115,8 +118,6 @@ export function HomeScene() {
         // ドア
         box(1.0, 2.1, 0.06, "#9c7650", { pos: [0, 1.05, 2.28] }),
         box(0.08, 0.04, 0.06, "#e0c060", { pos: [0.35, 1.0, 2.22] }),
-        // カレンダー
-        box(0.5, 0.6, 0.02, "#ffffff", { pos: [-2.42, 1.7, -1.2], rot: [0, Math.PI / 2, 0] }),
       ]),
     [],
   );
@@ -143,6 +144,7 @@ export function HomeScene() {
       <Prop url="home/wall-art" position={[-2.42, 0.05, -0.3]} rotationY={Math.PI / 2} />
       <Poster kind="osaka" position={[2.42, 1.62, -1.65]} rotationY={-Math.PI / 2} />
       <WindowView />
+      <Calendar />
       {sleeping && (
         // かけぶとん（寝ている間だけ。むねから足まで）
         <mesh position={[-1.62, 0.72, -0.55]} raycast={() => null}>
@@ -222,14 +224,14 @@ export function HomeScene() {
   );
 }
 
-/** 窓の外（朝の空と、遠くの家とビル）。 */
+/** 窓の外（朝の空と、遠くの家とビルと、手前の木）。窓のガラスの所に貼る（かべより前）。 */
 function WindowView() {
   return (
     <CanvasPanel
-      width={2.2}
-      height={1.6}
-      ppm={160}
-      position={[-0.3, 1.55, -2.45]}
+      width={1.6}
+      height={1.1}
+      ppm={220}
+      position={[-0.3, 1.55, -2.222]}
       emissive
       draw={(ctx, w, h) => {
         const g = ctx.createLinearGradient(0, 0, 0, h);
@@ -251,6 +253,52 @@ function WindowView() {
         ctx.beginPath();
         ctx.arc(w * 0.12, h * 0.6, w * 0.05, 0, Math.PI * 2);
         ctx.fill();
+        // 手前の木（季節で色が変わる。春は桜）
+        drawWindowTrees(ctx, w, h, currentSeason());
+      }}
+    />
+  );
+}
+
+/** カレンダー（入社式の日に赤い丸。ゲームの中の日 = 4月1日）。 */
+function Calendar() {
+  const d = gameDate();
+  return (
+    <CanvasPanel
+      width={0.5}
+      height={0.6}
+      ppm={600}
+      position={[-2.41, 1.7, -1.2]}
+      rotation={[0, Math.PI / 2, 0]}
+      draw={(ctx, w, h) => {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+        // 上の帯（月）。濃い地なので字とふりがなは白
+        ctx.fillStyle = "#c8323c";
+        ctx.fillRect(0, 0, w, h * 0.24);
+        drawRuby(ctx, t("home.calMonth", { m: d.getMonth() + 1 }), w / 2, h * 0.19, {
+          size: h * 0.11,
+          color: "#ffffff",
+          rubyColor: "#ffffff",
+          align: "center",
+        });
+        // 日（大きく）と赤い丸
+        ctx.fillStyle = "#2a2d35";
+        ctx.font = `800 ${h * 0.34}px ${FONT_FAMILY}`;
+        ctx.textAlign = "center";
+        ctx.fillText(String(d.getDate()), w / 2, h * 0.66);
+        ctx.strokeStyle = "#e0323c";
+        ctx.lineWidth = h * 0.02;
+        ctx.beginPath();
+        ctx.ellipse(w / 2, h * 0.545, w * 0.27, h * 0.19, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // 予定
+        drawRuby(ctx, t("home.calNote"), w / 2, h * 0.92, {
+          size: h * 0.085,
+          color: "#c8323c",
+          rubyColor: "#c8323c",
+          align: "center",
+        });
       }}
     />
   );

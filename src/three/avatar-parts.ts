@@ -127,14 +127,11 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
       return cfg.accessory === "flower" ? "#f2b705" : null;
     case "acc_ribbon":
       return cfg.accessory === "ribbon" && cfg.hairStyle !== "ponytail" ? "#e85c7a" : null;
-    case "acc_hairTie":
-      return cfg.hairStyle === "ponytail"
-        ? cfg.accessory === "ribbon"
-          ? "#e85c7a"
-          : shade(cfg.hair, 0.7)
-        : null;
     default:
       if (name === `hair_${cfg.hairStyle}`) return cfg.hair;
+      // 髪をむすぶ ゴム（ポニーテール・ハーフアップ・みつあみ）。かざりが リボンなら ピンク
+      if (name === `acc_tie_${cfg.hairStyle}`)
+        return cfg.accessory === "ribbon" ? "#e85c7a" : shade(cfg.hair, 0.7);
       return null;
   }
 }

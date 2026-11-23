@@ -78,7 +78,20 @@ test("ステージ1を最初から修了証まで通す", async ({ page }) => {
     const p = await play(page);
     if (p.sectionId && p.sectionId !== lastSection && !p.chapterBanner) {
       lastSection = p.sectionId;
-      await page.waitForTimeout(1200);
+      // 場面の 3D の読みこみが終わり、台本が動き出してから写真をとる（読みこみ中の写真にしない）
+      await page
+        .waitForFunction(
+          () => {
+            const q = (window as unknown as { __quest?: { play: () => Record<string, unknown> } })
+              .__quest;
+            const s = q?.play();
+            return Boolean(s && (s.line || s.objective || s.panel || s.choice || s.focus));
+          },
+          undefined,
+          { timeout: 20000 },
+        )
+        .catch(() => undefined);
+      await page.waitForTimeout(800);
       if (!seen.has(p.sectionId)) {
         seen.add(p.sectionId);
         await page.screenshot({ path: `${SHOTS}/stage-${p.sectionId}.png` });

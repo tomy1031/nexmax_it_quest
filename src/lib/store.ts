@@ -8,7 +8,21 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 export type Outfit = "suit" | "casual";
 export type HairStyle =
-  "model" | "spiky" | "side" | "wavy" | "curly" | "bob" | "long" | "ponytail" | "twin" | "bun";
+  | "model"
+  | "spiky"
+  | "side"
+  | "wavy"
+  | "curly"
+  | "buzz"
+  | "center"
+  | "bob"
+  | "long"
+  | "ponytail"
+  | "twin"
+  | "bun"
+  | "halfup"
+  | "braid"
+  | "twinbun";
 export type Figure = "m" | "f";
 
 export interface AvatarConfig {

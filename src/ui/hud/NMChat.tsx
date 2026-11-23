@@ -2,7 +2,8 @@ import { useState } from "react";
 import chatJson from "@content/nmchat.json";
 import type { ChatFile } from "@/content/schema";
 import { useGame } from "@/lib/store";
-import { fill, t, todayJa } from "@/lib/t";
+import { dateJa, fill, t } from "@/lib/t";
+import { gameDate } from "@/lib/season";
 import { questEvents } from "@/stages/events";
 import { RubyText } from "@/ui/RubyText";
 import { usePhotoUrl } from "@/ui/use-photo";
@@ -20,7 +21,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
   const nickname = useGame((s) => s.profile.nickname);
   const [read, setRead] = useState(mode === "view");
   const current = CHAT.channels.find((c) => c.id === channel);
-  const vars = { nickname, date: todayJa() };
+  const vars = { nickname, date: dateJa(gameDate()) };
 
   const open = (id: string) => {
     setChannel(id);

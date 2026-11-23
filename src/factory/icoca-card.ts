@@ -1,5 +1,6 @@
 import placesJson from "@content/places.json";
 import type { PlacesFile } from "@/content/schema";
+import { gameDate } from "@/lib/season";
 import { t } from "@/lib/t";
 import { STATION } from "@/factory/signs";
 import { drawRuby, FONT_FAMILY, roundRect } from "@/factory/text-canvas";
@@ -20,7 +21,7 @@ export interface PassInfo {
   pass: boolean;
   /** カタカナの名前。 */
   name: string;
-  /** 買った日（YYYY-MM-DD）。無ければ今日。 */
+  /** 買った日（YYYY-MM-DD）。無ければ ゲームの中の日（4月1日）。 */
   start?: string;
   months?: number;
 }
@@ -31,7 +32,7 @@ function ymd(d: Date): string {
 
 /** 「〜から」の日と「〜まで」の日（◯か月後の前の日）。 */
 export function passPeriod(start: string | undefined, months: number): { from: Date; until: Date } {
-  const from = start ? new Date(`${start}T00:00:00`) : new Date();
+  const from = start ? new Date(`${start}T00:00:00`) : gameDate();
   const until = new Date(from);
   until.setMonth(until.getMonth() + months);
   until.setDate(until.getDate() - 1);
@@ -54,7 +55,7 @@ export function passFontText(info: PassInfo): string {
     STATION.tennoji?.name ?? "",
     STATION.awaza?.name ?? "",
     info.name,
-    ymd(new Date()),
+    ymd(gameDate()),
     t("tm.yen"),
     "0123456789ICOCA",
   ].join("");

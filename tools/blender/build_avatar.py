@@ -432,7 +432,7 @@ def with_part(v, phi0, depth=0.025):
     return f
 
 
-def cap(name, cut, vol, taper=None, cols=96, rows=36, thick=0.05):
+def cap(name, cut, vol, taper=None, cols=88, rows=30, thick=0.05):
     """頭にかぶる髪のかたまり。外がわ・内がわ・下のはし（まるい ふち）で、とじた形にする。
     cut(phi): 下のはし。π/2 までは頭の球の角度、それより大きいと 横から まっすぐ たれる（D で長さを書く）。
     taper(phi, f): たれた所の はば（f は 0 が上・1 が毛先。内まきは 1 より小さく、外はねは大きく）。"""
@@ -618,7 +618,7 @@ def hair_styles():
         offset=(0.0, HY * 1.2),
     )
     tie = ellipsoid("pt_tie", (0.0, HY * 1.05, HEAD_Z + 0.1), (0.05, 0.035, 0.035))
-    tie.name = "acc_hairTie"
+    tie.name = "acc_tie_ponytail"
     finish_hair("hair_ponytail", [shell, tail])
 
     # ツインテール（まっすぐ切りそろえた、少し短い前髪）
@@ -641,6 +641,62 @@ def hair_styles():
                 puff(1.08, 0.05, 0.03), taper=follow(tied_side))
     bun = ellipsoid("bun", (0.0, HY * 0.35, HEAD_Z + HZ * 1.1), (0.115, 0.11, 0.105))
     finish_hair("hair_bun", [shell, bun])
+
+    # ベリーショート（とても みじかい。おでこを出す）
+    buzz_side = keys(
+        [(0.95, Z(0.3)), (1.25, Z(0.12)), (1.45, Z(0.22)), (1.78, Z(0.22)), (2.05, D(0.05)), (2.5, D(0.13)),
+         (math.pi, D(0.15))]
+    )
+    cap("hair_buzz", hairline(lambda p: 0.62 - 0.05 * (p / 0.8) ** 2, buzz_side), puff(1.045, 0.03, 0.03),
+        taper=follow(buzz_side), thick=0.03)
+    finish_hair("hair_buzz", [bpy.data.objects["hair_buzz"]])
+
+    # センターわけ（まん中で分けて、前髪が左右へ流れる）
+    cap("hair_center", hairline(lambda p: 0.24 + 0.36 * math.exp(-((p / 0.17) ** 2)), short_side),
+        with_part(puff(1.12, 0.07, 0.05), 0.0, 0.035), taper=follow(short_side))
+    finish_hair("hair_center", [bpy.data.objects["hair_center"]])
+
+    # ハーフアップ（せなかまでの髪。上の半分を後ろで小さく むすぶ）
+    half_side = keys([(0.95, D(0.28)), (1.5, D(0.34)), (2.4, D(0.4)), (math.pi, D(0.42))])
+    shell = cap("hair_halfup", hairline(tips(2, 0.8, 0.45, 0.1, 1.6, shift=0.3), half_side, 0.72, 0.95),
+                puff(1.12, 0.05, 0.05), taper=lambda p, f: 1 - 0.3 * smoothstep(0.1, 1.0, f))
+    knot = ellipsoid("knot", (0.0, HY * 1.2, HEAD_Z + 0.07), (0.075, 0.055, 0.06))
+    tie = ellipsoid("ht_tie", (0.0, HY * 1.12, HEAD_Z + 0.02), (0.045, 0.03, 0.03))
+    tie.name = "acc_tie_halfup"
+    finish_hair("hair_halfup", [shell, knot])
+
+    # みつあみ（右の肩の前へ、1本の みつあみ）
+    shell = cap("hair_braid", hairline(tips(3, 0.8, 0.42, 0.08, 1.2), tied_side), puff(1.09, 0.05, 0.03),
+                taper=follow(tied_side))
+    p0 = Vector((-0.27, 0.06, HEAD_Z - 0.08))
+    p1 = Vector((-0.2, -0.1, HEAD_Z - 0.44))
+    seg = []
+    n = 6
+    for i in range(n):
+        t0 = (i + 0.5) / n
+        c = p0.lerp(p1, t0)
+        along = (p1 - p0).normalized()
+        side = along.cross(Vector((0, 1, 0))).normalized()
+        out = side.cross(along).normalized()
+        c = c + side * (0.012 if i % 2 else -0.012)
+        r = 0.062 - 0.016 * t0
+        seg.append(oriented("braid", c, (side, along, out), (r, (p1 - p0).length / n * 0.75, r * 0.85)))
+    tip = p1 + (p1 - p0).normalized() * 0.04
+    seg.append(oriented("btip", tip, (Vector((1, 0, 0)), (p1 - p0).normalized(), Vector((0, -1, 0))),
+                        (0.038, 0.05, 0.03)))
+    bt = p1 + (p1 - p0).normalized() * 0.005
+    tie = ellipsoid("bt_tie", (bt.x, bt.y, bt.z), (0.03, 0.03, 0.022))
+    tie.name = "acc_tie_braid"
+    finish_hair("hair_braid", [shell] + seg)
+
+    # おだんご2つ（頭の上の左右に まるい だんご・まっすぐな前髪）
+    shell = cap("hair_twinbun", hairline(lambda p: 0.34 + 0.06 * (p / 0.8) ** 2, tied_side), puff(1.09, 0.05, 0.03),
+                taper=follow(tied_side))
+    buns = [shell]
+    for sx in (-1, 1):
+        c = surf(0.5, sx * 1.05, 1.17)
+        buns.append(ellipsoid("tb", (c.x, c.y, c.z), (0.1, 0.095, 0.095)))
+    finish_hair("hair_twinbun", buns)
 
     # 髪のかざり（花・リボン）。右の耳の上
     c = surf(0.85, 1.05, 1.17)

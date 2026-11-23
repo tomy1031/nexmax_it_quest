@@ -1,6 +1,16 @@
 import { useMemo } from "react";
 import { block, box, FLAT, merge, shade } from "@/factory/kit";
-import { AUTUMN_GINKGO, AUTUMN_MAPLE, Many, Prop, type Place } from "@/factory/props";
+import {
+  AUTUMN_GINKGO,
+  AUTUMN_MAPLE,
+  Many,
+  Prop,
+  SPRING_PETALS,
+  SUMMER_CHERRY,
+  type Place,
+} from "@/factory/props";
+import { PetalFall } from "@/factory/season-parts";
+import { currentSeason } from "@/lib/season";
 import { Noren, VSign } from "@/factory/town-parts";
 
 /**
@@ -14,7 +24,9 @@ import { Noren, VSign } from "@/factory/town-parts";
  *   交差する道の西の列   … 正面 x=25.2（中心 x=23.2・向き π/2）
  *   交差する道の東の列   … 正面 x=38.8（中心 x=40.8・向き -π/2）
  *   メトロの入口のある通り … 南の列は正面 z=-0.4、北の列は正面 z=3.6（向き π）
- * 11月の朝なので、イチョウは黄色・桜は紅葉にする（頂点の色を置きかえる）。
+ * 木は季節で入れかわる（SeasonTrees。季節は src/lib/season.ts。入社式の 4月1日は春）:
+ *   春 … 並木も桜にし、花びらが散って地面にもつもる／夏 … イチョウと桜の緑の葉／
+ *   秋 … イチョウは黄色・桜は紅葉（頂点の色を置きかえる）／冬 … 葉の落ちた木。
  */
 
 const R0 = 0;
@@ -215,6 +227,50 @@ const LITTER: Place[] = GINKGO.flatMap((g, i) =>
   })),
 );
 
+/** 2本の桜（向かいの歩道）。 */
+const CHERRY: Place[] = [
+  { p: [16.6, 0, 12.4], s: 0.8, r: 0 },
+  { p: [-7.2, 0, 12.6], s: 0.7, r: 0 },
+];
+
+/** 季節の木。並木（GINKGO の場所）と 2本の桜と、木の下の地面。 */
+function SeasonTrees() {
+  const season = currentSeason();
+  if (season === "spring") {
+    // 桜並木（桜の模型はイチョウより小さいので、大きめに置く）
+    const rows = [
+      ...GINKGO.map((g) => ({ ...g, s: (g.s ?? 1) * 1.75 })),
+      ...CHERRY.map((c) => ({ ...c, s: (c.s ?? 1) * 1.3 })),
+    ];
+    return (
+      <>
+        <Many url="street/cherry" at={rows} />
+        <Many url="street/ginkgo-litter" at={LITTER} recolor={SPRING_PETALS} />
+        <PetalFall trees={rows.map((r) => r.p)} />
+      </>
+    );
+  }
+  if (season === "winter") {
+    return (
+      <Many
+        url="street/bare-tree"
+        at={[
+          ...GINKGO.map((g) => ({ ...g, s: (g.s ?? 1) * 1.5 })),
+          ...CHERRY.map((c) => ({ ...c, s: 1 })),
+        ]}
+      />
+    );
+  }
+  const autumn = season === "autumn";
+  return (
+    <>
+      <Many url="street/ginkgo" at={GINKGO} recolor={autumn ? AUTUMN_GINKGO : undefined} />
+      {autumn && <Many url="street/ginkgo-litter" at={LITTER} recolor={AUTUMN_GINKGO} />}
+      <Many url="street/cherry" at={CHERRY} recolor={autumn ? AUTUMN_MAPLE : SUMMER_CHERRY} />
+    </>
+  );
+}
+
 export function Town() {
   return (
     <>
@@ -224,11 +280,8 @@ export function Town() {
         <Prop key={i} url={url} position={[x, 0, z]} rotationY={r} />
       ))}
 
-      {/* 木 */}
-      <Many url="street/ginkgo" at={GINKGO} recolor={AUTUMN_GINKGO} />
-      <Many url="street/ginkgo-litter" at={LITTER} recolor={AUTUMN_GINKGO} />
-      <Prop url="street/cherry" position={[16.6, 0, 12.4]} recolor={AUTUMN_MAPLE} scale={0.8} />
-      <Prop url="street/cherry" position={[-7.2, 0, 12.6]} recolor={AUTUMN_MAPLE} scale={0.7} />
+      {/* 木（季節で入れかわる） */}
+      <SeasonTrees />
 
       {/* 電柱と電線（8m おき） */}
       <Many

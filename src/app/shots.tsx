@@ -241,11 +241,16 @@ const STYLES: HairStyle[] = [
   "side",
   "wavy",
   "curly",
+  "buzz",
+  "center",
   "bob",
   "long",
   "ponytail",
   "twin",
   "bun",
+  "halfup",
+  "braid",
+  "twinbun",
 ];
 
 /** 見本（豆知識ではない）: 髪型と身長の並び・ヘンディさん。/factory?shot=avatars */

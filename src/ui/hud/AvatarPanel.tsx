@@ -50,11 +50,16 @@ const HAIR_STYLES: [HairStyle, UiKey][] = [
   ["side", "avatar.hs.side"],
   ["wavy", "avatar.hs.wavy"],
   ["curly", "avatar.hs.curly"],
+  ["buzz", "avatar.hs.buzz"],
+  ["center", "avatar.hs.center"],
   ["bob", "avatar.hs.bob"],
   ["long", "avatar.hs.long"],
   ["ponytail", "avatar.hs.ponytail"],
   ["twin", "avatar.hs.twin"],
   ["bun", "avatar.hs.bun"],
+  ["halfup", "avatar.hs.halfup"],
+  ["braid", "avatar.hs.braid"],
+  ["twinbun", "avatar.hs.twinbun"],
 ];
 
 const ACCESSORIES: [NonNullable<AvatarConfig["accessory"]>, UiKey][] = [
@@ -176,18 +181,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
     set({
       figure: fig.figure,
       bottom: fig.bottom,
-      hairStyle: pick<HairStyle>([
-        "model",
-        "spiky",
-        "side",
-        "wavy",
-        "curly",
-        "bob",
-        "long",
-        "ponytail",
-        "twin",
-        "bun",
-      ]),
+      hairStyle: pick<HairStyle>(HAIR_STYLES.map(([hs]) => hs)),
       height: 155 + Math.round(Math.random() * 30),
       eyes: pick<AvatarConfig["eyes"]>(["round", "smile", "sparkle", "calm"]),
       skin: pick(SKINS),

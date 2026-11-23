@@ -33,6 +33,34 @@ export const AUTUMN_MAPLE: Recolor = (r, g, b) => {
   return null;
 };
 
+/** 春の色: イチョウの葉を、明るい若葉の緑に。 */
+export const SPRING_GINKGO: Recolor = (r, g, b) => {
+  if (g > r * 1.08 && g > b * 1.15) {
+    const v = (r + g + b) / 3;
+    const k = 0.7 + v * 0.9;
+    return [Math.min(1, 0.55 * k), Math.min(1, 0.85 * k), 0.32 * k];
+  }
+  return null;
+};
+
+/** 春の色: 落ち葉（緑）を、散った桜の花びら（うすいピンク）に。 */
+export const SPRING_PETALS: Recolor = (r, g, b) => {
+  if (g > r * 1.08 && g > b * 1.15) {
+    const v = (r + g + b) / 3;
+    return v > 0.4 ? [1.0, 0.8, 0.86] : [0.98, 0.7, 0.8];
+  }
+  return null;
+};
+
+/** 夏の色: 桜の花（ピンク）を、こい緑の葉に。 */
+export const SUMMER_CHERRY: Recolor = (r, g, b) => {
+  if (r > g * 1.15 && r > b * 0.95 && r > 0.35) {
+    const v = (r + g + b) / 3;
+    return v > 0.6 ? [0.42, 0.68, 0.3] : [0.26, 0.5, 0.22];
+  }
+  return null;
+};
+
 function applyRecolor(obj: THREE.Object3D, recolor: Recolor): void {
   const c = new THREE.Color();
   obj.traverse((o) => {

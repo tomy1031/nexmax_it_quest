@@ -165,6 +165,11 @@ export const stageFile = z.object({
   id: z.string(),
   title: learnerText,
   subtitle: learnerText,
+  /** ゲームの中の日（MM-DD）。入社式の日で、季節もここから決まる（src/lib/season.ts）。 */
+  day: z
+    .string()
+    .regex(/^\d{2}-\d{2}$/)
+    .optional(),
   chapters: z.array(z.object({ no: z.number().int(), title: learnerText })),
   /** 修了証に載せる「きょうの ことば」。 */
   words: z.array(z.object({ word: learnerText, en: z.string() })),

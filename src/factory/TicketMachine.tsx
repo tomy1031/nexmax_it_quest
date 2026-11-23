@@ -3,6 +3,7 @@ import { playSfx } from "@/lib/audio";
 import placesJson from "@content/places.json";
 import type { PlacesFile } from "@/content/schema";
 import { useGame } from "@/lib/store";
+import { gameDate, isoDay } from "@/lib/season";
 import { t } from "@/lib/t";
 import { questEvents } from "@/stages/events";
 import { CanvasPanel } from "@/factory/CanvasPanel";
@@ -282,7 +283,7 @@ export function TicketMachine({
           setScreen("take");
           playSfx("pi");
           window.setTimeout(() => {
-            useGame.getState().setPassStart(new Date().toISOString().slice(0, 10));
+            useGame.getState().setPassStart(isoDay(gameDate()));
             questEvents.emit("ticket:purchased");
             setScreen("top");
           }, 1400);

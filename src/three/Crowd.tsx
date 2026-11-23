@@ -41,6 +41,11 @@ const STYLES: AvatarConfig["hairStyle"][] = [
   "curly",
   "bun",
   "twin",
+  "buzz",
+  "halfup",
+  "center",
+  "braid",
+  "twinbun",
 ];
 const EYES: AvatarConfig["eyes"][] = ["round", "smile", "calm", "sparkle"];
 

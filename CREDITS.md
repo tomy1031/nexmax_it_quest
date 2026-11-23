@@ -10,6 +10,7 @@
 - Air-Con Unit by Polyfork (https://polyfork.dev/asset/air-con-unit-9fadc2), CC BY 4.0
 - Apartment Block by Polyfork (https://polyfork.dev/asset/apartment-block-6445af), CC BY 4.0
 - Area Rug by Polyfork (https://polyfork.dev/asset/area-rug-5c56e2), CC BY 4.0
+- Bare Mountain Rowan by Polyfork (https://polyfork.dev/asset/bare-mountain-rowan-10e72e), CC BY 4.0
 - Bathhouse by Polyfork (https://polyfork.dev/asset/bathhouse-4ac41a), CC BY 4.0
 - Bed by Polyfork (https://polyfork.dev/asset/bed-6e10e8), CC BY 4.0
 - Beverage Crate by Polyfork (https://polyfork.dev/asset/beverage-crate-c195c9), CC BY 4.0
