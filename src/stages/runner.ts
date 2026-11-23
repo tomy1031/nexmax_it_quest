@@ -29,6 +29,18 @@ export interface RunnerOptions {
   onEnd?: () => void;
 }
 
+function addTodo(id: string, text: string): void {
+  const list = usePlay.getState().todos;
+  if (list.some((x) => x.id === id)) return;
+  usePlay.setState({ todos: [...list, { id, text, done: false }] });
+}
+
+function doneTodo(id: string): void {
+  usePlay.setState({
+    todos: usePlay.getState().todos.map((x) => (x.id === id ? { ...x, done: true } : x)),
+  });
+}
+
 export class StageRunner {
   private stopped = false;
   private hintTimer: number | null = null;
@@ -74,6 +86,13 @@ export class StageRunner {
       0,
       stage.sections.findIndex((s) => s.id === this.opts.startSection),
     );
+    // 途中から始めたときは、前の場面までの「やること」を そろえておく
+    for (const s of stage.sections.slice(0, index)) {
+      for (const b of s.beats) {
+        if (b.t === "todo-add") addTodo(b.id, b.text);
+        if (b.t === "todo-done") doneTodo(b.id);
+      }
+    }
     let lastChapter = 0;
     while (index < stage.sections.length && !this.stopped) {
       const section = stage.sections[index]!;
@@ -285,6 +304,13 @@ export class StageRunner {
         return;
       case "jump":
         throw new Jump(beat.to);
+      case "todo-add":
+        addTodo(beat.id, beat.text);
+        if (!this.opts.fast) playSfx("pi");
+        return;
+      case "todo-done":
+        doneTodo(beat.id);
+        return;
       case "verdict": {
         usePlay.setState({ verdict: { ok: beat.ok, text: beat.text } });
         playSfx(beat.ok ? "ok" : "ng");

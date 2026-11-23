@@ -604,3 +604,18 @@ SHOTS.kigurumi = {
     </>
   ),
 };
+
+/** 見本（開発用）: くつの形3つ（革ぐつ・スニーカー・サンダル）。/factory?shot=shoes */
+SHOTS.shoes = {
+  camera: { pos: [0.5, 0.45, 1.6], look: [0, 0.12, 0], fov: 34 },
+  light: "day",
+  scene: () => (
+    <>
+      {(["leather", "sneaker", "sandal"] as const).map((st, i) => (
+        <group key={st} position={[-0.42 + i * 0.42, 0, 0]} rotation={[0, 0.5, 0]}>
+          <Chibi config={{ ...DEFAULT_AVATAR, outfit: "casual", shoeType: st }} phase={0.1} />
+        </group>
+      ))}
+    </>
+  ),
+};

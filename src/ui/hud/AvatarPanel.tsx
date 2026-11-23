@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { playSfx } from "@/lib/audio";
 import { useGame, type AvatarConfig, type HairStyle, type Kigurumi } from "@/lib/store";
 import { t, type UiKey } from "@/lib/t";
-import { bottomOf } from "@/three/avatar-parts";
+import { bottomOf, shoeTypeOf } from "@/three/avatar-parts";
 import { Chibi } from "@/three/Chibi";
 import { EYE_SLOTS, FACE_ATLAS, faceCell, faceSheetUrl } from "@/three/face-parts";
 import { RubyText } from "@/ui/RubyText";
@@ -93,17 +93,96 @@ const ACCESSORIES: [NonNullable<AvatarConfig["accessory"]>, UiKey][] = [
   ["ribbon", "avatar.acc.ribbon"],
 ];
 
-const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b", "#6b4430"];
+const SKINS = [
+  "#fbe0c8",
+  "#f1c9a5",
+  "#e0ac83",
+  "#d49a6a",
+  "#c68e64",
+  "#b98258",
+  "#a8714a",
+  "#8a5a3b",
+  "#6b4430",
+  "#56352a",
+];
 // 髪の色は、参考の絵（codex_out/）のような明るめのこげ茶を多めに
-const HAIRS = ["#2e211b", "#4a3326", "#5e4030", "#7a5236", "#9a7452", "#a3a3a3", "#2c3e70"];
+/** 髪の色（tomy さん 2026-11-23「髪の色を選べるようにして」）。黒・茶・金・灰色・白と、パステルや はっきりした色。 */
+const HAIRS = [
+  "#1f1a19",
+  "#2e211b",
+  "#4a3326",
+  "#5e4030",
+  "#7a5236",
+  "#9a7452",
+  "#c9a46c",
+  "#e8d29a",
+  "#a3a3a3",
+  "#ece8e2",
+  "#9c3d2c",
+  "#e07a5f",
+  "#f2a0b8",
+  "#9b7fd1",
+  "#5b8fd6",
+  "#2c3e70",
+  "#6fbf9a",
+  "#3b2a24",
+  "#b07a4a",
+  "#f0c36a",
+  "#c43c5a",
+  "#7fc8e8",
+];
 const SUITS_OK = ["#1c1e24", "#232f52", "#3a3d45", "#5b616c"];
 const SUITS_LOUD = ["#b8312f", "#e8e8e8", "#3f7f4f"];
-const TIES = ["#1f3f7a", "#8a1c2b", "#2d5e3a", "#5a3e8a", "#c9a227", "#222222"];
-const SHIRTS = ["#f4f6f8", "#dfefff", "#fff2f7"];
-const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"];
-const PANTS = ["#3a3d44", "#2a3550", "#6b5a45", "#20232a"];
-const SHOES_SUIT = ["#24201f", "#4a2e20", "#2a2f3a"];
-const SHOES_CASUAL = ["#f4f4f2", "#24201f", "#d94b4b", "#3b6ea5", "#e8c547"];
+const TIES = [
+  "#1f3f7a",
+  "#8a1c2b",
+  "#2d5e3a",
+  "#5a3e8a",
+  "#c9a227",
+  "#222222",
+  "#e85c7a",
+  "#3a8fb7",
+  "#d9773b",
+];
+const SHIRTS = ["#f4f6f8", "#dfefff", "#fff2f7", "#e8f6ea", "#fdf3dc", "#ece6f7"];
+const COATS = [
+  "#8a8f98",
+  "#3b6ea5",
+  "#9c3b3b",
+  "#4e7d4e",
+  "#d8c3a5",
+  "#2b2b2b",
+  "#f4c7c3",
+  "#cfe3c4",
+  "#c7dbef",
+  "#e6d8f2",
+  "#f6e3a8",
+  "#ffffff",
+  "#7a5a8c",
+  "#e8965a",
+];
+const PANTS = [
+  "#3a3d44",
+  "#2a3550",
+  "#6b5a45",
+  "#20232a",
+  "#4a6a8a",
+  "#c9b79c",
+  "#5a6b4a",
+  "#8a3a3a",
+  "#f2efe8",
+];
+const SHOES_SUIT = ["#24201f", "#4a2e20", "#2a2f3a", "#6b4430", "#8a5a3b"];
+const SHOES_CASUAL = [
+  "#f4f4f2",
+  "#24201f",
+  "#d94b4b",
+  "#3b6ea5",
+  "#e8c547",
+  "#f6a6b8",
+  "#7fc8a0",
+  "#8a5a3b",
+];
 
 const LABEL: Record<Tab, UiKey> = {
   outfit: "avatar.outfit",
@@ -147,6 +226,13 @@ const FOCUS: Record<Tab, { y: number; d: number }> = {
 };
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)]!;
+
+/** くつの形。 */
+const SHOE_TYPES: [NonNullable<AvatarConfig["shoeType"]>, UiKey][] = [
+  ["leather", "avatar.shoe.leather"],
+  ["sneaker", "avatar.shoe.sneaker"],
+  ["sandal", "avatar.shoe.sandal"],
+];
 
 const OUTFIT_LABEL: Record<AvatarConfig["outfit"], UiKey> = {
   suit: "avatar.suit",
@@ -250,18 +336,33 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
     onDone();
   };
 
-  const swatches = (values: string[], key: keyof AvatarConfig) => (
-    <div className="flex flex-wrap gap-3">
-      {values.map((c) => (
-        <button
-          key={c}
-          type="button"
-          className={`h-12 w-12 rounded-full border-4 shadow transition ${avatar[key] === c ? "border-cyan scale-110" : "border-white"}`}
-          style={{ background: c }}
-          onClick={() => set({ [key]: c })}
-          aria-label={c}
-        />
-      ))}
+  /** 色の見本（多めに ならべる）と「ほかの 色を えらぶ」（自由に えらべる。tomy さん「カラー多い方がいい」2026-11-23）。 */
+  const swatches = (values: string[], key: keyof AvatarConfig, custom = true) => (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-3">
+        {values.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className={`h-12 w-12 rounded-full border-4 shadow transition ${avatar[key] === c ? "border-cyan scale-110" : "border-white"}`}
+            style={{ background: c }}
+            onClick={() => set({ [key]: c })}
+            aria-label={c}
+          />
+        ))}
+      </div>
+      {custom && (
+        <label className="flex w-fit cursor-pointer items-center gap-2 rounded-xl bg-white/10 px-3 py-2 font-extrabold hover:bg-white/20">
+          <input
+            type="color"
+            value={String(avatar[key] ?? "#888888")}
+            onChange={(e) => set({ [key]: e.target.value })}
+            className="h-8 w-10 cursor-pointer rounded border-0 bg-transparent"
+            data-testid={`avatar-${key}-custom`}
+          />
+          <RubyText text={t("avatar.colorCustom")} />
+        </label>
+      )}
     </div>
   );
 
@@ -457,15 +558,37 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
               ))}
             </div>
           )}
-          {tab === "skin" && swatches(SKINS, "skin")}
+          {/* はだは 見本だけ（自由な色にしない） */}
+          {tab === "skin" && swatches(SKINS, "skin", false)}
           {tab === "hair" && swatches(HAIRS, "hair")}
-          {tab === "suit" && swatches([...SUITS_OK, ...SUITS_LOUD], "suit")}
+          {/* スーツは 見本だけ（入社式に安心な色を教えるため。自由な色にしない） */}
+          {tab === "suit" && swatches([...SUITS_OK, ...SUITS_LOUD], "suit", false)}
           {tab === "tie" && swatches(TIES, "tie")}
           {tab === "shirt" && swatches(SHIRTS, "shirt")}
           {tab === "coat" && swatches(COATS, "coat")}
           {tab === "pants" && swatches(PANTS, "pants")}
-          {tab === "shoes" &&
-            swatches(avatar.outfit === "suit" ? SHOES_SUIT : SHOES_CASUAL, "shoes")}
+          {tab === "shoes" && (
+            <div className="flex flex-col gap-3">
+              {/* くつの形（革ぐつ・スニーカー・サンダル） */}
+              <div className="flex flex-wrap gap-2">
+                {SHOE_TYPES.map(([st, key]) => (
+                  <button
+                    key={st}
+                    type="button"
+                    className={`btn ${shoeTypeOf(avatar) === st ? "btn-primary" : "btn-ghost"}`}
+                    onClick={() => {
+                      set({ shoeType: st });
+                      if (avatar.outfit === "suit" && st !== "leather") setWarn("avatar.shoeSuit");
+                    }}
+                    data-testid={`avatar-shoe-${st}`}
+                  >
+                    <RubyText text={t(key)} />
+                  </button>
+                ))}
+              </div>
+              {swatches(shoeTypeOf(avatar) === "leather" ? SHOES_SUIT : SHOES_CASUAL, "shoes")}
+            </div>
+          )}
         </div>
         {warn && (
           <p

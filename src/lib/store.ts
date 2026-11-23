@@ -71,6 +71,8 @@ export interface AvatarConfig {
   accessory?: "none" | "flower" | "ribbon";
   /** ふだんの服のときのリュック。 */
   bag?: boolean;
+  /** くつの形（無ければ、スーツは革ぐつ・ふだんの服はスニーカー）。 */
+  shoeType?: "leather" | "sneaker" | "sandal";
   /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
   shoes?: string;
   /** 着ぐるみの どうぶつ（服が着ぐるみのとき）。 */
@@ -222,6 +224,8 @@ interface SettingsState {
   quality: Quality;
   textScale: 1 | 1.15 | 1.3;
   sound: boolean;
+  /** やることリストで、できたものを かくす。 */
+  hideDoneTodos?: boolean;
   setSettings: (s: Partial<Omit<SettingsState, "setSettings">>) => void;
 }
 

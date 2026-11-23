@@ -50,11 +50,7 @@ export function Chibi({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const parts = useMemo(() => pickParts(gltf.scene, config), [gltf, key]);
   const J = parts.joints;
-  const headGeo = useMemo(() => {
-    const g = new THREE.SphereGeometry(HEAD_R, 40, 28);
-    g.scale(1.08, 0.95, 1);
-    return g;
-  }, []);
+  const headGeo = useMemo(() => faceShape(), []);
 
   const faceOpen = useMemo(() => faceTexture(config, true, expression), [config, expression]);
   const faceClosed = useMemo(
@@ -219,6 +215,32 @@ export function Chibi({
       </group>
     </group>
   );
+}
+
+/**
+ * 頭の形（顔のライン）。tomy さんの参考の絵（codex_out/hair_ref_cute_*.png。2026-11-23「送った顔のラインも参考にして」）に合わせ、
+ * ほっぺを ふっくら横に広げ、あごは まるく少し平らにする（おもちのような顔）。上の半分は 今までの まるい頭のまま
+ * （髪は この上に かぶせて作ってあるので、上は変えない）。
+ */
+function faceShape(): THREE.BufferGeometry {
+  const g = new THREE.SphereGeometry(HEAD_R, 48, 32);
+  const p = g.getAttribute("position") as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i += 1) {
+    const x = p.getX(i);
+    const y = p.getY(i);
+    const z = p.getZ(i);
+    const v = y / HEAD_R; // -1（あご）〜 1（頭の上）
+    // ほっぺ: 目の高さより下を 横に広げる（いちばん広いのは v=-0.35 あたり）
+    const cheek = Math.exp(-(((v + 0.35) / 0.38) ** 2));
+    const front = Math.max(0, z / HEAD_R); // 顔の前の方だけ
+    const wx = 1.08 * (1 + 0.075 * cheek);
+    const wz = 1 + 0.05 * cheek * front;
+    // あご: 下を少し平らに（まるいまま）
+    const ny = v < -0.55 ? y * (1 - 0.1 * ((-v - 0.55) / 0.45) ** 1.5) : y;
+    p.setXYZ(i, x * wx, ny * 0.95, z * wz);
+  }
+  g.computeVertexNormals();
+  return g;
 }
 
 const heldGeo = {

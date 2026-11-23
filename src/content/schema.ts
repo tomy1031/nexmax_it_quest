@@ -89,6 +89,8 @@ type BeatShape =
   | { t: "flag"; id: string }
   | { t: "jump"; to: string }
   | { t: "verdict"; ok: boolean; text: string }
+  | { t: "todo-add"; id: string; text: string }
+  | { t: "todo-done"; id: string }
   | { t: "dream"; items: { text: string; icon: string }[] }
   | { t: "end" };
 
@@ -140,6 +142,10 @@ export const beat: z.ZodType<BeatShape> = z.lazy(() =>
     z.object({ t: z.literal("flag"), id: z.string() }),
     z.object({ t: z.literal("jump"), to: z.string() }),
     z.object({ t: z.literal("verdict"), ok: z.boolean(), text: learnerText }),
+    /** やることリストに足す（tomy さん 2026-11-23「やることが発生した場合にリストを作って表示してください」）。 */
+    z.object({ t: z.literal("todo-add"), id: z.string(), text: learnerText }),
+    /** やることリストの「できた」（横線を引く）。 */
+    z.object({ t: z.literal("todo-done"), id: z.string() }),
     z.object({
       t: z.literal("dream"),
       items: z.array(z.object({ text: learnerText, icon: z.string() })).min(1),

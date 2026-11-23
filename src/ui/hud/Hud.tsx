@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import tipsJson from "@content/tips.json";
 import type { Tip } from "@/content/schema";
-import { useGame } from "@/lib/store";
+import { useGame, useSettings } from "@/lib/store";
 import { fill, t, type UiKey } from "@/lib/t";
 import { playActions, usePlay } from "@/stages/play-store";
 import { RubyText } from "@/ui/RubyText";
@@ -44,7 +44,11 @@ export function Hud() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 select-none">
-      <ObjectiveBar />
+      {/* 左上: いま する こと と、やる ことの リスト（たてに ならべる） */}
+      <div className="absolute top-3 left-3 flex flex-col items-start gap-2">
+        <ObjectiveBar />
+        <TodoList />
+      </div>
       {/* メニューは、問題・パネル・豆知識が出ている間も押せる（その上に出す。閉じたら問題にもどる。tomy さん 2026-11-22） */}
       <button
         type="button"
@@ -73,7 +77,7 @@ function ObjectiveBar() {
   if (!objective) return null;
   return (
     <div
-      className="glass pop absolute top-3 left-3 flex max-w-[min(70vw,560px)] items-center gap-3 rounded-2xl px-4 py-2.5"
+      className="glass pop flex max-w-[min(70vw,560px)] items-center gap-3 rounded-2xl px-4 py-2.5"
       data-testid="objective"
     >
       <span className="shrink-0 rounded-full bg-[#0a63d6] px-2.5 py-0.5 text-xs font-extrabold text-white">
@@ -85,6 +89,65 @@ function ObjectiveBar() {
       <span className="text-lg font-extrabold">
         <RubyText text={objective.text} />
       </span>
+    </div>
+  );
+}
+
+/**
+ * やることリスト（tomy さん 2026-11-23「やることが発生した場合にリストを作って表示してください」
+ * 「やったらよこせん。完了したタスクを非表示にする小さいボタン」）。
+ * 台本の todo-add で足し、todo-done で横線。かくすかどうかは この端末に保存する。
+ */
+function TodoList() {
+  const todos = usePlay((s) => s.todos);
+  const hide = useSettings((s) => s.hideDoneTodos ?? false);
+  const setSettings = useSettings((s) => s.setSettings);
+  if (todos.length === 0) return null;
+  const shown = hide ? todos.filter((x) => !x.done) : todos;
+  const doneCount = todos.filter((x) => x.done).length;
+  return (
+    <div
+      className="glass pointer-events-auto w-[min(60vw,300px)] rounded-2xl px-3 py-2"
+      data-testid="todo-list"
+    >
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="text-sm font-extrabold text-white">
+          <RubyText text={t("hud.todo")} />
+          <span className="ml-1.5 text-xs opacity-80">
+            {doneCount}/{todos.length}
+          </span>
+        </span>
+        {doneCount > 0 && (
+          <button
+            type="button"
+            className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-white/25"
+            onClick={() => setSettings({ hideDoneTodos: !hide })}
+            data-testid="todo-toggle"
+          >
+            <RubyText text={t(hide ? "hud.todoShow" : "hud.todoHide")} />
+          </button>
+        )}
+      </div>
+      <ul className="flex flex-col gap-1">
+        {shown.map((x) => (
+          <li
+            key={x.id}
+            className={`pop flex items-center gap-2 text-[15px] font-bold text-white ${x.done ? "opacity-60" : ""}`}
+            data-testid={`todo-${x.id}`}
+            data-done={x.done}
+          >
+            <span
+              className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 ${x.done ? "border-[#7ee0a6] bg-[#2f9d63]" : "border-white/70"}`}
+              aria-label={x.done ? t("hud.todoDone") : undefined}
+            >
+              {x.done && <IconCheck className="h-3.5 w-3.5 text-white" />}
+            </span>
+            <span className={x.done ? "line-through decoration-2" : ""}>
+              <RubyText text={x.text} />
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

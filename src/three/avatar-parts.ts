@@ -32,6 +32,13 @@ export interface AvatarParts {
   legR: THREE.Mesh[];
 }
 
+/** くつの形（tomy さん 2026-11-23「靴もかわぐつ、スニーカー、サンダルを選べるように」）。 */
+export function shoeTypeOf(cfg: AvatarConfig): "leather" | "sneaker" | "sandal" {
+  return cfg.shoeType ?? (cfg.outfit === "suit" ? "leather" : "sneaker");
+}
+
+const SHOE_DEFAULT = { leather: "#24201f", sneaker: "#f4f4f2", sandal: "#5b4a3f" } as const;
+
 /** 下の服（男性はズボン。女性はスカートかズボン）。 */
 export function bottomOf(cfg: AvatarConfig): "pants" | "skirt" {
   if (cfg.figure !== "f" || cfg.outfit === "kigurumi") return "pants";
@@ -153,6 +160,19 @@ function kigurumiColor(name: string, cfg: AvatarConfig): string | null {
 function colorFor(name: string, cfg: AvatarConfig): string | null {
   if (cfg.outfit === "kigurumi") return kigurumiColor(name, cfg);
   if (name.startsWith("kig_")) return null;
+  {
+    // くつ（形を えらぶ）。着ぐるみでないときは、まるい「shoe」は使わない
+    const st = shoeTypeOf(cfg);
+    const shoe = cfg.shoes ?? SHOE_DEFAULT[st];
+    const sd = name.replace(/_[LR]$/, "");
+    if (sd === "shoe") return null;
+    if (sd === "shoe_leather") return st === "leather" ? shoe : null;
+    if (sd === "shoe_sneaker") return st === "sneaker" ? shoe : null;
+    if (sd === "white_sneakerSole") return st === "sneaker" ? "#f6f6f4" : null;
+    if (sd === "shoe_sandal") return st === "sandal" ? shoe : null;
+    if (sd === "dark_sandalSole") return st === "sandal" ? "#d8c09a" : null;
+    if (sd === "skin_foot") return st === "sandal" ? cfg.skin : null;
+  }
   const suit = cfg.outfit === "suit";
   const bottom = bottomOf(cfg);
   const top = suit ? cfg.suit : cfg.coat;
@@ -191,8 +211,6 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
       return bottom === "skirt" ? (suit ? cfg.suit : cfg.pants) : null;
     case "leg":
       return bottom === "skirt" ? (suit ? "#3b302c" : cfg.skin) : pants;
-    case "shoe":
-      return cfg.shoes ?? (suit ? "#24201f" : "#f4f4f2");
     case "hand":
     case "ear":
       return cfg.skin;
@@ -256,9 +274,9 @@ export function pickParts(scene: THREE.Object3D, cfg: AvatarConfig): AvatarParts
       out.armL.push(m);
     } else if (/^(sleeve|hand|cuff)_R$/.test(name)) {
       out.armR.push(m);
-    } else if (/^(leg|shoe)_L$/.test(name)) {
+    } else if (/^(leg|shoe\w*|white_sneakerSole|dark_sandalSole|skin_foot)_L$/.test(name)) {
       out.legL.push(m);
-    } else if (/^(leg|shoe)_R$/.test(name)) {
+    } else if (/^(leg|shoe\w*|white_sneakerSole|dark_sandalSole|skin_foot)_R$/.test(name)) {
       out.legR.push(m);
     } else if (/^(hair_|ear_|glasses_|acc_|kig_hood_|kig_inner_)/.test(name)) {
       m.position.copy(src.position).sub(joints.head);

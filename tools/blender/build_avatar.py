@@ -291,8 +291,27 @@ def build_body():
             offset=(sx * HIP[0], 0.0),
             origin=origin,
         )
-        # くつ（前が まるく ながい）
+        # くつ（前が まるく ながい）。着ぐるみの 足にも使う
         ellipsoid(f"shoe_{side}", (sx * HIP[0], -0.022, 0.035), (0.058, 0.085, 0.042), origin=origin)
+        x = sx * HIP[0]
+        # 革ぐつ: 低めで すっきり。かかとに 小さな ヒール（tomy さん 2026-11-23「かわぐつ、スニーカー、サンダルを選べるように」）
+        join(f"shoe_leather_{side}", [
+            ellipsoid("lb", (x, -0.03, 0.03), (0.052, 0.09, 0.032), origin=origin),
+            ellipsoid("lh", (x, 0.036, 0.016), (0.044, 0.03, 0.017), origin=origin),
+        ])
+        # スニーカー: ふっくら高め・白い くつ底と ひも
+        ellipsoid(f"shoe_sneaker_{side}", (x, -0.024, 0.042), (0.06, 0.088, 0.044), origin=origin)
+        join(f"white_sneakerSole_{side}", [
+            ellipsoid("ss", (x, -0.024, 0.013), (0.065, 0.095, 0.018), origin=origin),
+            ellipsoid("sl", (x, -0.058, 0.074), (0.026, 0.036, 0.01), origin=origin),
+        ])
+        # サンダル: うすい くつ底・足（はだ）・2本の ベルト
+        ellipsoid(f"dark_sandalSole_{side}", (x, -0.026, 0.009), (0.06, 0.094, 0.011), origin=origin)
+        ellipsoid(f"skin_foot_{side}", (x, -0.024, 0.032), (0.046, 0.08, 0.026), origin=origin)
+        join(f"shoe_sandal_{side}", [
+            ellipsoid("sb1", (x, -0.058, 0.033), (0.05, 0.013, 0.03), origin=origin),
+            ellipsoid("sb2", (x, 0.004, 0.036), (0.05, 0.013, 0.033), origin=origin),
+        ])
 
     # 腕（肩が原点）。そで・手（ミトン）・カフス（スーツのシャツ）
     for side, sx in (("L", 1), ("R", -1)):

@@ -183,9 +183,24 @@
           "text": "スーツを 着て 行かないと。"
         },
         {
+          "t": "todo-add",
+          "id": "suit",
+          "text": "スーツを 着る"
+        },
+        {
           "t": "say",
           "who": "me",
           "text": "ICOCAの 定期券も 買わないと。"
+        },
+        {
+          "t": "todo-add",
+          "id": "pass",
+          "text": "ICOCAの 定期券を 買う"
+        },
+        {
+          "t": "todo-add",
+          "id": "go",
+          "text": "会社の 駅（阿波座）まで 行く"
         },
         {
           "t": "say",
@@ -228,6 +243,10 @@
           "t": "panel",
           "id": "avatar",
           "mode": "suit"
+        },
+        {
+          "t": "todo-done",
+          "id": "suit"
         },
         {
           "t": "unfocus"
@@ -614,6 +633,10 @@
           "item": "icoca-pass"
         },
         {
+          "t": "todo-done",
+          "id": "pass"
+        },
+        {
           "t": "fx",
           "id": "card-out"
         },
@@ -674,12 +697,21 @@
           "text": "では、チャージを しましょう。"
         },
         {
+          "t": "todo-add",
+          "id": "charge",
+          "text": "ICOCAに チャージする"
+        },
+        {
           "t": "objective",
           "text": "ICOCAに お金を チャージしよう"
         },
         {
           "t": "wait",
           "event": "ticket:charged"
+        },
+        {
+          "t": "todo-done",
+          "id": "charge"
         },
         {
           "t": "clear-objective"
@@ -1232,6 +1264,10 @@
       "requires": ["icoca-pass"],
       "beats": [
         {
+          "t": "todo-done",
+          "id": "go"
+        },
+        {
           "t": "say",
           "who": "me",
           "text": "無事に 阿波座駅に 着きました！"
@@ -1249,11 +1285,20 @@
           "text": "ヘンディさんに、着いたことを 連絡しましょう。"
         },
         {
+          "t": "todo-add",
+          "id": "report",
+          "text": "ヘンディさんに 連絡する"
+        },
+        {
           "t": "objective",
           "text": "NMChatで ヘンディさんに 連絡しよう"
         },
         {
           "t": "panel",
+          "id": "report"
+        },
+        {
+          "t": "todo-done",
           "id": "report"
         },
         {

@@ -11,6 +11,7 @@ import { drawRuby, FONT_FAMILY, roundRect } from "@/factory/text-canvas";
  *   左上に会社名・券の種類（通勤定期◯か月）／右上に金額／大きく区間／経由／「〜から」と大きく「〜まで」／発行日／名前。
  * 水色の地に大きく薄い「ICOCA」の字。会社のロゴとキャラクターの絵は描かない（字だけ）。
  * 水色は明るい地なので、字とふりがなは紺（濃い背景の白のルールは当てはまらない）。
+ * 水色は 左上と 右下の角が ななめに切れ、そこは白っぽい地になる（見本の券面）。
  */
 
 const PLACES = placesJson as PlacesFile;
@@ -75,16 +76,26 @@ function dot(d: Date): string {
  */
 export function drawIcocaCard(ctx: CanvasRenderingContext2D, w: number, h: number, info: PassInfo) {
   const months = info.months ?? 3;
-  // 地（水色）と右はしの灰色の帯・うすい灰色のふち
+  // 地（白っぽい灰色と水色）・うすい灰色のふち
   ctx.save();
   roundRect(ctx, 0, 0, w, h, h * 0.06);
   ctx.clip();
-  ctx.fillStyle = "#5cc7e3";
+  // 地は白っぽい灰色。水色は 左上の角と 右下の角が ななめに切れている
+  // （tomy さんの見本の券面を はかった: 左上は 上のはし 26% → 左のはし 46%、右下は 右のはし 70% → 下のはし 82%）
+  ctx.fillStyle = "#eceef0";
   ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = "#d9dee2";
-  ctx.fillRect(w * 0.955, 0, w * 0.045, h);
-  // 左上の小さな三角（カードの向きのしるし）
-  ctx.fillStyle = "#e8f8fd";
+  ctx.fillStyle = "#5cc7e3";
+  ctx.beginPath();
+  ctx.moveTo(w * 0.257, 0);
+  ctx.lineTo(w, 0);
+  ctx.lineTo(w, h * 0.7);
+  ctx.lineTo(w * 0.82, h);
+  ctx.lineTo(0, h);
+  ctx.lineTo(0, h * 0.457);
+  ctx.closePath();
+  ctx.fill();
+  // 左上の小さな三角（カードの向きのしるし。白い角の中に水色で）
+  ctx.fillStyle = "#5cc7e3";
   ctx.beginPath();
   ctx.moveTo(w * 0.018, h * 0.05);
   ctx.lineTo(w * 0.045, h * 0.025);
@@ -92,11 +103,14 @@ export function drawIcocaCard(ctx: CanvasRenderingContext2D, w: number, h: numbe
   ctx.closePath();
   ctx.fill();
   // 外わくだけの大きな ICOCA の字
-  ctx.font = `800 ${h * 0.36}px ${FONT_FAMILY}`;
+  ctx.font = `800 ${h * 0.32}px ${FONT_FAMILY}`;
   ctx.textAlign = "center";
+  // 見本の「ICOCA」は うすい白で ぬった字に、白い ふち（字の上に ほかの字が かさなる）
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  ctx.fillText("ICOCA", w * 0.515, h * 0.585);
   ctx.lineWidth = h * 0.012;
-  ctx.strokeStyle = "rgba(235,250,255,0.85)";
-  ctx.strokeText("ICOCA", w * 0.5, h * 0.66);
+  ctx.strokeStyle = "rgba(240,250,255,0.9)";
+  ctx.strokeText("ICOCA", w * 0.515, h * 0.585);
   ctx.textAlign = "left";
   ctx.restore();
   ctx.lineWidth = h * 0.006;
@@ -109,44 +123,47 @@ export function drawIcocaCard(ctx: CanvasRenderingContext2D, w: number, h: numbe
   const ink = { color: NAVY, rubyColor: NAVY, weight: 500 };
   // 左上: 券の種類（下線つき）・右上: 番号
   const kind = t("pass.cardKind", { n: months });
-  const kw = drawRuby(ctx, kind, w * 0.07, h * 0.2, { size: h * 0.058, ...ink });
+  const kw = drawRuby(ctx, kind, w * 0.035, h * 0.15, { size: h * 0.058, ...ink });
   ctx.fillStyle = NAVY;
-  ctx.fillRect(w * 0.07, h * 0.215, kw, h * 0.006);
-  ctx.font = `500 ${h * 0.058}px ${FONT_FAMILY}`;
+  ctx.fillRect(w * 0.035, h * 0.165, kw, h * 0.006);
+  ctx.font = `500 ${h * 0.065}px ${FONT_FAMILY}`;
   ctx.textAlign = "right";
-  ctx.fillText("00000", w * 0.92, h * 0.12);
+  ctx.fillText("00000", w * 0.95, h * 0.1);
   ctx.textAlign = "left";
-  // 区間（大きく）
+  // 区間（大きく。左に 乗る駅・まん中に ↔・右に 降りる駅。見本の並び）
   const from = STATION.tennoji?.name ?? "";
   const to = STATION.awaza?.name ?? "";
-  drawRuby(ctx, `${from} \u2194 ${to}`, w * 0.06, h * 0.42, { size: h * 0.13, ...ink });
+  const big = { size: h * 0.15, ...ink };
+  drawRuby(ctx, from, w * 0.03, h * 0.36, big);
+  drawRuby(ctx, "\u2194", w * 0.5, h * 0.36, { ...big, align: "center" });
+  drawRuby(ctx, to, w * 0.95, h * 0.36, { ...big, align: "right" });
   // 経由
-  drawRuby(ctx, t("pass.via"), w * 0.06, h * 0.52, { size: h * 0.048, ...ink });
+  drawRuby(ctx, t("pass.via"), w * 0.03, h * 0.47, { size: h * 0.05, ...ink });
   // 有効期限（とても大きく）と「まで」
   const { from: d0, until: d1 } = passPeriod(info.start, months);
   const [yy, ...md] = dot(d1).split(".");
   ctx.fillStyle = NAVY;
-  ctx.font = `400 ${h * 0.13}px ${FONT_FAMILY}`;
-  ctx.fillText(`${yy}.`, w * 0.06, h * 0.77);
+  ctx.font = `400 ${h * 0.16}px ${FONT_FAMILY}`;
+  ctx.fillText(`${yy}.`, w * 0.03, h * 0.69);
   const yw = ctx.measureText(`${yy}.`).width;
-  ctx.font = `400 ${h * 0.25}px ${FONT_FAMILY}`;
-  ctx.fillText(md.join("."), w * 0.06 + yw, h * 0.77);
-  drawRuby(ctx, t("pass.until"), w * 0.84, h * 0.77, { size: h * 0.048, ...ink });
+  ctx.font = `400 ${h * 0.32}px ${FONT_FAMILY}`;
+  ctx.fillText(md.join("."), w * 0.03 + yw, h * 0.69);
+  drawRuby(ctx, t("pass.until"), w * 0.8, h * 0.7, { size: h * 0.05, ...ink });
   // 左下: 金額・発行日
-  ctx.font = `500 ${h * 0.062}px ${FONT_FAMILY}`;
-  ctx.fillText(`\u00a5${passPrice(months).toLocaleString()}`, w * 0.06, h * 0.87);
-  ctx.font = `500 ${h * 0.05}px ${FONT_FAMILY}`;
-  ctx.fillText(dot(d0), w * 0.06, h * 0.955);
+  ctx.font = `500 ${h * 0.068}px ${FONT_FAMILY}`;
+  ctx.fillText(`\u00a5${passPrice(months).toLocaleString()}`, w * 0.03, h * 0.84);
+  ctx.font = `500 ${h * 0.058}px ${FONT_FAMILY}`;
+  ctx.fillText(dot(d0), w * 0.05, h * 0.94);
   // 下のまん中: 発行した会社・駅と、名前
   drawRuby(
     ctx,
     `${t("pass.issuer")}  ${STATION.tennoji?.name ?? ""}${t("sign.station")}#1`,
-    w * 0.4,
-    h * 0.87,
-    { size: h * 0.048, ...ink },
+    w * 0.38,
+    h * 0.84,
+    { size: h * 0.052, ...ink },
   );
-  drawRuby(ctx, `${info.name || "-"}${t("pass.sama")}  *00`, w * 0.46, h * 0.955, {
-    size: h * 0.05,
+  drawRuby(ctx, `${info.name || "-"}${t("pass.sama")}  *00`, w * 0.43, h * 0.94, {
+    size: h * 0.054,
     ...ink,
   });
 }

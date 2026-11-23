@@ -19,6 +19,13 @@ export interface Objective {
   lines: string[];
 }
 
+/** やることリストの1つ。 */
+export interface Todo {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
 export interface PlayState {
   stageId: string;
   sectionId: string;
@@ -41,6 +48,8 @@ export interface PlayState {
   ended: boolean;
   /** いま待っている合図（テストと開発の道具が使う）。 */
   waitingFor: string | null;
+  /** やることリスト（台本の todo-add で足し、todo-done で横線）。 */
+  todos: Todo[];
 }
 
 export const initialPlay: PlayState = {
@@ -63,6 +72,7 @@ export const initialPlay: PlayState = {
   log: [],
   ended: false,
   waitingFor: null,
+  todos: [],
 };
 
 export const usePlay = create<PlayState>(() => initialPlay);
