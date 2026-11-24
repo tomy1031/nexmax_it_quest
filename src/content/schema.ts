@@ -416,3 +416,114 @@ export const talk = z.object({
 });
 export const talksFile = z.object({ $comment: z.string().optional(), talks: z.array(talk) });
 export type Talk = z.infer<typeof talk>;
+
+// ── お客さまとの ミーティング（質問の 時間。content/meetings/*.json。設計 03_ステージ2.md §4） ──
+
+const keywordList = z.array(z.string().min(1));
+
+/** ホワイトボードの「？」カード（必ず 聞く こと）と、かくれた ボーナス。 */
+export const meetingCard = z.object({
+  id: z.string(),
+  icon: z.string(),
+  label: learnerText,
+  en: z.string(),
+  /** お客さまの 答え（カードの 文が 正）。 */
+  secret: learnerText,
+  /** ホワイトボードに 入る 短い 答え。 */
+  short: learnerText,
+  /** 質問の 見かたの キーワード（学生は 見ない）。 */
+  keywords: keywordList.min(1),
+  /** お客さまの 返事の 中の 印（学生は 見ない）。 */
+  markers: keywordList,
+  frame: learnerText.optional(),
+  example: learnerText.optional(),
+  praise: learnerText.optional(),
+});
+export type MeetingCard = z.infer<typeof meetingCard>;
+
+export const meetingFile = z.object({
+  $comment: z.string().optional(),
+  id: z.string(),
+  title: learnerText,
+  client: z.object({ id: z.string(), name: learnerText, role: learnerText, voice: z.string() }),
+  slots: z.number().int().positive(),
+  minutesPerSlot: z.number().int().positive(),
+  opening: learnerText,
+  persona: z.string(),
+  known: z.array(
+    z.object({
+      id: z.string(),
+      icon: z.string(),
+      label: learnerText,
+      answer: learnerText,
+      keywords: keywordList.min(1),
+    }),
+  ),
+  cards: z.array(meetingCard).min(1),
+  bonus: z.array(meetingCard),
+  undecided: z.array(
+    z.object({
+      id: z.string(),
+      icon: z.string(),
+      label: learnerText,
+      keywords: keywordList.min(1),
+    }),
+  ),
+  replies: z.object({
+    known: learnerText.refine((s) => s.includes("%answer%"), "%answer% が 要る"),
+    undecided: learnerText,
+    offTopic: learnerText,
+    unclear: learnerText,
+  }),
+  /** お客さまの 返事が どれに あたるかの 印（カードの markers が 当たらない とき）。 */
+  replyMarkers: z.object({
+    known: keywordList,
+    undecided: keywordList,
+    offTopic: keywordList,
+    unclear: keywordList,
+  }),
+  /** 深い 質問の 印（なぜ・どうして・どんな など）。 */
+  deepMarkers: keywordList,
+  feedback: z.object({
+    new: learnerText,
+    bonus: learnerText,
+    known: learnerText,
+    unclear: learnerText,
+    offTopic: learnerText,
+    undecided: learnerText,
+    deep: learnerText,
+  }),
+  lesson: z.object({
+    title: learnerText,
+    lead: learnerText,
+    tips: z.array(
+      z.object({ id: z.string(), icon: z.string(), title: learnerText, text: learnerText }),
+    ),
+    prompt: learnerText,
+    examples: z.array(
+      z.object({
+        id: z.string(),
+        who: z.string(),
+        text: learnerText,
+        good: z.boolean(),
+        tip: z.string(),
+        reason: learnerText,
+      }),
+    ),
+  }),
+  result: z.object({
+    stars: z.tuple([z.number().int(), z.number().int(), z.number().int()]),
+    allFound: learnerText,
+    someLeft: learnerText,
+    memoTitle: learnerText,
+  }),
+  /** 質問の 例と、当たるはずの カード・結果（単体テスト）。 */
+  tests: z.array(
+    z.object({
+      say: z.string(),
+      card: z.string().optional(),
+      result: z.enum(["new", "bonus", "known", "undecided", "offTopic", "unclear"]).optional(),
+    }),
+  ),
+});
+export type MeetingFile = z.infer<typeof meetingFile>;
