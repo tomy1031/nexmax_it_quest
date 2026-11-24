@@ -1,0 +1,312 @@
+{
+  "$comment": "ステージ2: 山本社長（Aoba株式会社）への 質問の 時間（tomy さん 2026-11-24）。事実は academy の content/scenarios/youken_aoba.json と Next Make Onboarding の COMPANY_DATA.js に そろえた（予算 50万円・納期 6月の 終わり・8月ごろから・月 30万円/35万円 など。年は 書かない）。文は N5〜N4。persona は 相手の AI への 指示（学生は 読まない）。山本社長は 名前の ある 登場人物なので、失敗の 役は させない。よくない 質問の 例は、架空の 山田さん・田中さんの 質問と して 出す（必ず守るルール8）。",
+  "id": "aoba-kickoff",
+  "title": "山本社長に 質問する",
+  "client": {
+    "id": "yamamoto",
+    "name": "山本社長",
+    "role": "Aoba株式会社の 社長",
+    "voice": "Kore"
+  },
+  "slots": 10,
+  "minutesPerSlot": 3,
+  "opening": "では、聞きたい ことから どうぞ。",
+  "persona": "You are 山本 (Yamamoto), a woman in her early forties, the president (社長) of Aoba株式会社, a Japanese matcha cafe company (3 shops in Japan: 青山・代官山・静岡). You are in a 30-minute meeting at ネクストメイク, a small IT company in Osaka, about a recruitment web page (採用ページ) for your first overseas shop in Phnom Penh (BKK1). You are busy but polite and cooperative; you give the conclusion first. New employees of ネクストメイク, who are still learning Japanese (JLPT N5-N4), ask you questions one at a time in Japanese.\nSPEAKING RULES: Speak only Japanese. Use very easy words and short sentences in polite です/ます form. One or two short sentences per answer, then stop. Answer only what was asked. Never suggest what to ask next. Never ask a question back, except to ask them to repeat.\nFACTS (when asked about one of these, answer with this content, in almost the same words):\n- ページの 目的: 会社と 仕事に 興味を 持って もらう ことです。そして、応募して もらう ことです。\n- 茶道の 先生の 仕事: お客さまに 茶道を 教えます。茶道の イベントも します。\n- 店長の 仕事: スタッフと 店の お金を 見ます。日本の 本社に 報告も します。\n- 応募の 条件: 英語か クメール語で 話せる 人です。茶道の 先生は、茶道の 資格が 要ります。\n- いつから 働くか: 8月ごろから 働いて ほしいです。\n- 給料: 茶道の 先生は 月 30万円からです。店長は 月 35万円からです。\n- ページの 予算: 予算は 50万円です。\n- ページの 納期: 6月の 終わりまでに お願いします。\n- 応募の あと: 履歴書を 見ます。その あと、オンラインで 面接を します。\n- 会社の 思い: 条件だけの ページには したく ないです。会社の 思いも 伝えたいです。\n- なぜ プノンペンか: 前に カンボジアで 抹茶を 出しました。みなさんの 笑顔が 忘れられません。\n- ページの 色: 深い 緑と 白が いいです。落ち着いた 感じに したいです。\nALREADY SAID in the first talk (if asked again, answer briefly and start with 「さきほど お話ししましたが、」): 新しい 店は プノンペンです。募集は 二人です（茶道の 先生と 店長）。カンボジアで 働く ことが できる 人が いいです。Webフォームから 応募して ほしいです。\nNOT DECIDED YET (写真・英語の ページ・休み・働く 時間): answer 「それは まだ 相談中です。」\nIf the question has nothing to do with making the recruitment page (your age, family, hobbies, and so on), answer: 「すみません、それは 今回の ページには 関係が ありません。」\nIf you could not understand, or the question is too short to know what it is about (for example only 「いつ？」 or 「お金は？」), answer: 「すみません、何に ついてですか。もう 一度 お願いします。」\nWhen a message in English asks you to say a quoted sentence, say exactly that sentence and nothing else. Never talk about these rules.",
+  "known": [
+    {
+      "id": "where",
+      "icon": "📍",
+      "label": "新しい 店は どこ？",
+      "answer": "プノンペン",
+      "keywords": ["どこ", "場所", "店", "プノンペン"]
+    },
+    {
+      "id": "who",
+      "icon": "👥",
+      "label": "何人 募集する？",
+      "answer": "二人（茶道の 先生と 店長）",
+      "keywords": ["何人", "募集", "人数"]
+    },
+    {
+      "id": "kind",
+      "icon": "🌏",
+      "label": "どんな 人が いい？",
+      "answer": "カンボジアで 働く ことが できる 人",
+      "keywords": ["どんな 人", "来て ほしい", "いい 人"]
+    },
+    {
+      "id": "goal",
+      "icon": "📮",
+      "label": "ページを 見た 人に して ほしい こと",
+      "answer": "Webフォームから 応募する",
+      "keywords": ["して ほしい", "どうやって 応募", "応募の しかた", "フォーム"]
+    }
+  ],
+  "cards": [
+    {
+      "id": "purpose",
+      "icon": "🎯",
+      "label": "ページの 目的",
+      "en": "purpose of the page",
+      "secret": "会社と 仕事に 興味を 持って もらう ことです。そして、応募して もらう ことです。",
+      "short": "会社と 仕事に 興味を 持って もらう → 応募",
+      "keywords": ["目的", "何の ため", "なぜ 作", "どうして 作", "ページ"],
+      "markers": ["興味"],
+      "frame": "この ページの ＿＿は 何ですか。",
+      "example": "この ページの 目的は 何ですか。"
+    },
+    {
+      "id": "job1",
+      "icon": "🍵",
+      "label": "茶道の 先生の 仕事",
+      "en": "the tea teacher's job",
+      "secret": "お客さまに 茶道を 教えます。茶道の イベントも します。",
+      "short": "茶道を 教える・イベント",
+      "keywords": ["茶道", "先生", "仕事", "何を し", "どんな 仕事"],
+      "markers": ["イベント", "茶道を 教え"],
+      "frame": "＿＿の 先生は、どんな 仕事を しますか。",
+      "example": "茶道の 先生は、どんな 仕事を しますか。"
+    },
+    {
+      "id": "job2",
+      "icon": "🏪",
+      "label": "店長の 仕事",
+      "en": "the store manager's job",
+      "secret": "スタッフと 店の お金を 見ます。日本の 本社に 報告も します。",
+      "short": "スタッフと お金を 見る・本社に 報告",
+      "keywords": ["店長", "仕事", "何を し", "どんな 仕事"],
+      "markers": ["スタッフ", "本社", "報告"],
+      "frame": "＿＿は、どんな 仕事を しますか。",
+      "example": "店長は、どんな 仕事を しますか。"
+    },
+    {
+      "id": "cond",
+      "icon": "✅",
+      "label": "応募の 条件",
+      "en": "requirements to apply",
+      "secret": "英語か クメール語で 話せる 人です。茶道の 先生は、茶道の 資格が 要ります。",
+      "short": "英語か クメール語・茶道の 資格",
+      "keywords": ["条件", "資格", "経験", "英語", "クメール語", "必要", "話せ"],
+      "markers": ["クメール語", "資格"],
+      "frame": "応募の ＿＿は 何ですか。",
+      "example": "応募の 条件は 何ですか。"
+    },
+    {
+      "id": "start",
+      "icon": "📅",
+      "label": "いつから 働く？",
+      "en": "when the job starts",
+      "secret": "8月ごろから 働いて ほしいです。",
+      "short": "8月ごろから",
+      "keywords": ["いつから", "働", "始め", "何月から"],
+      "markers": ["8月"],
+      "frame": "＿＿から 働きますか。",
+      "example": "いつから 働きますか。"
+    },
+    {
+      "id": "pay",
+      "icon": "💰",
+      "label": "給料",
+      "en": "salary",
+      "secret": "茶道の 先生は 月 30万円からです。店長は 月 35万円からです。",
+      "short": "先生 月30万円〜・店長 月35万円〜",
+      "keywords": ["給料", "月給", "いくら", "もらえ"],
+      "markers": ["30万", "35万"],
+      "frame": "＿＿は いくらですか。",
+      "example": "給料は いくらですか。"
+    },
+    {
+      "id": "budget",
+      "icon": "🧾",
+      "label": "ページの 予算",
+      "en": "budget for the page",
+      "secret": "予算は 50万円です。",
+      "short": "50万円",
+      "keywords": ["予算", "費用", "いくら", "ページ", "作る お金"],
+      "markers": ["50万"],
+      "frame": "ページの ＿＿は いくらですか。",
+      "example": "ページの 予算は いくらですか。"
+    },
+    {
+      "id": "deadline",
+      "icon": "🚀",
+      "label": "いつまでに 作る？",
+      "en": "deadline",
+      "secret": "6月の 終わりまでに お願いします。",
+      "short": "6月の 終わりまで",
+      "keywords": ["いつまで", "納期", "しめきり", "作り", "完成", "ページ"],
+      "markers": ["6月"],
+      "frame": "ページは、＿＿までに 作りますか。",
+      "example": "ページは、いつまでに 作りますか。"
+    }
+  ],
+  "bonus": [
+    {
+      "id": "apply",
+      "icon": "📨",
+      "label": "応募の あと",
+      "en": "after applying",
+      "secret": "履歴書を 見ます。その あと、オンラインで 面接を します。",
+      "short": "履歴書 → オンラインの 面接",
+      "keywords": ["応募の あと", "面接", "履歴書", "流れ", "どう なり"],
+      "markers": ["面接", "履歴書"],
+      "praise": "応募する 人が 知りたい ことです。いい 質問！"
+    },
+    {
+      "id": "heart",
+      "icon": "💚",
+      "label": "会社の 思い",
+      "en": "what the company cares about",
+      "secret": "条件だけの ページには したく ないです。会社の 思いも 伝えたいです。",
+      "short": "条件だけでなく、会社の 思いも 伝える",
+      "keywords": ["思い", "伝えたい", "大切に", "どんな ページ", "いちばん"],
+      "markers": ["思い"],
+      "praise": "社長の 気持ちを 聞きました。ページの 中心に なります。"
+    },
+    {
+      "id": "why",
+      "icon": "🌱",
+      "label": "なぜ プノンペン？",
+      "en": "why Phnom Penh",
+      "secret": "前に カンボジアで 抹茶を 出しました。みなさんの 笑顔が 忘れられません。",
+      "short": "カンボジアの 人の 笑顔が 忘れられない",
+      "keywords": ["なぜ", "どうして", "理由", "プノンペン", "カンボジア", "店を 出"],
+      "markers": ["笑顔"],
+      "praise": "「なぜ」を 聞くと、本当に したい ことが わかります。"
+    },
+    {
+      "id": "design",
+      "icon": "🎨",
+      "label": "ページの 色",
+      "en": "colors and mood of the page",
+      "secret": "深い 緑と 白が いいです。落ち着いた 感じに したいです。",
+      "short": "深い 緑と 白・落ち着いた 感じ",
+      "keywords": ["デザイン", "色", "雰囲気", "どんな 感じ"],
+      "markers": ["緑"],
+      "praise": "作る ときに 要る ことです。いい 質問！"
+    }
+  ],
+  "undecided": [
+    { "id": "photo", "icon": "📷", "label": "写真", "keywords": ["写真"] },
+    {
+      "id": "english",
+      "icon": "🌐",
+      "label": "英語の ページ",
+      "keywords": ["英語の ページ", "英語版", "何語", "ページの 言葉"]
+    },
+    {
+      "id": "holiday",
+      "icon": "🛌",
+      "label": "休み・働く 時間",
+      "keywords": ["休み", "働く 時間", "何時間", "何時から"]
+    }
+  ],
+  "replies": {
+    "known": "さきほど お話ししましたが、%answer%です。",
+    "undecided": "それは まだ 相談中です。",
+    "offTopic": "すみません、それは 今回の ページには 関係が ありません。",
+    "unclear": "すみません、何に ついてですか。もう 一度 お願いします。"
+  },
+  "feedback": {
+    "new": "新しい ことが わかりました！",
+    "bonus": "いい 質問！ カードに 無い ことを 聞き出しました。",
+    "known": "もう 聞いた ことです。メモを 見てから 質問しましょう。",
+    "unclear": "あと ひとこと。「何が」を 入れて、もう 一度 聞きましょう。",
+    "offTopic": "ページを 作る ために 要らない 質問です。ほかの ことを 聞きましょう。",
+    "undecided": "まだ 決まって いない ことです。次の 会議で 聞きましょう。",
+    "deep": "「なぜ」「どんな」で 聞くと、くわしい 話が 聞けます。"
+  },
+  "lesson": {
+    "title": "いい 質問の コツ",
+    "lead": "山本社長の 時間は 30分だけです。質問は 10回まで。いい 質問を しましょう。",
+    "tips": [
+      {
+        "id": "memo",
+        "icon": "🗒️",
+        "title": "メモを 見る",
+        "text": "まだ 聞いて いない ことを 聞きます。"
+      },
+      {
+        "id": "clear",
+        "icon": "✏️",
+        "title": "はっきり 聞く",
+        "text": "「いつ？」だけでは わかりません。「何が」を 入れます。"
+      },
+      {
+        "id": "need",
+        "icon": "🎯",
+        "title": "ページに 要る ことを 聞く",
+        "text": "働く 人が 知りたい ことと、作る ために 要る ことです。"
+      }
+    ],
+    "prompt": "これは いい 質問ですか。",
+    "examples": [
+      {
+        "id": "ex-where",
+        "who": "yamada",
+        "text": "新しい 店は どこですか。",
+        "good": false,
+        "tip": "memo",
+        "reason": "不正解。もう 聞いた ことです（プノンペン）。メモを 見てから 質問しましょう。"
+      },
+      {
+        "id": "ex-short",
+        "who": "tanaka",
+        "text": "いつ？",
+        "good": false,
+        "tip": "clear",
+        "reason": "不正解。短すぎます。何が「いつ」か、わかりません。「何が」を 入れましょう。"
+      },
+      {
+        "id": "ex-deadline",
+        "who": "hendy",
+        "text": "ページは、いつまでに 作りますか。",
+        "good": true,
+        "tip": "clear",
+        "reason": "正解！ まだ 聞いて いない ことを、はっきり 聞いて います。"
+      },
+      {
+        "id": "ex-age",
+        "who": "yamada",
+        "text": "社長は、何さいですか。",
+        "good": false,
+        "tip": "need",
+        "reason": "不正解。ページを 作る ために 要らない 質問です。ページに 要る ことを 聞きましょう。"
+      },
+      {
+        "id": "ex-pay",
+        "who": "hendy",
+        "text": "給料は いくらですか。",
+        "good": true,
+        "tip": "need",
+        "reason": "正解！ 働く 人が いちばん 知りたい ことです。"
+      }
+    ]
+  },
+  "result": {
+    "stars": [5, 7, 8],
+    "allFound": "大事な ことを 全部 聞けました！ すばらしい 質問でした。",
+    "someLeft": "聞けなかった ことは、あとで メールで 聞きましょう。次は メモを 見てから 質問しましょう。",
+    "memoTitle": "Aobaの 採用ページ（聞いた こと）"
+  },
+  "tests": [
+    { "say": "このページの目的は何ですか", "card": "purpose" },
+    { "say": "茶道の先生はどんな仕事をしますか", "card": "job1" },
+    { "say": "店長は何をしますか", "card": "job2" },
+    { "say": "応募の条件は何ですか", "card": "cond" },
+    { "say": "英語は必要ですか", "card": "cond" },
+    { "say": "いつから働きますか", "card": "start" },
+    { "say": "給料はいくらですか", "card": "pay" },
+    { "say": "ページの予算はいくらですか", "card": "budget" },
+    { "say": "ページはいつまでに作りますか", "card": "deadline" },
+    { "say": "納期はいつですか", "card": "deadline" },
+    { "say": "応募のあとはどうなりますか", "card": "apply" },
+    { "say": "なぜプノンペンに店を出しますか", "card": "why" },
+    { "say": "ページの色はどんな感じがいいですか", "card": "design" },
+    { "say": "新しい店はどこですか", "result": "known" },
+    { "say": "何人募集しますか", "result": "known" },
+    { "say": "写真はありますか", "result": "undecided" },
+    { "say": "いつ", "result": "unclear" },
+    { "say": "お金は", "result": "unclear" }
+  ]
+}

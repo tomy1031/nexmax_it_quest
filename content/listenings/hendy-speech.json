@@ -1,0 +1,122 @@
+{
+  "$comment": "入社式の ヘンディさんの 最初の お話（tomy さん 2026-11-24。テーマ「海外の 学生が 日本の ITの 会社で 働く ために 大切な こと」。当たり障りのない 内容）。文と 進め方は Fable が 考えた（docs/design/02_リスニング.md）。academy の リスニングと 同じ 遊び方: 聞こえた 言葉を 入れると、かくれた セリフが 浮かび上がる。ヘンディさんは 実在の 社員が モデルなので、失敗の 役は させない（「こんな とき、どうする？」の まちがいの 例は、名前の 無い「あなた」の 行動として 書く）。",
+  "id": "hendy-speech",
+  "title": "ヘンディさんの お話",
+  "focus": "ヘンディさんは「大切な こと」を 3つ 話します。何と 何と 何ですか。",
+  "participants": [{ "id": "hendy", "voice": "Puck" }],
+  "script": [
+    { "speaker": "hendy", "text": "みなさん、入社 おめでとうございます。" },
+    {
+      "speaker": "hendy",
+      "text": "今日は、日本の ITの 会社で 働く ために 大切な ことを 3つ 話します。"
+    },
+    { "speaker": "hendy", "text": "1つ目は、あいさつです。" },
+    { "speaker": "hendy", "text": "朝は 元気に「おはようございます」と 言いましょう。" },
+    { "speaker": "hendy", "text": "あいさつを すると、みんなと 話しやすく なります。" },
+    { "speaker": "hendy", "text": "2つ目は、時間です。" },
+    { "speaker": "hendy", "text": "会議の 5分前に、席に 着きましょう。" },
+    { "speaker": "hendy", "text": "おくれる ときは、早く 連絡して ください。" },
+    { "speaker": "hendy", "text": "3つ目は、相談です。" },
+    { "speaker": "hendy", "text": "わからない ことは、すぐ 先輩に 聞いて ください。" },
+    { "speaker": "hendy", "text": "一人で なやまないで ください。" },
+    { "speaker": "hendy", "text": "わたしも 外国から 来ました。" },
+    { "speaker": "hendy", "text": "はじめは、日本語が あまり わかりませんでした。" },
+    { "speaker": "hendy", "text": "でも、毎日 少しずつ 上手に なりました。" },
+    { "speaker": "hendy", "text": "みなさんも 大丈夫です。いっしょに がんばりましょう。" }
+  ],
+  "keywords": ["あいさつ", "時間", "相談", "連絡", "先輩", "大切", "元気", "5分前", "毎日"],
+  "preOpen": ["みなさん", "ございます", "です", "ます", "ました", "ましょう", "ください", "ません"],
+  "sounds": [
+    ["1つ目", "ひとつめ"],
+    ["2つ目", "ふたつめ"],
+    ["3つ目", "みっつめ"],
+    ["3つ", "みっつ"],
+    ["5分前", "ごふんまえ"],
+    ["IT", "あいてぃー"]
+  ],
+  "revealGoal": 40,
+  "check": { "minLength": 2, "maxMiss": 5 },
+  "glossary": [
+    { "word": "大切", "en": "important" },
+    { "word": "あいさつ", "en": "greeting" },
+    { "word": "元気", "en": "cheerful, with energy" },
+    { "word": "時間", "en": "time" },
+    { "word": "5分前", "en": "5 minutes before" },
+    { "word": "連絡", "en": "contact (tell the company)" },
+    { "word": "相談", "en": "ask for advice" },
+    { "word": "先輩", "en": "senior coworker" },
+    { "word": "毎日", "en": "every day" }
+  ],
+  "works": [
+    {
+      "kind": "match",
+      "title": "ことばと 絵を 合わせよう",
+      "lead": "ヘンディさんの「大切な こと」は 3つでした。絵と 合わせましょう。",
+      "pairs": [
+        { "label": "あいさつ", "image": "/img/listening/aisatsu.webp", "en": "greeting" },
+        { "label": "時間", "image": "/img/listening/jikan.webp", "en": "time (be on time)" },
+        { "label": "相談", "image": "/img/listening/soudan.webp", "en": "ask for advice" }
+      ]
+    },
+    {
+      "kind": "situation",
+      "title": "こんな とき、どうする？",
+      "lead": "ヘンディさんの お話を 思い出して、えらびましょう。",
+      "items": [
+        {
+          "id": "asa",
+          "image": "/img/listening/aisatsu.webp",
+          "text": "朝、会社で 先輩に 会いました。",
+          "options": [
+            { "text": "「おはようございます！」と 元気に 言う", "correct": true },
+            { "text": "何も 言わないで、席に 着く" }
+          ],
+          "line": 3,
+          "ok": "正解！ 1つ目の「あいさつ」ですね。",
+          "ng": "不正解。ヘンディさんの お話を もう 一度 聞いて、えらびましょう。"
+        },
+        {
+          "id": "kaigi",
+          "image": "/img/listening/jikan.webp",
+          "text": "会議は 10時からです。",
+          "options": [
+            { "text": "10時5分に 部屋に 入る" },
+            { "text": "9時55分に 席に 着く", "correct": true }
+          ],
+          "line": 6,
+          "ok": "正解！ 2つ目の「時間」ですね。5分前に 着きます。",
+          "ng": "不正解。ヘンディさんの お話を もう 一度 聞いて、えらびましょう。"
+        },
+        {
+          "id": "okureru",
+          "image": "/img/listening/renraku.webp",
+          "text": "電車が 止まりました。会社に おくれます。",
+          "options": [
+            { "text": "早く 会社に 連絡する", "correct": true },
+            { "text": "連絡しないで、いそいで 行く" }
+          ],
+          "line": 7,
+          "ok": "正解！ おくれる ときは、早く 連絡します。",
+          "ng": "不正解。ヘンディさんの お話を もう 一度 聞いて、えらびましょう。"
+        },
+        {
+          "id": "wakaranai",
+          "image": "/img/listening/soudan.webp",
+          "text": "仕事で わからない ことが あります。",
+          "options": [
+            { "text": "一人で ずっと なやむ" },
+            { "text": "すぐ 先輩に 聞く", "correct": true }
+          ],
+          "line": 9,
+          "ok": "正解！ 3つ目の「相談」ですね。",
+          "ng": "不正解。ヘンディさんの お話を もう 一度 聞いて、えらびましょう。"
+        }
+      ]
+    }
+  ],
+  "memo": {
+    "id": "speech",
+    "title": "ヘンディさんの お話",
+    "text": "大切な こと 3つ。①あいさつ（朝は 元気に）②時間（5分前に 着く。おくれる ときは 連絡）③相談（すぐ 先輩に 聞く）"
+  }
+}

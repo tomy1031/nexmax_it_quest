@@ -1,0 +1,89 @@
+{
+  "$comment": "ステージ2: ヘンディさんと 山本社長（Aoba株式会社）の はじめの 会話（tomy さん 2026-11-24）。元は Next Make Onboarding の「採用ページ」の リスニング（lecture/youken_teigi/onepage）と academy の youken_hearing。N5 の 人が 聞けるように、1こま 1文に 短くした。わかる ことは 4つ（プノンペンに 新しい 店・二人を 募集（茶道の 先生と 店長）・カンボジアで 働ける 人・Webフォームから 応募）。山本社長は 名前の ある 登場人物なので、失敗の 役は させない。",
+  "id": "aoba-kickoff",
+  "title": "山本社長の 話",
+  "focus": "山本社長は、どんな ページを 作りたいですか。何人 募集しますか。",
+  "participants": [
+    { "id": "hendy", "name": "ヘンディさん", "voice": "Puck" },
+    { "id": "yamamoto", "name": "山本社長", "voice": "Kore" }
+  ],
+  "script": [
+    { "speaker": "hendy", "text": "山本社長、本日は お時間を いただき、ありがとうございます。" },
+    { "speaker": "yamamoto", "text": "こちらこそ、ありがとうございます。" },
+    { "speaker": "yamamoto", "text": "30分しか 時間が なくて、すみません。" },
+    { "speaker": "hendy", "text": "いいえ。今日は よろしく お願いします。" },
+    { "speaker": "yamamoto", "text": "Aobaは、プノンペンに 新しい 店を 出します。" },
+    { "speaker": "yamamoto", "text": "それで、採用ページを 作りたいです。" },
+    { "speaker": "hendy", "text": "わかりました。何人 募集しますか。" },
+    { "speaker": "yamamoto", "text": "二人です。" },
+    { "speaker": "yamamoto", "text": "一人は、茶道の 先生です。" },
+    { "speaker": "yamamoto", "text": "もう 一人は、店長です。" },
+    { "speaker": "hendy", "text": "どんな 人が いいですか。" },
+    { "speaker": "yamamoto", "text": "カンボジアで 働く ことが できる 人が いいです。" },
+    { "speaker": "hendy", "text": "ページを 見た 人に、何を して ほしいですか。" },
+    { "speaker": "yamamoto", "text": "Webフォームから 応募して ほしいです。" },
+    { "speaker": "hendy", "text": "わかりました。では、大事な ことから 聞きます。" }
+  ],
+  "keywords": [
+    "プノンペン",
+    "新しい",
+    "採用ページ",
+    "募集",
+    "二人",
+    "茶道",
+    "店長",
+    "カンボジア",
+    "応募",
+    "30分"
+  ],
+  "preOpen": ["です", "ます", "ください", "ありがとうございます", "わかりました", "すみません"],
+  "sounds": [
+    ["30分", "さんじゅっぷん"],
+    ["30分", "さんじっぷん"],
+    ["Web", "うぇぶ"],
+    ["Aoba", "あおば"]
+  ],
+  "revealGoal": 40,
+  "check": { "minLength": 2, "maxMiss": 5 },
+  "glossary": [
+    { "word": "本日", "en": "today (polite)" },
+    { "word": "採用ページ", "en": "recruitment page (a web page to find new staff)" },
+    { "word": "募集", "en": "looking for people to hire" },
+    { "word": "茶道", "en": "tea ceremony" },
+    { "word": "店長", "en": "store manager" },
+    { "word": "応募", "en": "apply (for a job)" }
+  ],
+  "works": [
+    {
+      "kind": "sort",
+      "title": "わかった ことを ホワイトボードに 書こう",
+      "lead": "山本社長の 話で、わかった ことは 4つです。合う 所に 置きましょう。",
+      "slots": [
+        { "id": "where", "icon": "📍", "label": "新しい 店は どこ？", "answer": "プノンペン" },
+        {
+          "id": "who",
+          "icon": "👥",
+          "label": "何人 募集する？",
+          "answer": "二人（茶道の 先生と 店長）"
+        },
+        {
+          "id": "kind",
+          "icon": "🌏",
+          "label": "どんな 人が いい？",
+          "answer": "カンボジアで 働く ことが できる 人"
+        },
+        {
+          "id": "goal",
+          "icon": "📮",
+          "label": "ページを 見た 人に して ほしい こと",
+          "answer": "Webフォームから 応募する"
+        }
+      ]
+    }
+  ],
+  "memo": {
+    "id": "aoba-known",
+    "title": "山本社長の 話",
+    "text": "新しい 店は プノンペン。募集は 二人（茶道の 先生と 店長）。カンボジアで 働く ことが できる 人。Webフォームから 応募。"
+  }
+}
