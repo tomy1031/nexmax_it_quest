@@ -1,0 +1,15 @@
+{
+  "memo-wo-toru": { "out": "public/img/tips/memo-wo-toru.webp", "width": 1280, "height": 960 },
+  "jutaku-kaihatsu": {
+    "out": "public/img/tips/jutaku-kaihatsu.webp",
+    "width": 1280,
+    "height": 960
+  },
+  "aoba": { "out": "public/img/tips/aoba.webp", "width": 1280, "height": 960 },
+  "kikanai-to": { "out": "public/img/tips/kikanai-to.webp", "width": 1280, "height": 960 },
+  "listening-aisatsu": { "out": "public/img/listening/aisatsu.webp", "width": 800, "height": 800 },
+  "listening-jikan": { "out": "public/img/listening/jikan.webp", "width": 800, "height": 800 },
+  "listening-renraku": { "out": "public/img/listening/renraku.webp", "width": 800, "height": 800 },
+  "listening-soudan": { "out": "public/img/listening/soudan.webp", "width": 800, "height": 800 },
+  "yamamoto": { "out": "public/img/people/yamamoto.webp", "width": 512, "height": 512 }
+}
