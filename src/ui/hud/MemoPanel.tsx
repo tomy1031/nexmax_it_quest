@@ -13,19 +13,19 @@ import { RubyText } from "@/ui/RubyText";
 /** 1つのメモ（タイトルを押すと、くわしい文が出る）。 */
 function MemoRow({ m, open, onToggle }: { m: MemoItem; open: boolean; onToggle: () => void }) {
   return (
-    <li className="pop rounded-xl bg-white/10">
+    <li className="pop cream-box overflow-hidden rounded-xl">
       <button
         type="button"
-        className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[15px] font-extrabold text-white hover:bg-white/10"
+        className="text-ink flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[15px] font-extrabold hover:bg-[#efe2c6]"
         onClick={onToggle}
         aria-expanded={open}
         data-testid={`memo-${m.id}`}
       >
-        <span className="text-xs opacity-80">{open ? "▼" : "▶"}</span>
+        <span className="text-xs text-[#c47a14]">{open ? "▼" : "▶"}</span>
         <RubyText text={m.title} />
       </button>
       {open && (
-        <p className="px-3 pb-2 text-[15px] leading-relaxed font-bold text-white">
+        <p className="text-cocoa px-3 pb-2 text-[15px] leading-relaxed font-bold">
           <RubyText text={m.text} />
         </p>
       )}
@@ -43,18 +43,19 @@ export function MemoBox() {
   const shown = big ? memos : memos.slice(-3);
   return (
     <div
-      className={`glass pointer-events-auto absolute top-[68px] right-3 rounded-2xl px-3 py-2 ${big ? "max-h-[70vh] w-[min(80vw,440px)] overflow-y-auto" : "w-[min(60vw,280px)]"}`}
+      className={`glass text-ink pointer-events-auto absolute top-[68px] right-3 rounded-[22px] px-3.5 py-2.5 ${big ? "max-h-[70vh] w-[min(80vw,440px)] overflow-y-auto" : "w-[min(60vw,280px)]"}`}
       data-testid="memo-box"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-sm font-extrabold text-white">
+        <span className="flex items-center gap-1.5 text-sm font-extrabold">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#e09d2c]" aria-hidden />
           <RubyText text={t("memo.title")} />
-          <span className="ml-1.5 text-xs opacity-80">{memos.length}</span>
+          <span className="text-cocoa ml-1 text-xs">{memos.length}</span>
         </span>
         {(memos.length > 3 || big) && (
           <button
             type="button"
-            className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-white/25"
+            className="rounded-full bg-[#6e5648] px-2.5 py-0.5 text-[11px] font-extrabold text-white hover:bg-[#7d6253]"
             onClick={() => setSettings({ memoBig: !big })}
             data-testid="memo-more"
           >
@@ -62,7 +63,7 @@ export function MemoBox() {
           </button>
         )}
       </div>
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-1.5">
         {shown.map((m) => (
           <MemoRow
             key={m.id}
@@ -81,7 +82,7 @@ export function MemoList() {
   const memos = usePlay((s) => s.memos);
   if (memos.length === 0)
     return (
-      <p className="text-white">
+      <p className="text-cocoa font-bold">
         <RubyText text={t("memo.empty")} />
       </p>
     );

@@ -84,11 +84,11 @@ export default function StageScreen({ stageId }: { stageId: string }) {
     );
   }
   return (
-    <main className="bg-deep relative h-full w-full overflow-hidden">
+    <main className="relative h-full w-full overflow-hidden bg-[#dff3fa]">
       <World />
       <Hud />
       <LoadingCover />
-      <p className="pointer-events-none absolute bottom-1 left-2 z-0 text-[10px] font-bold text-white drop-shadow">
+      <p className="pointer-events-none absolute bottom-1 left-2 z-0 rounded-full bg-[#3b2c23]/55 px-2 py-0.5 text-[10px] font-bold text-white">
         <RubyText text={t("hud.disclaimer")} />
       </p>
     </main>

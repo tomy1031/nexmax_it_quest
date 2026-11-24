@@ -25,10 +25,10 @@ export function AdminScreen() {
   const loaded = useAppSettings((s) => s.loaded);
 
   return (
-    <main className="h-full overflow-y-auto bg-[radial-gradient(circle_at_20%_0%,#1f5fd1_0%,#071a46_55%)] px-4 py-6">
+    <main className="bg-pastel-page h-full overflow-y-auto px-4 py-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-5">
         <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold">
+          <h1 className="text-ink text-3xl font-extrabold drop-shadow-[0_2px_0_rgba(255,255,255,0.9)]">
             <RubyText text={t("admin.title")} />
           </h1>
           <button
@@ -43,7 +43,10 @@ export function AdminScreen() {
         {!ready ? null : isAdmin ? (
           <TeacherSection key={String(loaded)} />
         ) : (
-          <p className="glass rounded-2xl p-5 text-lg font-bold" data-testid="admin-denied">
+          <p
+            className="glass text-ink rounded-[24px] p-5 text-lg font-bold"
+            data-testid="admin-denied"
+          >
             <RubyText text={t("admin.notAdmin")} />
           </p>
         )}
@@ -76,15 +79,15 @@ function TeacherSection() {
             : "admin.errNetwork";
 
   return (
-    <section className="glass flex flex-col gap-4 rounded-2xl p-5">
-      <h2 className="text-xl font-extrabold text-white">
+    <section className="glass text-ink flex flex-col gap-4 rounded-[24px] p-5">
+      <h2 className="text-xl font-extrabold">
         <RubyText text={t("admin.teacherTitle")} />
       </h2>
-      <p className="text-white">
+      <p className="text-cocoa font-bold">
         <RubyText text={t("admin.teacherHelp")} />
       </p>
       <label className="flex flex-col gap-1">
-        <span className="font-bold text-white">
+        <span className="font-bold">
           <RubyText text={t("admin.teacherName")} />
         </span>
         <input
@@ -97,7 +100,7 @@ function TeacherSection() {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="font-bold text-white">
+        <span className="font-bold">
           <RubyText text={t("admin.teacherReading")} />
         </span>
         <input
@@ -110,12 +113,12 @@ function TeacherSection() {
         />
       </label>
       {bad === null && (
-        <div className="rounded-xl bg-[#0b2a66] p-3 text-white">
-          <span className="text-sm font-bold">
+        <div className="cream-box rounded-2xl p-3.5">
+          <span className="text-cocoa text-sm font-extrabold">
             <RubyText text={t("admin.preview")} />
           </span>
           {/* 見本だけは、入れている途中の読みで ふりがなを出す（保存すると、アプリ全体の読みも かわる） */}
-          <p className="text-xl leading-[2.2] font-bold">
+          <p className="text-ink text-xl leading-[2.2] font-bold">
             <RubyText
               text={t("admin.previewText", { teacher: name.trim() })}
               extra={[[name.trim(), reading.trim()]]}
@@ -135,14 +138,14 @@ function TeacherSection() {
         </button>
         {message && (
           <span
-            className={`font-bold ${message === "admin.saved" ? "text-leaf" : "text-coral"}`}
+            className={`font-extrabold ${message === "admin.saved" ? "text-[#157a4e]" : "text-[#c43a4b]"}`}
             data-testid="admin-message"
           >
             <RubyText text={t(message)} />
           </span>
         )}
         {bad !== null && (name || reading) && (
-          <span className="text-coral font-bold">
+          <span className="font-extrabold text-[#c43a4b]">
             <RubyText text={t("admin.errInvalid")} />
           </span>
         )}

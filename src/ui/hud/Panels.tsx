@@ -23,7 +23,7 @@ export function Panels() {
   // 声で 話す 練習は、3D の 相手が 見えるように 下に 出す（画面を 暗くしない）
   if (panel.id === "talk") return <TalkPanel talkId={panel.mode ?? ""} onDone={close} />;
   return (
-    <div className="bg-deep/45 pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto p-3">
+    <div className="pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#3b2c23]/40 p-3">
       {panel.id === "nmchat" && (
         <div className="w-full max-w-4xl">
           <NMChat mode="onboarding" onDone={close} />
@@ -40,7 +40,7 @@ export function Panels() {
       )}
       {panel.id === "routemap-quiz" && <RouteMapQuiz onDone={close} />}
       {panel.id === "memo" && (
-        <div className="glass pop flex w-full max-w-xl flex-col gap-3 rounded-3xl p-5">
+        <div className="glass pop flex w-full max-w-xl flex-col gap-3 rounded-[28px] p-5">
           <MemoList />
           <button type="button" className="btn btn-primary self-end" onClick={close}>
             <RubyText text={t("hud.close")} />

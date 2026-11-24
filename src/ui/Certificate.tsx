@@ -46,23 +46,18 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
 
   return (
     <div
-      className="pop text-ink w-full max-w-3xl overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#fffdf6,#eef7ff)] shadow-2xl ring-8 ring-[#c9a227]/60"
+      className="pop text-ink w-full max-w-3xl overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#fffdf6,#eefaf2)] shadow-2xl ring-8 ring-[#e0b84c]/75"
       data-testid="certificate"
     >
       <div className="relative flex flex-col items-center gap-4 p-6 sm:p-8">
-        <img
-          src={`${BASE}img/title/title-small.webp`}
-          alt=""
-          className="absolute inset-x-0 top-0 h-24 w-full object-cover opacity-25"
-        />
-        <p className="relative text-sm font-extrabold tracking-[0.4em] text-[#9a7a12]">
+        <p className="relative text-sm font-extrabold tracking-[0.4em] text-[#9a7212]">
           NEXMAX IT QUEST
         </p>
-        <h2 className="relative text-5xl font-black tracking-widest text-[#16264d]">
+        <h2 className="text-ink relative text-5xl font-black tracking-widest">
           <RubyText text={t("cert.title")} />
         </h2>
         <div className="flex w-full flex-col items-center gap-5 sm:flex-row">
-          <div className="grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-[#c9a227] bg-sky-100">
+          <div className="grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-[#e0b84c] bg-[#e6f7ef]">
             {photo ? (
               <img src={photo} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -70,11 +65,11 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
             )}
           </div>
           <div className="flex flex-col gap-2 text-center sm:text-left">
-            <p className="text-lg font-bold text-[#16264d]/70">
+            <p className="text-cocoa text-lg font-bold">
               <RubyText text={t("cert.company")} />
             </p>
             <p className="text-3xl font-black">{profile.name}</p>
-            <p className="text-lg font-extrabold text-[#0a6bd6]">
+            <p className="text-lg font-extrabold text-[#178358]">
               <RubyText text={t("cert.stage")} />
             </p>
             <p className="text-lg leading-[2.2] font-bold">
@@ -82,17 +77,17 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
             </p>
           </div>
         </div>
-        <div className="w-full rounded-2xl bg-white/80 p-4">
-          <p className="mb-2 font-extrabold text-[#9a7a12]">
+        <div className="cream-box w-full rounded-2xl p-4">
+          <p className="mb-2 font-extrabold text-[#9a7212]">
             <RubyText text={t("cert.words")} />
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {stage1.words.map((w) => (
-              <div key={w.word} className="rounded-xl bg-sky-50 px-3 py-2">
+              <div key={w.word} className="rounded-xl bg-white px-3 py-2 shadow-xs">
                 <p className="text-lg font-extrabold">
                   <RubyText text={w.word} />
                 </p>
-                <p className="text-ink/60 text-sm">{w.en}</p>
+                <p className="text-cocoa text-sm">{w.en}</p>
               </div>
             ))}
           </div>

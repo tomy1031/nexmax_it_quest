@@ -60,7 +60,16 @@ function hash(s: string): number {
  * 保存していない 人は、id から 決まった 見た目（せいべつに 合わせる）。
  */
 export function classmateLook(c: Classmate): AvatarConfig {
-  if (c.avatar) return { ...DEFAULT_AVATAR, ...c.avatar, outfit: "suit", bag: false };
+  if (c.avatar)
+    return {
+      ...DEFAULT_AVATAR,
+      ...c.avatar,
+      outfit: "suit",
+      bag: false,
+      bagStyle: "none",
+      hat: "none",
+      neckwear: "none",
+    };
   const h = hash(c.id);
   const female = c.gender === "female";
   const styles = female ? F_STYLES : M_STYLES;

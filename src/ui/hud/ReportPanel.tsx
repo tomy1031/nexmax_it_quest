@@ -35,37 +35,37 @@ export function ReportPanel({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      className="text-ink flex h-[min(72vh,560px)] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-xl"
+      className="text-ink flex h-[min(72vh,560px)] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border-[3px] border-[#e6d4b3] bg-[#fffdf7] shadow-2xl"
       data-testid="report"
     >
-      <header className="flex items-center gap-3 bg-[#1b2a5c] px-4 py-3 text-white">
+      <header className="flex items-center gap-3 bg-[#235d6e] px-4 py-3 text-white">
         <Avatar who="hendy" />
         <span className="text-lg font-extrabold">
           <RubyText text={t("speaker.hendy")} />
         </span>
       </header>
       <div className="flex-1 overflow-y-auto px-4 py-3">
-        <div className="mb-3 rounded-2xl bg-sky-50 p-3">
+        <div className="cream-box mb-3 rounded-2xl p-3.5">
           <p className="text-lg font-extrabold">
             <RubyText text={t("report.title")} />
           </p>
-          <p>
+          <p className="font-bold">
             <RubyText text={t("report.help")} />
           </p>
-          <p className="text-ink/70">
+          <p className="text-cocoa font-bold">
             <RubyText text={t("report.example")} />
           </p>
         </div>
         {sent && (
           <>
             <div className="mb-3 flex justify-end">
-              <p className="bg-cyan/30 max-w-[80%] rounded-2xl rounded-br-sm px-4 py-2 text-lg">
+              <p className="text-ink max-w-[80%] rounded-2xl rounded-br-sm border border-[#a8e2c4] bg-[#dff7ea] px-4 py-2 text-lg font-bold">
                 {sent}
               </p>
             </div>
             <div className="pop mb-3 flex gap-2">
               <Avatar who="hendy" />
-              <div className="rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-2 text-lg leading-[2.2]">
+              <div className="cream-box rounded-2xl rounded-bl-sm px-4 py-2 text-lg leading-[2.2] font-bold">
                 <RubyText text={t("report.hendy1", { nickname })} />
                 <br />
                 <RubyText text={t("report.hendy2")} />
@@ -74,9 +74,9 @@ export function ReportPanel({ onDone }: { onDone: () => void }) {
           </>
         )}
       </div>
-      <footer className="flex flex-col gap-2 border-t border-slate-200 p-3">
+      <footer className="flex flex-col gap-2 border-t-2 border-[#efe2c6] bg-[#fff9ec] p-3">
         {error && (
-          <p className="text-coral font-extrabold">
+          <p className="font-extrabold text-[#c43a4b]">
             <RubyText text={t("report.short")} />
           </p>
         )}

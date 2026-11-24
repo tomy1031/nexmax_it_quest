@@ -1,4 +1,4 @@
-import type { AvatarConfig } from "@/lib/store";
+import type { AvatarConfig, CheekStyle, EyebrowStyle, MouthStyle, NoseStyle } from "@/lib/store";
 import atlasJson from "@/three/face-atlas.json";
 
 /**
@@ -35,6 +35,49 @@ export const EYE_SLOTS: Record<AvatarConfig["eyes"], [sheet: string, row: number
   star: ["face_eyes_unique1", 2],
   sleepy: ["face_eyes_unique1", 3],
 };
+
+/** まゆの形 → face_mouth 1行目の列。 */
+export const EYEBROW_COLS: Record<EyebrowStyle, number> = {
+  soft: 0,
+  thick: 1,
+  straight: 2,
+  gentle: 3,
+  arch: 4,
+  sharp: 5,
+};
+
+/** 鼻の形 → face_mouth 2行目の列。 */
+export const NOSE_COLS: Record<NoseStyle, number> = {
+  dot: 0,
+  curve: 1,
+  triangle: 2,
+  button: 3,
+  dots: 4,
+  side: 5,
+};
+
+/** 口の形 → face_mouth 3〜4行目の [col, row]。 */
+export const MOUTH_SLOTS: Record<MouthStyle, [col: number, row: number]> = {
+  smile: [0, 2],
+  open: [1, 2],
+  happy: [2, 2],
+  cat: [0, 3],
+  flat: [1, 3],
+  pout: [2, 3],
+  grin: [3, 3],
+  soft: [4, 3],
+};
+
+/** ほっぺの形 → face_cheeks 1行目の列（none は描かない）。 */
+export const CHEEK_COLS: Record<Exclude<CheekStyle, "none">, number> = {
+  round: 0,
+  oval: 1,
+  lines: 2,
+  freckles: 3,
+  gloss: 4,
+  heart: 5,
+};
+
 interface Sheet {
   kind: "eyes" | "mouth" | "cheeks";
   url: string;
@@ -97,7 +140,7 @@ const tintCache = new Map<string, HTMLCanvasElement>();
 function tinted(sheet: string, box: FaceBox, color: string): CanvasImageSource | null {
   const img = images.get(sheet);
   if (!img) return null;
-  const key = `${sheet}|${box.join(",")}|${color}`;
+  const key = `tint|${sheet}|${box.join(",")}|${color}`;
   const hit = tintCache.get(key);
   if (hit) return hit;
   const c = document.createElement("canvas");
@@ -113,6 +156,68 @@ function tinted(sheet: string, box: FaceBox, color: string): CanvasImageSource |
   return c;
 }
 
+function parseHex(hex: string): [number, number, number] {
+  const s = hex.replace("#", "");
+  const n = parseInt(
+    s.length === 3
+      ? s
+          .split("")
+          .map((ch) => ch + ch)
+          .join("")
+      : s,
+    16,
+  );
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** 目の 茶色い ひとみ部分だけを 選んだ 色に変える（白い 光・白目・こげ茶の ふちは 残す）。 */
+function recolorIris(sheet: string, box: FaceBox, color: string): CanvasImageSource | null {
+  const img = images.get(sheet);
+  if (!img) return null;
+  const key = `iris|${sheet}|${box.join(",")}|${color}`;
+  const hit = tintCache.get(key);
+  if (hit) return hit;
+  const c = document.createElement("canvas");
+  c.width = box[2];
+  c.height = box[3];
+  const g = c.getContext("2d");
+  if (!g) return null;
+  g.drawImage(img, box[0], box[1], box[2], box[3], 0, 0, box[2], box[3]);
+  try {
+    const data = g.getImageData(0, 0, box[2], box[3]);
+    const px = data.data;
+    const [tr, tg, tb] = parseHex(color);
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i + 3]! < 20) continue;
+      const r = px[i]!;
+      const gr = px[i + 1]!;
+      const b = px[i + 2]!;
+      const mx = Math.max(r, gr, b);
+      const mn = Math.min(r, gr, b);
+      // 白い ハイライト・白目は そのまま
+      if (mn > 185) continue;
+      // こげ茶の ふち・くろめは そのまま
+      if (mx < 56) continue;
+      // 茶色い ひとみ（r が b より大きい 暖色）を なめらかに ぬりかえる
+      const warmth = Math.max(0, Math.min(1, (r - b - 6) / 30));
+      const mid =
+        Math.max(0, Math.min(1, (mx - 54) / 34)) * Math.max(0, Math.min(1, (190 - mn) / 45));
+      const blend = warmth * mid;
+      if (blend <= 0.01) continue;
+      const luma = (0.299 * r + 0.587 * gr + 0.114 * b) / 110;
+      const k = 0.62 + 0.45 * Math.min(1.25, luma);
+      px[i] = Math.min(255, Math.round(r * (1 - blend) + Math.min(255, tr * k) * blend));
+      px[i + 1] = Math.min(255, Math.round(gr * (1 - blend) + Math.min(255, tg * k) * blend));
+      px[i + 2] = Math.min(255, Math.round(b * (1 - blend) + Math.min(255, tb * k) * blend));
+    }
+    g.putImageData(data, 0, 0);
+  } catch {
+    // テスト環境などで getImageData が使えないときは そのまま
+  }
+  tintCache.set(key, c);
+  return c;
+}
+
 export interface PartOptions {
   /** 左右に反転する（反対がわの目・まゆ・ほっぺ）。 */
   mirror?: boolean;
@@ -120,6 +225,8 @@ export interface PartOptions {
   anchor?: [col: number, row: number];
   /** 色をぬりかえる（まゆを髪の色に、など）。 */
   tint?: string;
+  /** 目の ひとみの色を変える（白い光と ふちは残す）。 */
+  irisColor?: string;
   alpha?: number;
   /** 横の ちぢめ（球に貼ると横に のびるので、少し ちぢめて描く）。 */
   squash?: number;
@@ -157,6 +264,9 @@ export function drawFacePart(
   ctx.globalAlpha = o.alpha ?? 1;
   if (o.tint) {
     const src = tinted(sheet, box, o.tint);
+    if (src) ctx.drawImage(src, dx - w / 2, dy - h / 2, w, h);
+  } else if (o.irisColor) {
+    const src = recolorIris(sheet, box, o.irisColor);
     if (src) ctx.drawImage(src, dx - w / 2, dy - h / 2, w, h);
   } else {
     ctx.drawImage(img, box[0], box[1], box[2], box[3], dx - w / 2, dy - h / 2, w, h);
