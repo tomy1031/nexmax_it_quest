@@ -20,6 +20,7 @@ import {
   chatFile,
   furiganaFile,
   listeningFile,
+  meetingFile,
   metroFile,
   placesFile,
   stageFile,
@@ -94,6 +95,23 @@ const SKIP_KEYS = new Set([
   "kind",
 ]);
 
+/** ミーティング（content/meetings/）では label も学生が読む。キーワード・印・テストの例は学生が読まない。 */
+const MEETING_SKIP_KEYS = new Set([
+  "$comment",
+  "id",
+  "icon",
+  "en",
+  "voice",
+  "persona",
+  "keywords",
+  "markers",
+  "replyMarkers",
+  "deepMarkers",
+  "tests",
+  "who",
+  "tip",
+]);
+
 const texts: { where: string; text: string }[] = [];
 function collect(value: unknown, where: string, key?: string, skip: Set<string> = SKIP_KEYS) {
   if (key && skip.has(key)) return;
@@ -126,6 +144,13 @@ for (const [path, schema] of contentFiles) {
   const data = check(path, schema);
   if (data) parsed.set(path, data);
   collect(readJson(path), path);
+}
+for (const f of readdirSync(join(ROOT, "content/meetings"))) {
+  if (!f.endsWith(".json")) continue;
+  const path = `content/meetings/${f}`;
+  const data = check(path, meetingFile);
+  if (data) parsed.set(path, data);
+  collect(readJson(path), path, undefined, MEETING_SKIP_KEYS);
 }
 
 // ── リスニング（content/listenings/*.json。docs/design/02_リスニング.md） ──

@@ -639,7 +639,7 @@ export function OfficeHallScene() {
 }
 
 /** 席の メンバーの 名前（頭の 上。いつも こちらを 向く）。名前は カタカナ（ふりがなは 要らない）。 */
-function NameTag({ name }: { name: string }) {
+export function NameTag({ name }: { name: string }) {
   return (
     <Billboard position={[0, 1.38, 0]}>
       <CanvasPanel

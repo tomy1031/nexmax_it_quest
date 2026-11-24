@@ -1,13 +1,23 @@
 import { useState } from "react";
 import stage1 from "@content/stages/stage1.json";
+import stage2 from "@content/stages/stage2.json";
 import { playSfx } from "@/lib/audio";
 import { useGame } from "@/lib/store";
-import { t } from "@/lib/t";
+import { t, type UiKey } from "@/lib/t";
 import { drawRuby, ensureFont, makeCanvas, roundRect } from "@/factory/text-canvas";
 import { RubyText } from "@/ui/RubyText";
 import { usePhotoUrl } from "@/ui/use-photo";
 
 const BASE = import.meta.env.BASE_URL;
+
+/** ステージごとの 修了証の ことば（題・文・きょうの ことば）。 */
+const CERT: Record<string, { stage: UiKey; body: UiKey; words: { word: string; en: string }[] }> = {
+  stage1: { stage: "cert.stage", body: "cert.body", words: stage1.words },
+  stage2: { stage: "s2.certStage", body: "s2.certBody", words: stage2.words },
+};
+function certOf(stageId: string) {
+  return CERT[stageId] ?? CERT.stage1!;
+}
 
 function dateText(iso?: string): string {
   const d = iso ? new Date(iso) : new Date();
@@ -24,6 +34,7 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
   const photo = usePhotoUrl();
   const [saving, setSaving] = useState(false);
   const date = dateText(progress?.clearedAt);
+  const cert = certOf(stageId);
 
   const save = async () => {
     setSaving(true);
@@ -33,6 +44,7 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
         nickname: profile.nickname,
         photo,
         date,
+        stageId,
       });
       const a = document.createElement("a");
       a.href = url;
@@ -70,10 +82,10 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
             </p>
             <p className="text-3xl font-black">{profile.name}</p>
             <p className="text-lg font-extrabold text-[#178358]">
-              <RubyText text={t("cert.stage")} />
+              <RubyText text={t(cert.stage)} />
             </p>
             <p className="text-lg leading-[2.2] font-bold">
-              <RubyText text={t("cert.body")} />
+              <RubyText text={t(cert.body)} />
             </p>
           </div>
         </div>
@@ -82,7 +94,7 @@ export function Certificate({ stageId, onClose }: { stageId: string; onClose: ()
             <RubyText text={t("cert.words")} />
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {stage1.words.map((w) => (
+            {cert.words.map((w) => (
               <div key={w.word} className="rounded-xl bg-white px-3 py-2 shadow-xs">
                 <p className="text-lg font-extrabold">
                   <RubyText text={w.word} />
@@ -137,17 +149,19 @@ async function renderCertificate(o: {
   nickname: string;
   photo: string | null;
   date: string;
+  stageId: string;
 }): Promise<string> {
+  const cert = certOf(o.stageId);
   const W = 1600;
   const H = 1000;
   const [canvas, ctx] = makeCanvas(W, H);
   const texts = [
     t("cert.title"),
     t("cert.company"),
-    t("cert.stage"),
-    t("cert.body"),
+    t(cert.stage),
+    t(cert.body),
     t("cert.words"),
-    ...stage1.words.map((w) => w.word),
+    ...cert.words.map((w) => w.word),
   ];
   await ensureFont(texts.join(""));
   const g = ctx.createLinearGradient(0, 0, W, H);
@@ -192,10 +206,10 @@ async function renderCertificate(o: {
   ctx.font = "900 72px sans-serif";
   ctx.fillStyle = ink;
   ctx.fillText(o.name, 440, 450);
-  drawRuby(ctx, t("cert.stage"), 440, 530, { size: 40, color: "#0a6bd6", rubyColor: ruby });
-  drawRuby(ctx, t("cert.body"), 120, 650, { size: 38, color: ink, rubyColor: ruby });
+  drawRuby(ctx, t(cert.stage), 440, 530, { size: 40, color: "#0a6bd6", rubyColor: ruby });
+  drawRuby(ctx, t(cert.body), 120, 650, { size: 38, color: ink, rubyColor: ruby });
   drawRuby(ctx, t("cert.words"), 120, 750, { size: 32, color: "#9a7a12", rubyColor: ruby });
-  stage1.words.forEach((w, i) => {
+  cert.words.forEach((w, i) => {
     const x = 120 + (i % 3) * 440;
     const y = 830 + Math.floor(i / 3) * 90;
     drawRuby(ctx, `${w.word}（${w.en}）`, x, y, { size: 34, color: ink, rubyColor: ruby });

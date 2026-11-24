@@ -11,6 +11,8 @@ import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
 import { TalkPanel } from "@/ui/hud/TalkPanel";
 import { ListeningPanel } from "@/ui/hud/ListeningPanel";
+import { TeamPanel } from "@/ui/hud/TeamPanel";
+import { MeetingPanel } from "@/ui/hud/MeetingPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
 
@@ -26,11 +28,13 @@ export function Panels() {
   // リスニングも 3D（話す 人と 大きな 画面）が 上に 見えるように 下に 出す
   if (panel.id === "listening")
     return <ListeningPanel listeningId={panel.mode ?? ""} onDone={close} />;
+  // 質問の 時間（ステージ2）も、ホワイトボードと 山本社長が 見える ように 下に 出す
+  if (panel.id === "meeting") return <MeetingPanel meetingId={panel.mode ?? ""} onDone={close} />;
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#3b2c23]/40 p-3">
       {panel.id === "nmchat" && (
         <div className="w-full max-w-4xl">
-          <NMChat mode="onboarding" onDone={close} />
+          <NMChat mode="onboarding" channel={panel.mode} onDone={close} />
         </div>
       )}
       {panel.id === "avatar" && (
@@ -52,6 +56,7 @@ export function Panels() {
         </div>
       )}
       {panel.id === "report" && <ReportPanel onDone={close} />}
+      {panel.id === "team" && <TeamPanel onDone={close} />}
       {panel.id === "certificate" && (
         <Certificate
           stageId={stageId}

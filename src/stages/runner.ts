@@ -1,6 +1,7 @@
 import type { Beat, Section, StageFile } from "@/content/schema";
 import { playSfx, stopAllSfx } from "@/lib/audio";
 import { useGame } from "@/lib/store";
+import { fill } from "@/lib/t";
 import { questEvents } from "@/stages/events";
 import { initialPlay, usePlay, waits } from "@/stages/play-store";
 import { useLayout } from "@/three/layout";
@@ -109,7 +110,7 @@ export class StageRunner {
       for (const b of s.beats) {
         if (b.t === "todo-add") addTodo(b.id, b.text);
         if (b.t === "todo-done") doneTodo(b.id);
-        if (b.t === "memo-add") addMemo(b.id, b.title, b.text);
+        if (b.t === "memo-add" && !/%[a-z]+%/.test(b.text)) addMemo(b.id, b.title, b.text);
       }
     }
     let lastChapter = 0;
@@ -359,10 +360,14 @@ export class StageRunner {
         }
         return;
       }
-      case "memo-add":
-        addMemo(beat.id, beat.title, beat.text);
+      case "memo-add": {
+        // %heard% など、画面の部品が あとから 決めた 文を 入れる（決まって いなければ 書かない）
+        const text = fill(beat.text, usePlay.getState().vars);
+        if (/%[a-z]+%/.test(text)) return;
+        addMemo(beat.id, beat.title, text);
         if (!this.opts.fast) playSfx("pi");
         return;
+      }
       case "verdict": {
         usePlay.setState({ verdict: { ok: beat.ok, text: beat.text } });
         playSfx(beat.ok ? "ok" : "ng");

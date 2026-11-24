@@ -2,6 +2,7 @@ import { useState } from "react";
 import chatJson from "@content/nmchat.json";
 import type { ChatFile } from "@/content/schema";
 import { useGame } from "@/lib/store";
+import { usePlay } from "@/stages/play-store";
 import { dateJa, fill, t } from "@/lib/t";
 import { gameDate } from "@/lib/season";
 import { questEvents } from "@/stages/events";
@@ -13,10 +14,24 @@ const BASE = import.meta.env.BASE_URL;
 
 /**
  * NMChat（Slack のような会社のチャット。企画メモ）。
- * mode="onboarding" のときは、#onboarding を開くまで「とじる」を出さない（読まずに先へ進まない）。
+ * mode="onboarding" のときは、読む チャンネル（channel。無ければ #onboarding）を開くまで「とじる」を出さない（読まずに先へ進まない）。
+ * ステージ2の #aoba-project は、ステージ2に 入ってから 出す（ステージ1で 先の 話を 見せない）。
  */
-export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: () => void }) {
-  const [channel, setChannel] = useState<string | null>(mode === "view" ? "onboarding" : null);
+export function NMChat({
+  mode,
+  onDone,
+  channel: must = "onboarding",
+}: {
+  mode: "onboarding" | "view";
+  onDone: () => void;
+  channel?: string;
+}) {
+  const [channel, setChannel] = useState<string | null>(mode === "view" ? must : null);
+  const stage2 = useGame((s) => Boolean(s.stages.stage2));
+  const inStage2 = usePlay((s) => s.stageId === "stage2");
+  const channels = CHAT.channels.filter(
+    (c) => c.id !== "aoba-project" || stage2 || inStage2 || must === c.id,
+  );
   const [moreBelow, setMoreBelow] = useState<boolean | null>(null);
   const nickname = useGame((s) => s.profile.nickname);
   const [read, setRead] = useState(mode === "view");
@@ -26,9 +41,9 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
   const open = (id: string) => {
     setChannel(id);
     setMoreBelow(null);
-    if (id === "onboarding") {
+    if (id === must) {
       setRead(true);
-      questEvents.emit("nmchat:read-onboarding");
+      questEvents.emit(`nmchat:read-${id}`);
     }
   };
 
@@ -44,8 +59,8 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
         <p className="text-xs font-bold text-white/90">
           <RubyText text={t("chat.channels")} />
         </p>
-        {CHAT.channels.map((c) => {
-          const unread = mode === "onboarding" && c.id === "onboarding" && !read;
+        {channels.map((c) => {
+          const unread = mode === "onboarding" && c.id === must && !read;
           return (
             <button
               key={c.id}

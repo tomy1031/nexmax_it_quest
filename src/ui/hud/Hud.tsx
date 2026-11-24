@@ -260,6 +260,7 @@ function speakerBadgeColor(who: string): string {
   if (who === "me") return "bg-[#1f9b6c]";
   if (who === "nexmax") return "bg-[#1e80cf]";
   if (who === "hendy") return "bg-[#d66838]";
+  if (who === "yamamoto") return "bg-[#2f6b4f]";
   if (who === "announce") return "bg-[#8f6626]";
   return "bg-[#6e5648]";
 }
@@ -275,8 +276,8 @@ function Dialogue() {
   const face =
     line.who === "nexmax"
       ? `${BASE}img/nexmax/${line.pose ?? "guide"}.webp`
-      : line.who === "hendy"
-        ? `${BASE}img/people/hendy.webp`
+      : line.who === "hendy" || line.who === "yamamoto"
+        ? `${BASE}img/people/${line.who}.webp`
         : line.who === "me"
           ? photo
           : null;

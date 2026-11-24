@@ -2,6 +2,33 @@
   "$comment": "豆知識。1枚は「絵1つ＋1文＋英語」。「もっと」で2文目。image は public/ の下の絵（3D の部品を撮った絵か、ネクマックスの絵）。",
   "tips": [
     {
+      "id": "jutaku-kaihatsu",
+      "title": "受託開発",
+      "text": "お客さまに たのまれた ものを 作る 仕事です。",
+      "more": "作る 場所は、自分の 会社です。ネクストメイクには、この 仕事の チームが あります。",
+      "en": "Contract development: we build what a client asks for, in our own office.",
+      "image": "/img/tips/jutaku-kaihatsu.webp",
+      "pose": "guide"
+    },
+    {
+      "id": "aoba",
+      "title": "Aobaは 抹茶の カフェ",
+      "text": "Aobaは、日本の 抹茶の カフェの 会社です。",
+      "more": "カンボジアの プノンペンに、新しい 店を 出します。",
+      "en": "Aoba is a Japanese matcha cafe company. It will open a new shop in Phnom Penh, Cambodia.",
+      "image": "/img/tips/aoba.webp",
+      "pose": "hello"
+    },
+    {
+      "id": "kikanai-to",
+      "title": "聞かないと、出て こない",
+      "text": "お金・日にち・条件は、聞かないと 出て きません。",
+      "more": "お客さまの 頭の 中に ある ことは、質問して はじめて わかります。",
+      "en": "Budgets, dates and conditions do not come out unless you ask. Asking questions is the first job when you build something for a client.",
+      "image": "/img/tips/kikanai-to.webp",
+      "pose": "guide"
+    },
+    {
       "id": "nmchat",
       "title": "会社の チャット",
       "text": "日本の 会社では、チャットで 連絡する ことが 多いです。",
