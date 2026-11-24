@@ -50,15 +50,15 @@ function useWaiting(id: string): boolean {
 export function OfficeFloorScene() {
   useSceneLayout({
     anchors: {
-      elevator: { pos: [3.2, 0, 3.9], yaw: Math.PI },
+      elevator: { pos: [3.2, 0, 2.1], yaw: Math.PI },
     },
     walk: WALK,
     blocks: BLOCKS,
     shots: {
-      hendy: { pos: [HENDY_DESK[0] + 1.3, 1.45, 3.4], look: [HENDY_DESK[0], 0.95, 1.6], fov: 48 },
+      hendy: { pos: [HENDY_DESK[0] + 1.5, 1.55, 4.3], look: [HENDY_DESK[0], 0.75, 1.6], fov: 48 },
       "my-desk": { pos: [MY_DESK[0] + 0.15, 1.3, 1.9], look: [MY_DESK[0], 0.8, 0.3], fov: 46 },
     },
-    camera: { mode: "follow", distance: 4.2, height: 2.6 },
+    camera: { mode: "follow", distance: 3.8, height: 2.0 },
     bounds: { minX: -6.8, maxX: 6.8, minZ: -4.8, maxZ: 4.8, maxY: 3.1 },
     showPlayer: true,
   });

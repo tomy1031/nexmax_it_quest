@@ -35,6 +35,11 @@ export function StageSelect() {
   const resume = progress?.section;
   const search = useSearch();
   const unlockParam = isDevTools && new URLSearchParams(search).get("unlock") === "1";
+  const progress2 = useGame((s) => s.stages.stage2);
+  const stage2Open = cleared || unlockParam || Boolean(progress2?.cleared || progress2?.section);
+  const stage2New = stage2Open && !progress2;
+  // 始めて いる ステージの タブを 開く（ステージ2を 始めて いれば 2）
+  const [tab, setTab] = useState<1 | 2>(() => (progress2 ? 2 : 1));
 
   // 広場に着いた直後は手をふり、少ししたら自然な立ちポーズへ
   useEffect(() => {
@@ -130,158 +135,184 @@ export function StageSelect() {
 
           {/* 右側：ステージの行き先チケットカード */}
           <div className="pointer-events-auto flex flex-col gap-3">
-            <article
-              className="glass pop flex flex-col overflow-hidden rounded-[28px]"
-              data-testid="stage-card-1"
-            >
-              {/* チケットヘッダー帯 */}
-              <div className="relative flex items-center justify-between overflow-hidden bg-[linear-gradient(135deg,#ffd9e9_0%,#d4f1ff_54%,#d6f5e3_100%)] px-5 py-3.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#5c463a] px-3.5 py-1 text-sm font-extrabold text-white shadow">
-                    <RubyText text={t("select.stage")} /> 1
-                  </span>
-                  {cleared && (
-                    <span className="flex items-center gap-1 rounded-full bg-[#1f9b6c] px-3 py-1 text-sm font-extrabold text-white shadow">
-                      <IconCheck className="h-4 w-4" />
-                      <RubyText text={t("select.cleared")} />
+            {/* ステージの タブ（カードを 2まい ならべると 画面に 入らないので、1まいずつ 見せる） */}
+            <div className="flex gap-2" role="tablist">
+              {([1, 2] as const).map((no) => (
+                <button
+                  key={no}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === no}
+                  className={`btn ${tab === no ? "btn-primary" : "btn-ghost"} relative min-h-10 px-4 py-1.5 text-base`}
+                  onClick={() => setTab(no)}
+                  data-testid={`stage-tab-${no}`}
+                >
+                  <RubyText text={t("select.stage")} /> {no}
+                  {no === 2 && stage2New && (
+                    <span className="absolute -top-1.5 -right-1.5 grid h-5 w-5 place-items-center rounded-full bg-[#e25868] text-xs text-white shadow">
+                      ✦
                     </span>
                   )}
-                </div>
-                <img
-                  src={`${import.meta.env.BASE_URL}img/nexmax/guide.webp`}
-                  alt=""
-                  className="h-14 w-14 shrink-0 drop-shadow-[0_4px_8px_rgba(74,52,38,0.18)]"
-                />
-              </div>
-
-              <div className="text-ink flex flex-1 flex-col gap-3 p-5">
-                <div>
-                  <h2 className="text-xl leading-relaxed font-extrabold">
-                    <RubyText text={stage1.title} />
-                  </h2>
-                  <p className="text-ink/85 text-sm font-bold">
-                    <RubyText text={stage1.subtitle} />
-                  </p>
-                </div>
-
-                {/* ミニ路線バー（家 → 天王寺 → 本町 → 阿波座） */}
-                <div className="cream-box rounded-2xl px-3.5 py-2.5">
-                  <p className="text-cocoa mb-1.5 text-xs font-extrabold">
-                    <RubyText text={t("select.routeLabel")} />
-                  </p>
-                  <div className="flex items-center justify-between gap-1 text-xs font-extrabold">
-                    <RouteStop label={t("select.stopHome")} color="#f09c42" />
-                    <RouteLine color="#e2c8a0" />
-                    <RouteStop label={t("select.stopTennoji")} color="#e5171f" />
-                    <RouteLine color="#e5171f" />
-                    <RouteStop label={t("select.stopHommachi")} color="#019a66" ring="#e5171f" />
-                    <RouteLine color="#019a66" />
-                    <RouteStop label={t("select.stopAwaza")} color="#019a66" />
+                  {no === 2 && !stage2Open && <span aria-hidden>🔒</span>}
+                </button>
+              ))}
+            </div>
+            {tab === 1 && (
+              <article
+                className="glass pop flex flex-col overflow-hidden rounded-[28px]"
+                data-testid="stage-card-1"
+              >
+                {/* チケットヘッダー帯 */}
+                <div className="relative flex items-center justify-between overflow-hidden bg-[linear-gradient(135deg,#ffd9e9_0%,#d4f1ff_54%,#d6f5e3_100%)] px-5 py-3.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[#5c463a] px-3.5 py-1 text-sm font-extrabold text-white shadow">
+                      <RubyText text={t("select.stage")} /> 1
+                    </span>
+                    {cleared && (
+                      <span className="flex items-center gap-1 rounded-full bg-[#1f9b6c] px-3 py-1 text-sm font-extrabold text-white shadow">
+                        <IconCheck className="h-4 w-4" />
+                        <RubyText text={t("select.cleared")} />
+                      </span>
+                    )}
                   </div>
+                  <img
+                    src={`${import.meta.env.BASE_URL}img/nexmax/guide.webp`}
+                    alt=""
+                    className="h-14 w-14 shrink-0 drop-shadow-[0_4px_8px_rgba(74,52,38,0.18)]"
+                  />
                 </div>
 
-                {/* 学ぶ量の目安 */}
-                <p className="text-cocoa text-sm font-bold" data-testid="stage1-info">
-                  <RubyText
-                    text={t("select.info", {
-                      scenes: stage1.sections.length,
-                      words: stage1.words.length,
-                    })}
-                  />
-                </p>
+                <div className="text-ink flex flex-1 flex-col gap-3 p-5">
+                  <div>
+                    <h2 className="text-xl leading-relaxed font-extrabold">
+                      <RubyText text={stage1.title} />
+                    </h2>
+                    <p className="text-ink/85 text-sm font-bold">
+                      <RubyText text={stage1.subtitle} />
+                    </p>
+                  </div>
 
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {resume ? (
-                    <>
+                  {/* ミニ路線バー（家 → 天王寺 → 本町 → 阿波座） */}
+                  <div className="cream-box rounded-2xl px-3.5 py-2.5">
+                    <p className="text-cocoa mb-1.5 text-xs font-extrabold">
+                      <RubyText text={t("select.routeLabel")} />
+                    </p>
+                    <div className="flex items-center justify-between gap-1 text-xs font-extrabold">
+                      <RouteStop label={t("select.stopHome")} color="#f09c42" />
+                      <RouteLine color="#e2c8a0" />
+                      <RouteStop label={t("select.stopTennoji")} color="#e5171f" />
+                      <RouteLine color="#e5171f" />
+                      <RouteStop label={t("select.stopHommachi")} color="#019a66" ring="#e5171f" />
+                      <RouteLine color="#019a66" />
+                      <RouteStop label={t("select.stopAwaza")} color="#019a66" />
+                    </div>
+                  </div>
+
+                  {/* 学ぶ量の目安 */}
+                  <p className="text-cocoa text-sm font-bold" data-testid="stage1-info">
+                    <RubyText
+                      text={t("select.info", {
+                        scenes: stage1.sections.length,
+                        words: stage1.words.length,
+                      })}
+                    />
+                  </p>
+
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {resume ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => go(resume)}
+                          onMouseEnter={() => setHoverStart(true)}
+                          onMouseLeave={() => setHoverStart(false)}
+                          data-testid="stage1-continue"
+                        >
+                          <IconPlay className="h-4 w-4" />
+                          <RubyText text={t("select.continue")} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          onClick={() => {
+                            resetStage("stage1");
+                            go();
+                          }}
+                        >
+                          <RubyText text={t("select.restart")} />
+                        </button>
+                      </>
+                    ) : (
                       <button
                         type="button"
                         className="btn btn-primary"
-                        onClick={() => go(resume)}
+                        onClick={() => go()}
                         onMouseEnter={() => setHoverStart(true)}
                         onMouseLeave={() => setHoverStart(false)}
-                        data-testid="stage1-continue"
+                        data-testid="stage1-start"
                       >
                         <IconPlay className="h-4 w-4" />
-                        <RubyText text={t("select.continue")} />
+                        <RubyText text={t("select.start")} />
                       </button>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={() => setChapters(!chapters)}
+                    >
+                      <RubyText text={t("select.chapters")} />
+                    </button>
+                    {cleared && (
                       <button
                         type="button"
-                        className="btn btn-ghost"
-                        onClick={() => {
-                          resetStage("stage1");
-                          go();
-                        }}
+                        className="btn btn-sky"
+                        onClick={() => navigate("/certificate/stage1")}
                       >
-                        <RubyText text={t("select.restart")} />
+                        <RubyText text={t("select.certificate")} />
                       </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={() => go()}
-                      onMouseEnter={() => setHoverStart(true)}
-                      onMouseLeave={() => setHoverStart(false)}
-                      data-testid="stage1-start"
-                    >
-                      <IconPlay className="h-4 w-4" />
-                      <RubyText text={t("select.start")} />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => setChapters(!chapters)}
-                  >
-                    <RubyText text={t("select.chapters")} />
-                  </button>
-                  {cleared && (
-                    <button
-                      type="button"
-                      className="btn btn-sky"
-                      onClick={() => navigate("/certificate/stage1")}
-                    >
-                      <RubyText text={t("select.certificate")} />
-                    </button>
+                    )}
+                  </div>
+
+                  {chapters && (
+                    <div className="cream-box flex flex-col gap-2 rounded-2xl p-3">
+                      {stage1.chapters.map((c) => {
+                        const first = stage1.sections.find((s) => s.chapter === c.no);
+                        return (
+                          <button
+                            key={c.no}
+                            type="button"
+                            className="btn btn-ghost justify-start disabled:opacity-60"
+                            onClick={() => first && go(first.id)}
+                            disabled={!first}
+                            data-testid={`chapter-${c.no}`}
+                          >
+                            <RubyText text={t("hud.chapter", { no: c.no })} />
+                            <RubyText text={c.title} />
+                            {!first && (
+                              <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-sm text-white">
+                                <RubyText text={t("select.soon")} />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
-
-                {chapters && (
-                  <div className="cream-box flex flex-col gap-2 rounded-2xl p-3">
-                    {stage1.chapters.map((c) => {
-                      const first = stage1.sections.find((s) => s.chapter === c.no);
-                      return (
-                        <button
-                          key={c.no}
-                          type="button"
-                          className="btn btn-ghost justify-start disabled:opacity-60"
-                          onClick={() => first && go(first.id)}
-                          disabled={!first}
-                          data-testid={`chapter-${c.no}`}
-                        >
-                          <RubyText text={t("hud.chapter", { no: c.no })} />
-                          <RubyText text={c.title} />
-                          {!first && (
-                            <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-sm text-white">
-                              <RubyText text={t("select.soon")} />
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </article>
+              </article>
+            )}
 
             {/* ステージ2（ステージ1を クリアすると 開く。開発・自動テストでは ?unlock=1 で 開く） */}
-            <Stage2Card
-              unlocked={cleared || unlockParam}
-              onHover={setHoverStart}
-              go={(section) =>
-                navigate(section ? `/stage/stage2?from=${section}` : "/stage/stage2")
-              }
-            />
+            {tab === 2 && (
+              <Stage2Card
+                unlocked={stage2Open}
+                onHover={setHoverStart}
+                go={(section) =>
+                  navigate(section ? `/stage/stage2?from=${section}` : "/stage/stage2")
+                }
+              />
+            )}
           </div>
         </div>
       </div>

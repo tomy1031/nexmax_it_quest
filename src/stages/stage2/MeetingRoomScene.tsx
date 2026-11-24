@@ -52,7 +52,7 @@ function useWaiting(id: string): boolean {
 export function MeetingRoomScene() {
   useSceneLayout({
     anchors: {
-      door: { pos: [2.4, 0, 2.6], yaw: Math.PI },
+      door: { pos: [2.4, 0, 0.6], yaw: Math.PI },
       "my-seat": { pos: SEATS.me!.pos, yaw: SEATS.me!.yaw },
       "my-seat-stand": { pos: [1.65, 0, ROWS[2]!], yaw: -Math.PI / 2 },
     },
@@ -60,10 +60,10 @@ export function MeetingRoomScene() {
     blocks: BLOCKS,
     shots: {
       yamamoto: { pos: [0.5, 1.45, 3.15], look: [-1.9, 0.95, 2.2], fov: 50 },
-      "yamamoto-seat": { pos: [0.7, 1.4, 0.7], look: [-1.0, 0.85, -1.5], fov: 50 },
+      "yamamoto-seat": { pos: [0.15, 1.3, -0.35], look: [-1.0, 0.7, -1.55], fov: 50 },
       "talk-view": { pos: [-0.2, 1.85, 2.9], look: [0.7, 1.15, -2.6], fov: 55 },
       // 2まいの カードが 下に 出るので、ホワイトボードと 山本社長が 画面の 上の 55% に 入る 向き
-      board: { pos: [0.1, 2.05, 3.05], look: [-0.65, 0.72, -2.2], fov: 52 },
+      board: { pos: [0.1, 1.45, 1.1], look: [-0.75, 0.5, -3.47], fov: 58 },
     },
     camera: { mode: "follow", distance: 3.6, height: 2.4 },
     bounds: { minX: -3.85, maxX: 3.85, minZ: -3.3, maxZ: 3.35, maxY: 2.85 },
@@ -71,6 +71,8 @@ export function MeetingRoomScene() {
   });
 
   const sectionId = usePlay((s) => s.sectionId);
+  // アップの 間は 名前の 札を 出さない（手前の 人の 札が 大きく なって ホワイトボードを かくすため）
+  const showTags = usePlay((s) => !s.focus);
   const line = usePlay((s) => s.line);
   const talking = useBoard((s) => s.talking);
   const team = useSeatedTeam();
@@ -209,7 +211,7 @@ export function MeetingRoomScene() {
         <Interactable
           id="yamamoto"
           approach={[-0.9, 2.5]}
-          marker={[YAMAMOTO_STAND[0], 1.75, YAMAMOTO_STAND[2]]}
+          marker={[YAMAMOTO_STAND[0], 1.5, YAMAMOTO_STAND[2]]}
           disabled={!showYamamoto}
         >
           {seated ? (
@@ -230,7 +232,7 @@ export function MeetingRoomScene() {
             seat={seat}
             look={m.look}
             talking={talking === m.id}
-            name={m.name}
+            name={showTags ? m.name : undefined}
             phase={i * 0.41}
           />
         );

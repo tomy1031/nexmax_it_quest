@@ -11,6 +11,7 @@ import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
 import { TalkPanel } from "@/ui/hud/TalkPanel";
 import { TeamPanel } from "@/ui/hud/TeamPanel";
+import { MeetingPanel } from "@/ui/hud/MeetingPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
 
@@ -23,6 +24,8 @@ export function Panels() {
   const close = () => playActions.closePanel();
   // 声で 話す 練習は、3D の 相手が 見えるように 下に 出す（画面を 暗くしない）
   if (panel.id === "talk") return <TalkPanel talkId={panel.mode ?? ""} onDone={close} />;
+  // 質問の 時間（ステージ2）も、ホワイトボードと 山本社長が 見える ように 下に 出す
+  if (panel.id === "meeting") return <MeetingPanel meetingId={panel.mode ?? ""} onDone={close} />;
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#3b2c23]/40 p-3">
       {panel.id === "nmchat" && (

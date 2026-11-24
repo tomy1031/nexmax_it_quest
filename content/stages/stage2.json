@@ -205,6 +205,7 @@
           "who": "hendy",
           "text": "そろそろ 時間です。山本社長、ありがとうございました。"
         },
+        { "t": "pose", "pose": "stand", "anchor": "my-seat" },
         { "t": "focus", "target": "yamamoto-seat" },
         {
           "t": "say",
