@@ -66,6 +66,7 @@ export const panelId = z.enum([
   "report",
   "certificate",
   "talk",
+  "team",
 ]);
 export type PanelId = z.infer<typeof panelId>;
 

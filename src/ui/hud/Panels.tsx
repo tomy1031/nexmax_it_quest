@@ -10,6 +10,7 @@ import { RubyText } from "@/ui/RubyText";
 import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
 import { TalkPanel } from "@/ui/hud/TalkPanel";
+import { TeamPanel } from "@/ui/hud/TeamPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
 
@@ -48,6 +49,7 @@ export function Panels() {
         </div>
       )}
       {panel.id === "report" && <ReportPanel onDone={close} />}
+      {panel.id === "team" && <TeamPanel onDone={close} />}
       {panel.id === "certificate" && (
         <Certificate
           stageId={stageId}
