@@ -21,6 +21,27 @@
         "blush": true,
         "accessory": "none"
       }
+    },
+    {
+      "id": "yamamoto",
+      "name": "山本社長",
+      "look": {
+        "outfit": "suit",
+        "figure": "f",
+        "skin": "#f1c9a5",
+        "hair": "#2e211b",
+        "hairStyle": "bob",
+        "glasses": false,
+        "height": 160,
+        "suit": "#2f5d50",
+        "shirt": "#ffffff",
+        "tie": "#ffffff",
+        "coat": "#8a8f98",
+        "pants": "#2f5d50",
+        "eyes": "calm",
+        "blush": true,
+        "accessory": "none"
+      }
     }
   ]
 }

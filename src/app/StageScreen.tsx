@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearch } from "wouter";
 import stage1Json from "@content/stages/stage1.json";
+import stage2Json from "@content/stages/stage2.json";
 import type { StageFile } from "@/content/schema";
 import { isDevTools } from "@/lib/env";
 import { t } from "@/lib/t";
@@ -16,7 +17,10 @@ import { Hud } from "@/ui/hud/Hud";
 import { RubyText } from "@/ui/RubyText";
 import { LoadingCover } from "@/ui/LoadingCover";
 
-const STAGES: Record<string, StageFile> = { stage1: stage1Json as StageFile };
+const STAGES: Record<string, StageFile> = {
+  stage1: stage1Json as StageFile,
+  stage2: stage2Json as StageFile,
+};
 
 function webglOk(): boolean {
   try {

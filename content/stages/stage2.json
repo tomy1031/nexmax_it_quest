@@ -1,0 +1,243 @@
+{
+  "id": "stage2",
+  "title": "配属：お客さまと ミーティング！",
+  "subtitle": "Aobaの 採用ページを 作る 仕事が 始まります。",
+  "day": "04-02",
+  "chapters": [
+    { "no": 1, "title": "配属" },
+    { "no": 2, "title": "ミーティングの 準備" },
+    { "no": 3, "title": "山本社長の 話を 聞く" },
+    { "no": 4, "title": "質問の 時間" }
+  ],
+  "words": [
+    { "word": "受託開発", "en": "contract development" },
+    { "word": "採用ページ", "en": "recruitment page" },
+    { "word": "募集", "en": "looking for people to hire" },
+    { "word": "応募", "en": "apply" },
+    { "word": "予算", "en": "budget" },
+    { "word": "納期", "en": "deadline" }
+  ],
+  "sections": [
+    {
+      "id": "s01-haizoku",
+      "chapter": 1,
+      "title": "配属",
+      "scene": "office-floor",
+      "spawn": "elevator",
+      "beats": [
+        { "t": "wear", "outfit": "suit" },
+        { "t": "say", "who": "me", "text": "入社式の 次の 日。今日から 仕事だ。" },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ヘンディさんが 席に います。まず、元気に あいさつしましょう。"
+        },
+        {
+          "t": "objective",
+          "text": "ヘンディさんに あいさつしよう",
+          "target": "hendy",
+          "arrow": true,
+          "hints": [
+            "ヘンディさんを クリックして、マイクで「おはようございます！」と 言いましょう。"
+          ]
+        },
+        { "t": "wait", "event": "click:hendy" },
+        { "t": "clear-objective" },
+        { "t": "focus", "target": "hendy" },
+        { "t": "panel", "id": "talk", "mode": "morning" },
+        { "t": "say", "who": "hendy", "text": "%nickname%さんの チームが 決まりました。" },
+        { "t": "say", "who": "hendy", "text": "「受託開発チーム」です。" },
+        { "t": "tip", "id": "jutaku-kaihatsu" },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "はじめての 仕事は、Aobaと いう 会社の 採用ページです。"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "くわしい ことは、NMChatに 書きました。自分の 席で 読んで ください。"
+        },
+        { "t": "unfocus" },
+        {
+          "t": "objective",
+          "text": "自分の 席で NMChatを 読もう",
+          "target": "my-desk",
+          "arrow": true,
+          "hints": ["パソコンが ある 席です。"]
+        },
+        { "t": "wait", "event": "click:my-desk" },
+        { "t": "clear-objective" },
+        { "t": "focus", "target": "my-desk" },
+        { "t": "panel", "id": "nmchat", "mode": "aoba-project" },
+        { "t": "unfocus" },
+        { "t": "tip", "id": "aoba" },
+        {
+          "t": "memo-add",
+          "id": "aoba-job",
+          "title": "Aobaの 仕事",
+          "text": "お客さま: Aoba株式会社（抹茶の カフェ）。作る もの: 採用ページ。14時から 会議室Aで ミーティング（30分）。"
+        },
+        { "t": "todo-add", "id": "room-a", "text": "会議室Aへ 行く" },
+        { "t": "todo-add", "id": "ask", "text": "山本社長に 質問する" },
+        {
+          "t": "objective",
+          "text": "会議室Aへ 行こう",
+          "target": "door-a",
+          "arrow": true,
+          "hints": ["おくの かべに「会議室A」の 戸が あります。"]
+        },
+        { "t": "wait", "event": "click:door-a" },
+        { "t": "clear-objective" },
+        { "t": "todo-done", "id": "room-a" }
+      ]
+    },
+    {
+      "id": "s02-team",
+      "chapter": 2,
+      "title": "ミーティングの 準備",
+      "scene": "meeting-room",
+      "spawn": "door",
+      "beats": [
+        { "t": "say", "who": "hendy", "text": "今日は、チームで 山本社長に 質問します。" },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "いっしょに 質問する 人を えらびましょう。1人でも できます。"
+        },
+        { "t": "panel", "id": "team" },
+        { "t": "say", "who": "hendy", "text": "山本社長は、とても いそがしい 人です。" },
+        { "t": "say", "who": "hendy", "text": "ミーティングは 30分だけです。" },
+        { "t": "fx", "id": "yamamoto-enter" },
+        { "t": "pause", "ms": 2200 },
+        { "t": "focus", "target": "yamamoto" },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "hello",
+          "text": "山本社長が 来ました。はじめて 会う 人には、自分から あいさつします。"
+        },
+        {
+          "t": "objective",
+          "text": "山本社長に あいさつしよう",
+          "target": "yamamoto",
+          "arrow": true,
+          "hints": ["山本社長を クリックしましょう。"]
+        },
+        { "t": "wait", "event": "click:yamamoto" },
+        { "t": "clear-objective" },
+        { "t": "say", "who": "yamamoto", "text": "はじめまして。Aobaの 山本です。" },
+        { "t": "panel", "id": "talk", "mode": "yamamoto-greet" },
+        {
+          "t": "objective",
+          "text": "おじぎを しよう",
+          "hints": ["下の「おじぎ」の ボタンを 押しましょう。"]
+        },
+        { "t": "wait", "event": "emote:bow" },
+        { "t": "clear-objective" },
+        { "t": "unfocus" },
+        {
+          "t": "objective",
+          "text": "席に 座ろう",
+          "target": "my-seat",
+          "arrow": true,
+          "hints": ["光って いる 席を クリックしましょう。"]
+        },
+        { "t": "wait", "event": "click:my-seat" },
+        { "t": "clear-objective" },
+        { "t": "pose", "pose": "sit", "anchor": "my-seat" }
+      ]
+    },
+    {
+      "id": "s03-listen",
+      "chapter": 3,
+      "title": "山本社長の 話を 聞く",
+      "scene": "meeting-room",
+      "spawn": "door",
+      "beats": [
+        { "t": "pose", "pose": "sit", "anchor": "my-seat" },
+        { "t": "focus", "target": "talk-view" },
+        { "t": "say", "who": "hendy", "text": "まず、わたしが 山本社長に 聞きます。" },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "みなさんは、聞こえた 言葉を メモして ください。"
+        },
+        { "t": "panel", "id": "listening", "mode": "aoba-kickoff" },
+        { "t": "fx", "id": "board-known" },
+        { "t": "focus", "target": "board" },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "cheer",
+          "text": "わかった ことが ホワイトボードに 入りました。"
+        }
+      ]
+    },
+    {
+      "id": "s04-question",
+      "chapter": 4,
+      "title": "質問の 時間",
+      "scene": "meeting-room",
+      "spawn": "door",
+      "beats": [
+        { "t": "pose", "pose": "sit", "anchor": "my-seat" },
+        { "t": "fx", "id": "board-known" },
+        { "t": "focus", "target": "board" },
+        { "t": "say", "who": "hendy", "text": "ここからは、みなさんの 質問の 時間です。" },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "採用ページを 作る ために、足りない ことを 聞きましょう。"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ホワイトボードの「？」が、まだ わからない ことです。"
+        },
+        { "t": "panel", "id": "meeting", "mode": "aoba-kickoff" },
+        { "t": "todo-done", "id": "ask" },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "そろそろ 時間です。山本社長、ありがとうございました。"
+        },
+        { "t": "focus", "target": "yamamoto-seat" },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "さいごに、お礼を 言いましょう。"
+        },
+        { "t": "panel", "id": "talk", "mode": "yamamoto-close" },
+        {
+          "t": "objective",
+          "text": "おじぎを しよう",
+          "hints": ["下の「おじぎ」の ボタンを 押しましょう。"]
+        },
+        { "t": "wait", "event": "emote:bow" },
+        { "t": "clear-objective" },
+        { "t": "unfocus" },
+        { "t": "say", "who": "hendy", "text": "おつかれさまでした。いい ミーティングでしたね。" },
+        { "t": "tip", "id": "kikanai-to" },
+        {
+          "t": "memo-add",
+          "id": "aoba-heard",
+          "title": "Aobaの 採用ページ（聞いた こと）",
+          "text": "%heard%"
+        },
+        {
+          "t": "say",
+          "who": "hendy",
+          "text": "次は、聞いた ことを 整理して、ページの 形を 考えます。"
+        },
+        { "t": "say", "who": "nexmax", "pose": "cheer", "text": "ステージ2 クリアです！" },
+        { "t": "end" },
+        { "t": "panel", "id": "certificate" }
+      ]
+    }
+  ]
+}

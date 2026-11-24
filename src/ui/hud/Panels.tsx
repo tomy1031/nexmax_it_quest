@@ -26,7 +26,7 @@ export function Panels() {
     <div className="pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#3b2c23]/40 p-3">
       {panel.id === "nmchat" && (
         <div className="w-full max-w-4xl">
-          <NMChat mode="onboarding" onDone={close} />
+          <NMChat mode="onboarding" channel={panel.mode} onDone={close} />
         </div>
       )}
       {panel.id === "avatar" && (

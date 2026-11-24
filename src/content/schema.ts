@@ -40,6 +40,7 @@ export const speakerId = z.enum([
   "announce",
   "people",
   "phone",
+  "yamamoto",
 ]);
 export type SpeakerId = z.infer<typeof speakerId>;
 
@@ -55,6 +56,8 @@ export const sceneId = z.enum([
   "awaza",
   "office-lobby",
   "office-hall",
+  "office-floor",
+  "meeting-room",
 ]);
 export type SceneId = z.infer<typeof sceneId>;
 
@@ -66,6 +69,9 @@ export const panelId = z.enum([
   "report",
   "certificate",
   "talk",
+  "team",
+  "meeting",
+  "listening",
 ]);
 export type PanelId = z.infer<typeof panelId>;
 

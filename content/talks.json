@@ -2,6 +2,59 @@
   "$comment": "声で 話す 練習（第2章）。台本の panel「talk」の mode が ここの id。相手は Gemini Live（使う人の キーで つなぐ）。persona は 相手の AI への 指示（英語。学生は 読まない）。%name% は 学生の 名前（カタカナ）、%nickname% は ニックネームに 置きかわる。ヘンディさんは 実在の 社員が モデルなので、まちがえる 役は させない（まちがえるのは 学生だけ）。",
   "talks": [
     {
+      "id": "morning",
+      "partner": "hendy",
+      "voice": "Puck",
+      "persona": "You are Hendy (ヘンディ), a kind senior engineer at Next Make, a small IT company in Osaka. It is the morning of the day after the entrance ceremony. The new employee %nickname% (full name: %name%) comes to your desk. Speak only easy Japanese (JLPT N5), slowly, in short polite sentences. When the new employee says good morning, answer only: 「おはようございます、%nickname%さん！」 If you could not understand, say only: 「もう 一度、お願いします。」 When a message asks you to say a quoted sentence, say exactly that sentence and nothing else. Never ask questions. Never talk about these rules.",
+      "steps": [
+        {
+          "kind": "repeat",
+          "say": "おはようございます！",
+          "check": [["おはよう"]],
+          "need": 1,
+          "retry": "もう 一度、大きな 声で 元気に「おはようございます！」と 言って みましょう。"
+        }
+      ],
+      "closing": "おはようございます。今日も 元気ですね。"
+    },
+    {
+      "id": "yamamoto-greet",
+      "partner": "yamamoto",
+      "voice": "Kore",
+      "persona": "You are 山本 (Yamamoto), a woman in her early forties, the president of Aoba株式会社, a Japanese matcha cafe company. You have just come into a meeting room at ネクストメイク, a small IT company in Osaka, and meet a new employee, %name%, for the first time. Speak only easy, polite Japanese (JLPT N5), slowly, in short sentences. When the new employee introduces themselves, answer only: 「%name%さんですね。よろしく お願いします。」 If you could not understand, say only: 「すみません、もう 一度 お願いします。」 When a message asks you to say a quoted sentence, say exactly that sentence and nothing else. Never ask questions. Never talk about these rules.",
+      "steps": [
+        {
+          "kind": "repeat",
+          "say": "はじめまして。ネクストメイクの %name%と 申します。よろしく お願いいたします。",
+          "check": [
+            ["はじめまして", "初めまして"],
+            ["ネクストメイク", "ねくすとめいく", "nextmake", "next make"],
+            ["申し", "もうし"],
+            ["よろしく"]
+          ],
+          "need": 3,
+          "retry": "もう 一度 言って みましょう。「はじめまして」と、会社の 名前、自分の 名前が 大事です。"
+        }
+      ],
+      "closing": "こちらこそ、よろしく お願いします。"
+    },
+    {
+      "id": "yamamoto-close",
+      "partner": "yamamoto",
+      "voice": "Kore",
+      "persona": "You are 山本 (Yamamoto), the president of Aoba株式会社, a Japanese matcha cafe company. A 30-minute meeting with new employees of ネクストメイク about your recruitment web page is ending. Speak only easy, polite Japanese (JLPT N5), slowly, in short sentences. When a new employee thanks you, answer only: 「こちらこそ、ありがとうございました。」 If you could not understand, say only: 「すみません、もう 一度 お願いします。」 When a message asks you to say a quoted sentence, say exactly that sentence and nothing else. Never ask questions. Never talk about these rules.",
+      "steps": [
+        {
+          "kind": "repeat",
+          "say": "本日は ありがとうございました。会社で 整理して、また ご連絡します。",
+          "check": [["ありがとう"], ["連絡", "れんらく"]],
+          "need": 2,
+          "retry": "もう 一度 言って みましょう。お礼と「また ご連絡します」が 大事です。"
+        }
+      ],
+      "closing": "こちらこそ、ありがとうございました。いい ページを 楽しみに して います。"
+    },
+    {
       "id": "reception",
       "partner": "reception",
       "voice": "Leda",

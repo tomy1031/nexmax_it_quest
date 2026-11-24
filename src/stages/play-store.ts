@@ -61,6 +61,8 @@ export interface PlayState {
   todos: Todo[];
   /** 自動で書くメモ（台本の memo-add）。 */
   memos: MemoItem[];
+  /** 画面の部品が あとから 決める 文（メモの %heard% など。ステージ2の 質問の 時間が 書く）。 */
+  vars: Record<string, string>;
 }
 
 export const initialPlay: PlayState = {
@@ -86,6 +88,7 @@ export const initialPlay: PlayState = {
   waitingFor: null,
   todos: [],
   memos: [],
+  vars: {},
 };
 
 export const usePlay = create<PlayState>(() => initialPlay);

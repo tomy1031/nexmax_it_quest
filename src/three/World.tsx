@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { useSettings } from "@/lib/store";
 import { usePlay } from "@/stages/play-store";
 import { Stage1Scene } from "@/stages/stage1/scenes";
+import { isStage2Scene } from "@/stages/stage2/scene-ids";
+import { Stage2Scene } from "@/stages/stage2/scenes";
 import { CameraRig } from "@/three/CameraRig";
 import { ClickRing, Companion, ObjectiveMarker } from "@/three/helpers";
 import { Player } from "@/three/Player";
@@ -31,7 +33,12 @@ export function World() {
       data-testid="world"
     >
       <Suspense fallback={null}>
-        {scene && <Stage1Scene key={sceneKey} id={scene} />}
+        {scene &&
+          (isStage2Scene(scene) ? (
+            <Stage2Scene key={sceneKey} id={scene} />
+          ) : (
+            <Stage1Scene key={sceneKey} id={scene} />
+          ))}
         <Player />
         <Companion />
       </Suspense>

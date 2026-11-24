@@ -254,7 +254,10 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
 
   if (!talk) return null;
   const step: TalkStep | undefined = talk.steps[stepIndex];
-  const face = talk.partner === "hendy" ? `${BASE}img/people/hendy.webp` : null;
+  const face =
+    talk.partner === "hendy" || talk.partner === "yamamoto"
+      ? `${BASE}img/people/${talk.partner}.webp`
+      : null;
   const errKey: UiKey | null = err ? (`talk.err.${err}` as UiKey) : null;
 
   return (
