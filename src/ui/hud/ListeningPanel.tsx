@@ -90,6 +90,8 @@ function ListeningRun({ file, onDone }: { file: ListeningFile; onDone: () => voi
   const [seenMax, setSeenMax] = useState(0);
   const [voiceErr, setVoiceErr] = useState<VoiceErr | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  /** 声を 作り直す 合図（設定で キーを 入れたあと）。 */
+  const [voiceKey, setVoiceKey] = useState(0);
   const voiceRef = useRef<LineVoice | null>(null);
   const runRef = useRef(0);
   const lastPlay = useRef<{ from: number; continuous: boolean }>({ from: 0, continuous: true });
@@ -143,7 +145,7 @@ function ListeningRun({ file, onDone }: { file: ListeningFile; onDone: () => voi
       v.dispose();
       voiceRef.current = null;
     };
-  }, [file, setStage]);
+  }, [file, setStage, voiceKey]);
   useEffect(() => voiceRef.current?.setRate(rate), [rate]);
 
   const stop = useCallback(() => {
@@ -246,15 +248,9 @@ function ListeningRun({ file, onDone }: { file: ListeningFile; onDone: () => voi
       <SettingsScreen
         onClose={() => {
           setSettingsOpen(false);
-          // 新しい キーで 作り直す
-          voiceRef.current?.dispose();
-          const voices = Object.fromEntries(file.participants.map((p) => [p.id, p.voice]));
-          voiceRef.current = createLineVoice({
-            lines: file.script,
-            voices,
-            apiKey: useSettings.getState().geminiKey,
-            onState: (s) => setStage({ speaking: s.status === "playing" }),
-          });
+          // 新しい キーで 声を 作り直す
+          stop();
+          setVoiceKey((k) => k + 1);
           setVoiceErr(null);
         }}
       />
@@ -497,7 +493,7 @@ function MemoCard(props: {
 
   return (
     <section
-      className="glass pop text-ink relative flex w-[44%] min-w-0 flex-col gap-2 overflow-visible rounded-[26px] px-4 py-3"
+      className="glass pop text-ink relative flex w-[44%] min-w-0 flex-col gap-1.5 overflow-visible rounded-[26px] px-4 py-2.5"
       data-testid="listen-memo"
     >
       <div className="flex items-center gap-2">
