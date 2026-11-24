@@ -25,10 +25,22 @@ export type ChibiMotion =
   | "phone"
   | "wave"
   | "cheer"
-  | "twirl";
+  | "twirl"
+  | "writing"
+  | "calling"
+  | "raise"
+  | "point";
 
-/** 手に持つ物（まわりの人の くらしの様子）。 */
-export type ChibiHolding = "phone" | "briefcase" | "coffee";
+/** 手に持つ物（まわりの人の くらしの様子）。notebook は左手に小さいノート・右手にペン（writing の動きと使う）。 */
+export type ChibiHolding = "phone" | "briefcase" | "coffee" | "notebook";
+
+/** 動きの中で、腕を止めておく角度（持つ物の向きを、この角度から逆に計算する）。 */
+const POSE = {
+  /** writing: 左手でノートを胸の前に持つ。 */
+  writeL: { z: -0.15, x: -1.1 },
+  /** calling: 右手でスマホを耳（ほっぺの横）に当てる。 */
+  callR: { z: -2.3, x: 0.45 },
+};
 
 /**
  * ちびキャラ（自分・主要キャラ・まわりの人）。骨を使わず、体・頭・腕・足の部品を回して動かす。
@@ -42,6 +54,7 @@ export function Chibi({
   holding,
   expression = "normal",
   hopTrigger = 0,
+  seated = false,
 }: {
   config: AvatarConfig;
   motion?: ChibiMotion;
@@ -52,6 +65,8 @@ export function Chibi({
   expression?: Expression;
   /** 値が増えるたびに、着がえた時の ぴょんっと よろこぶ動きをする。 */
   hopTrigger?: number;
+  /** すわっている（足だけ いすに すわった形にする。腕と頭は motion のまま）。 */
+  seated?: boolean;
 }) {
   const key = JSON.stringify(config);
   // ブレンダーで作った部品（public/models/avatar/avatar.glb）から、設定に合うものを選ぶ
@@ -209,10 +224,47 @@ export function Chibi({
         aR = -0.65;
         rootY = Math.abs(Math.sin(tt * 4.4)) * 0.025;
         break;
+      case "writing":
+        // メモを取る: 左手でノートを持ち、右手のペンを小さく動かす。頭は少し下
+        aL = POSE.writeL.z;
+        aLx = POSE.writeL.x;
+        aR = 0.35 + Math.sin(tt * 13) * 0.05;
+        aRx = -1.0 + Math.sin(tt * 9) * 0.06;
+        headPitch = 0.12;
+        break;
+      case "calling":
+        // 電話をかける: 右手のスマホを耳に当て、頭を少し そちらへ かたむける
+        aR = POSE.callR.z;
+        aRx = POSE.callR.x;
+        aL = 0.12;
+        headRoll = -0.1;
+        bodyY = Math.sin(tt * 2.2) * 0.006;
+        break;
+      case "raise":
+        // 質問する: 右手を 上げる（腕が短いので、頭に かくれないよう 横に 開いて 少し前へ）
+        aR = -2.35 + Math.sin(tt * 3) * 0.05;
+        aRx = -0.45;
+        aL = 0.1;
+        headPitch = -0.08;
+        headRoll = -0.06;
+        break;
+      case "point":
+        // 少し前に かがんで、右手で前の物（画面など）を指す
+        bodyPitch = 0.22;
+        headPitch = -0.12;
+        aRx = -1.25;
+        aR = 0.2;
+        aL = 0.1;
+        break;
       default:
         bodyY = Math.sin(tt * 2.2) * 0.006;
         aL = 0.08 + Math.sin(tt * 2.2) * 0.03;
         aR = -0.08 - Math.sin(tt * 2.2) * 0.03;
+    }
+
+    if (seated) {
+      lLx = -1.45;
+      lRx = -1.45;
     }
 
     if (hopArc > 0) {
@@ -273,10 +325,11 @@ export function Chibi({
           </group>
           <group ref={armL} position={shoulderL}>
             {meshes(parts.armL)}
+            {holding === "notebook" && <Notebook />}
           </group>
           <group ref={armR} position={shoulderR}>
             {meshes(parts.armR)}
-            {holding && <Held kind={holding} />}
+            {holding && <Held kind={holding} calling={motion === "calling"} />}
           </group>
         </group>
       </group>
@@ -336,10 +389,76 @@ const heldMat = {
   leather: new THREE.MeshToonMaterial({ color: "#3a2a20" }),
   cup: new THREE.MeshToonMaterial({ color: "#f4efe6" }),
   sleeve: new THREE.MeshToonMaterial({ color: "#8a5a36" }),
+  cover: new THREE.MeshToonMaterial({ color: "#f29b8f" }),
+  paper: new THREE.MeshToonMaterial({ color: "#fffdf6" }),
+  line: new THREE.MeshToonMaterial({ color: "#9fb4d8" }),
+  pen: new THREE.MeshToonMaterial({ color: "#3f6fc4" }),
+  phoneCase: new THREE.MeshToonMaterial({ color: "#6fa8dc" }),
+};
+const noteGeo = {
+  cover: new THREE.BoxGeometry(0.17, 0.008, 0.12),
+  page: new THREE.BoxGeometry(0.078, 0.006, 0.11),
+  line: new THREE.BoxGeometry(0.06, 0.002, 0.006),
+  pen: new THREE.CylinderGeometry(0.007, 0.004, 0.11, 8),
 };
 
+/**
+ * 腕の回転を打ち消す入れもの（中身は 体の向きのまま置ける）。arm は肩の回転（z・x）。
+ * 手の位置（肩から 約0.2m 下）に置く。
+ */
+function Upright({ arm, children }: { arm: { z: number; x: number }; children: React.ReactNode }) {
+  return (
+    <group position={[0, -0.2, 0]}>
+      <group rotation={[-arm.x, 0, -arm.z, "ZYX"]}>{children}</group>
+    </group>
+  );
+}
+
+/** 左手に持つ 開いた小さいノート（ページに 書いた線）。 */
+function Notebook() {
+  return (
+    <Upright arm={POSE.writeL}>
+      <group position={[-0.075, 0.015, 0.03]} rotation={[0.55, 0, 0]}>
+        <mesh geometry={noteGeo.cover} material={heldMat.cover} />
+        {[-1, 1].map((sx) => (
+          <group key={sx} position={[sx * 0.041, 0.006, 0]}>
+            <mesh geometry={noteGeo.page} material={heldMat.paper} />
+            {[-0.03, -0.01, 0.01, 0.03].map((z) => (
+              <mesh
+                key={z}
+                geometry={noteGeo.line}
+                material={heldMat.line}
+                position={[0, 0.004, z]}
+                scale={[sx < 0 || z < 0.02 ? 1 : 0.5, 1, 1]}
+              />
+            ))}
+          </group>
+        ))}
+      </group>
+    </Upright>
+  );
+}
+
 /** 右手に持つ物（手の位置は、肩から 約0.19m 下）。 */
-function Held({ kind }: { kind: ChibiHolding }) {
+function Held({ kind, calling }: { kind: ChibiHolding; calling: boolean }) {
+  if (kind === "notebook")
+    // 右手のペン（先を ノートの方へ 向ける）
+    return (
+      <group position={[0, -0.2, 0.02]} rotation={[0.9, 0, 0.3]}>
+        <mesh geometry={noteGeo.pen} material={heldMat.pen} />
+      </group>
+    );
+  if (kind === "phone" && calling)
+    // 耳に当てたスマホ（たてに持ち、画面を ほっぺに向ける）
+    return (
+      <Upright arm={POSE.callR}>
+        <group position={[0.02, 0.05, 0.04]} rotation={[-Math.PI / 2, 0, 0]}>
+          <group rotation={[0, 0, Math.PI / 2]} scale={1.25}>
+            <mesh geometry={heldGeo.phone} material={heldMat.phoneCase} />
+          </group>
+        </group>
+      </Upright>
+    );
   if (kind === "phone")
     return (
       <group position={[0, -0.2, 0.06]} rotation={[0.5, 0, 0]}>
