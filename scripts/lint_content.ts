@@ -19,6 +19,7 @@ import {
   talksFile,
   chatFile,
   furiganaFile,
+  meetingFile,
   metroFile,
   placesFile,
   stageFile,
@@ -93,15 +94,33 @@ const SKIP_KEYS = new Set([
   "kind",
 ]);
 
+/** ミーティング（content/meetings/）では label も学生が読む。キーワード・印・テストの例は学生が読まない。 */
+const MEETING_SKIP_KEYS = new Set([
+  "$comment",
+  "id",
+  "icon",
+  "en",
+  "voice",
+  "persona",
+  "keywords",
+  "markers",
+  "replyMarkers",
+  "deepMarkers",
+  "tests",
+  "who",
+  "tip",
+]);
+
 const texts: { where: string; text: string }[] = [];
-function collect(value: unknown, where: string, key?: string) {
-  if (key && SKIP_KEYS.has(key)) return;
+function collect(value: unknown, where: string, key?: string, skip: Set<string> = SKIP_KEYS) {
+  if (key && skip.has(key)) return;
   if (typeof value === "string") texts.push({ where, text: value });
-  else if (Array.isArray(value)) value.forEach((v, i) => collect(v, `${where}[${i}]`));
+  else if (Array.isArray(value))
+    value.forEach((v, i) => collect(v, `${where}[${i}]`, undefined, skip));
   else if (value && typeof value === "object") {
     for (const [k, v] of Object.entries(value)) {
       // stage の wait.else のキーは出来事の名前（学生は見ない）
-      collect(v, `${where}.${k}`, k);
+      collect(v, `${where}.${k}`, k, skip);
     }
   }
 }
@@ -123,6 +142,13 @@ for (const [path, schema] of contentFiles) {
   const data = check(path, schema);
   if (data) parsed.set(path, data);
   collect(readJson(path), path);
+}
+for (const f of readdirSync(join(ROOT, "content/meetings"))) {
+  if (!f.endsWith(".json")) continue;
+  const path = `content/meetings/${f}`;
+  const data = check(path, meetingFile);
+  if (data) parsed.set(path, data);
+  collect(readJson(path), path, undefined, MEETING_SKIP_KEYS);
 }
 
 for (const { where, text } of texts) {

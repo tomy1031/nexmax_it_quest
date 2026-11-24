@@ -71,6 +71,31 @@ const collect = (v: unknown, key?: string) => {
   else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) collect(x, k);
 };
 for (const f of files) collect(JSON.parse(readFileSync(join(ROOT, f), "utf8")));
+// ミーティング（content/meetings/）では label も学生が読む。キーワード・印・テストの例は読まない
+const MEETING_SKIP = new Set([
+  "$comment",
+  "id",
+  "icon",
+  "en",
+  "voice",
+  "persona",
+  "keywords",
+  "markers",
+  "replyMarkers",
+  "deepMarkers",
+  "tests",
+  "who",
+  "tip",
+]);
+const collectMeeting = (v: unknown, key?: string) => {
+  if (key && MEETING_SKIP.has(key)) return;
+  if (typeof v === "string") texts.push(v);
+  else if (Array.isArray(v)) v.forEach((x) => collectMeeting(x));
+  else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) collectMeeting(x, k);
+};
+for (const f of readdirSync(join(ROOT, "content/meetings")))
+  if (f.endsWith(".json"))
+    collectMeeting(JSON.parse(readFileSync(join(ROOT, "content/meetings", f), "utf8")));
 
 const toHira = (s: string) =>
   s.replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
