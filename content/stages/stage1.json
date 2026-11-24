@@ -37,6 +37,14 @@
     {
       "word": "押しボタン",
       "en": "push button"
+    },
+    {
+      "word": "相談",
+      "en": "ask for advice"
+    },
+    {
+      "word": "連絡",
+      "en": "contact"
     }
   ],
   "sections": [
@@ -1650,17 +1658,45 @@
         {
           "t": "say",
           "who": "hendy",
-          "text": "ネクストメイクへ ようこそ。入社、おめでとうございます。"
+          "text": "ネクストメイクへ ようこそ。"
         },
         {
           "t": "say",
           "who": "hendy",
-          "text": "わたしも 外国から 来て、日本語を ゼロから 勉強しました。"
+          "text": "これから、大切な お話を します。"
         },
         {
           "t": "say",
           "who": "hendy",
-          "text": "わからない ことが あったら、いつでも 聞いて ください。いっしょに がんばりましょう。"
+          "text": "聞こえた 言葉を、メモして ください。"
+        },
+        {
+          "t": "tip",
+          "id": "memo-wo-toru"
+        },
+        {
+          "t": "say",
+          "who": "nexmax",
+          "pose": "guide",
+          "text": "ヘンディさんの 声を 聞いて、聞こえた 言葉を 入れましょう。"
+        },
+        {
+          "t": "focus",
+          "target": "speech"
+        },
+        {
+          "t": "panel",
+          "id": "listening",
+          "mode": "hendy-speech"
+        },
+        {
+          "t": "focus",
+          "target": "stage"
+        },
+        {
+          "t": "panel",
+          "id": "talk",
+          "mode": "speech-check"
         },
         {
           "t": "say",

@@ -346,3 +346,70 @@ input:focus-visible {
     animation: none !important;
   }
 }
+
+/* リスニング（docs/design/02_リスニング.md）: 当たった 言葉の 札が ふわっと のぼって 消える・字が 金色に 光ってから こげ茶に なる・はずれは 1回 ゆれる */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-8px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-90px) scale(1);
+    opacity: 0;
+  }
+}
+.float-up {
+  animation: float-up 1.05s ease-out both;
+}
+@keyframes glow-in {
+  0% {
+    color: #f5bf3b;
+    text-shadow:
+      0 0 10px rgb(245 191 59 / 0.95),
+      0 0 2px #fff;
+    transform: translateY(0.35em);
+    opacity: 0.2;
+  }
+  35% {
+    color: #e0a21c;
+    text-shadow: 0 0 12px rgb(245 191 59 / 0.9);
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+.glow-in {
+  display: inline-block;
+  animation: glow-in 0.9s ease-out both;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+.nudge {
+  animation: nudge 0.4s ease-in-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-up,
+  .glow-in,
+  .nudge {
+    animation: none !important;
+  }
+}

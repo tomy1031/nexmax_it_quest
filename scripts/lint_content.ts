@@ -19,6 +19,7 @@ import {
   talksFile,
   chatFile,
   furiganaFile,
+  listeningFile,
   metroFile,
   placesFile,
   stageFile,
@@ -94,14 +95,15 @@ const SKIP_KEYS = new Set([
 ]);
 
 const texts: { where: string; text: string }[] = [];
-function collect(value: unknown, where: string, key?: string) {
-  if (key && SKIP_KEYS.has(key)) return;
+function collect(value: unknown, where: string, key?: string, skip: Set<string> = SKIP_KEYS) {
+  if (key && skip.has(key)) return;
   if (typeof value === "string") texts.push({ where, text: value });
-  else if (Array.isArray(value)) value.forEach((v, i) => collect(v, `${where}[${i}]`));
+  else if (Array.isArray(value))
+    value.forEach((v, i) => collect(v, `${where}[${i}]`, undefined, skip));
   else if (value && typeof value === "object") {
     for (const [k, v] of Object.entries(value)) {
       // stage の wait.else のキーは出来事の名前（学生は見ない）
-      collect(v, `${where}.${k}`, k);
+      collect(v, `${where}.${k}`, k, skip);
     }
   }
 }
@@ -119,10 +121,76 @@ for (const f of readdirSync(join(ROOT, "content/stages"))) {
   if (f.endsWith(".json")) contentFiles.push([`content/stages/${f}`, stageFile]);
 }
 const parsed = new Map<string, unknown>();
+const listeningIds = new Set<string>();
 for (const [path, schema] of contentFiles) {
   const data = check(path, schema);
   if (data) parsed.set(path, data);
   collect(readJson(path), path);
+}
+
+// ── リスニング（content/listenings/*.json。docs/design/02_リスニング.md） ──
+/** リスニングの 中で 学生の 目に 入らない 値（label は 学生が 読むので、ここでは 調べる）。 */
+const LISTENING_SKIP = new Set([
+  "$comment",
+  "id",
+  "image",
+  "icon",
+  "en",
+  "speaker",
+  "voice",
+  "kind",
+  "line",
+  "sounds",
+]);
+for (const f of readdirSync(join(ROOT, "content/listenings"))) {
+  if (!f.endsWith(".json")) continue;
+  const path = `content/listenings/${f}`;
+  const data = check(path, listeningFile);
+  collect(readJson(path), path, undefined, LISTENING_SKIP);
+  if (!data) continue;
+  if (`${data.id}.json` !== f) errors.push(`${path}: id「${data.id}」と ファイルの 名前が ちがう`);
+  const transcript = data.script.map((l) => l.text).join("\n");
+  const inScript = (word: string, what: string) => {
+    if (!transcript.includes(word))
+      errors.push(`${path}: ${what}「${word}」が 台本に その字の まま 出て こない`);
+  };
+  data.keywords.forEach((w) => inScript(w, "keywords"));
+  // preOpen は 共通の 文の 終わり（です・ます など）を 書くので、台本に 無い ものは 注意だけ
+  data.preOpen.forEach((w) => {
+    if (!transcript.includes(w))
+      warnings.push(`${path}: preOpen「${w}」が 台本に 出て こない（開ける 所が 無い）`);
+  });
+  data.sounds.forEach(([w]) => inScript(w, "sounds"));
+  data.script.forEach((l, i) => {
+    const len = [...l.text].length;
+    if (len > 30) warnings.push(`${path}: script[${i}] が 30字を こえる（${len}字）`);
+  });
+  const ids = new Set(data.participants.map((p) => p.id));
+  data.script.forEach((l, i) => {
+    if (!ids.has(l.speaker))
+      errors.push(`${path}: script[${i}] の 話す人「${l.speaker}」が participants に 無い`);
+  });
+  for (const work of data.works) {
+    const images =
+      work.kind === "match"
+        ? work.pairs.map((p) => p.image)
+        : work.kind === "situation"
+          ? work.items.map((x) => x.image)
+          : [];
+    for (const img of images) {
+      if (!existsSync(join(ROOT, "public", img)))
+        warnings.push(`${path}: 絵が まだ 無い ${img}（無い 間は ネクマックスの 絵が 出る）`);
+    }
+    if (work.kind === "situation") {
+      for (const item of work.items) {
+        if (item.line >= data.script.length)
+          errors.push(`${path}: 「${item.id}」の line ${item.line} が 台本の 外`);
+        if (item.options.filter((o) => o.correct).length !== 1)
+          errors.push(`${path}: 「${item.id}」の 正解（correct）は 1つに する`);
+      }
+    }
+  }
+  listeningIds.add(data.id);
 }
 
 for (const { where, text } of texts) {
@@ -165,6 +233,8 @@ for (const [path, data] of parsed) {
       const w = `${where}[${i}]`;
       if (b.t === "tip" && !tipIds.has(b.id))
         errors.push(`${w}: 豆知識「${b.id}」が content/tips.json に無い`);
+      if (b.t === "panel" && b.id === "listening" && !listeningIds.has(b.mode ?? ""))
+        errors.push(`${w}: リスニング「${b.mode}」が content/listenings に 無い`);
       if (b.t === "jump" && !sectionIds.has(b.to))
         errors.push(`${w}: jump 先「${b.to}」の場面が無い`);
       if (b.t === "choice") {

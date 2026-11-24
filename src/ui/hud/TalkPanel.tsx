@@ -128,6 +128,18 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
       }
       return;
     }
+    // 言葉が 入っているかを 見る 質問（ヘンディさんの お話の あとの「大切な ことは 何でしたか」）
+    if (step.check) {
+      if (repeatOk(said, step.check, step.need ?? 1)) {
+        setResult("ok");
+        playSfx("ok");
+        goStep(stepRef.current + 1);
+      } else {
+        setResult("retry");
+        setPhaseBoth("listen");
+      }
+      return;
+    }
     if (looksJapanese(said)) {
       setResult("ok");
       goStep(stepRef.current + 1);
@@ -358,7 +370,7 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
                 <RubyText text={t("talk.ok")} />
               </p>
             )}
-            {result === "retry" && step?.kind === "repeat" && (
+            {result === "retry" && step?.retry && (
               <p className="text-lg font-extrabold text-[#b45a0c]" data-testid="talk-retry">
                 <RubyText text={step.retry} />
               </p>

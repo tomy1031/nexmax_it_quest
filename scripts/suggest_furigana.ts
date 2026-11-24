@@ -61,7 +61,10 @@ const files = [
   "content/metro.json",
   "content/places.json",
 ];
+files.push("content/talks.json");
 for (const f of readdirSync(join(ROOT, "content/stages"))) files.push(`content/stages/${f}`);
+for (const f of readdirSync(join(ROOT, "content/listenings")))
+  files.push(`content/listenings/${f}`);
 
 const texts: string[] = [];
 const collect = (v: unknown, key?: string) => {

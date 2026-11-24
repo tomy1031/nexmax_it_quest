@@ -10,6 +10,7 @@ import { RubyText } from "@/ui/RubyText";
 import { t } from "@/lib/t";
 import { ReportPanel } from "@/ui/hud/ReportPanel";
 import { TalkPanel } from "@/ui/hud/TalkPanel";
+import { ListeningPanel } from "@/ui/hud/ListeningPanel";
 import { Certificate } from "@/ui/Certificate";
 import { questEvents } from "@/stages/events";
 
@@ -22,6 +23,9 @@ export function Panels() {
   const close = () => playActions.closePanel();
   // 声で 話す 練習は、3D の 相手が 見えるように 下に 出す（画面を 暗くしない）
   if (panel.id === "talk") return <TalkPanel talkId={panel.mode ?? ""} onDone={close} />;
+  // リスニングも 3D（話す 人と 大きな 画面）が 上に 見えるように 下に 出す
+  if (panel.id === "listening")
+    return <ListeningPanel listeningId={panel.mode ?? ""} onDone={close} />;
   return (
     <div className="pointer-events-auto absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#3b2c23]/40 p-3">
       {panel.id === "nmchat" && (

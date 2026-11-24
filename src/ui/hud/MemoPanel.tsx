@@ -39,7 +39,9 @@ export function MemoBox() {
   const big = useSettings((s) => s.memoBig ?? false);
   const setSettings = useSettings((s) => s.setSettings);
   const [open, setOpen] = useState<string | null>(null);
-  if (memos.length === 0) return null;
+  // リスニングの 間は かくす（3D の 画面と 話す 人を 見せる。docs/design/02_リスニング.md）
+  const listening = usePlay((s) => s.panel?.id === "listening");
+  if (memos.length === 0 || listening) return null;
   const shown = big ? memos : memos.slice(-3);
   return (
     <div

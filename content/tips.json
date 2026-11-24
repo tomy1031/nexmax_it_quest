@@ -135,6 +135,15 @@
       "en": "At Japanese company events, sitting in the front rows shows you are motivated. Fill the front seats first.",
       "image": "/img/tips/mae-no-seki.webp",
       "pose": "cheer"
+    },
+    {
+      "id": "memo-wo-toru",
+      "title": "メモを 取る",
+      "text": "日本の 会社では、話を 聞く とき、メモを 取ります。",
+      "more": "聞こえた 言葉だけで 大丈夫です。あとで 見て、思い出せます。",
+      "en": "In Japanese companies, people take notes while listening. Just the words you catch are enough.",
+      "image": "/img/tips/memo-wo-toru.webp",
+      "pose": "guide"
     }
   ]
 }

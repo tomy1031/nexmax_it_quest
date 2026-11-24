@@ -66,6 +66,7 @@ export const panelId = z.enum([
   "report",
   "certificate",
   "talk",
+  "listening",
 ]);
 export type PanelId = z.infer<typeof panelId>;
 
@@ -393,6 +394,10 @@ export const talkStep = z.discriminatedUnion("kind", [
     ask: learnerText,
     /** 答え方の 見本（ヒント）。 */
     hint: learnerText,
+    /** あれば、聞きとった 文に この ことばが 入っているかを 見る（入っていなければ retry を 出して もう一度）。 */
+    check: z.array(checkGroup).min(1).optional(),
+    need: z.number().int().min(1).optional(),
+    retry: learnerText.optional(),
   }),
 ]);
 export type TalkStep = z.infer<typeof talkStep>;
@@ -410,3 +415,70 @@ export const talk = z.object({
 });
 export const talksFile = z.object({ $comment: z.string().optional(), talks: z.array(talk) });
 export type Talk = z.infer<typeof talk>;
+
+// ── リスニング（聞こえた 言葉を 入れると、かくれた セリフが 浮かび上がる。docs/design/02_リスニング.md） ──
+
+const listeningImage = z.string().regex(/^\/[a-z0-9/_-]+\.(webp|png|jpg)$/);
+
+export const listeningWork = z.discriminatedUnion("kind", [
+  /** ことばと 絵を 合わせる。 */
+  z.object({
+    kind: z.literal("match"),
+    title: learnerText,
+    lead: learnerText,
+    pairs: z.array(z.object({ label: learnerText, image: listeningImage, en: z.string() })).min(2),
+  }),
+  /** こんな とき、どうする？（場面の 絵＋文＋行動 2つ）。 */
+  z.object({
+    kind: z.literal("situation"),
+    title: learnerText,
+    lead: learnerText,
+    items: z
+      .array(
+        z.object({
+          id: z.string(),
+          image: listeningImage,
+          text: learnerText,
+          options: z.array(z.object({ text: learnerText, correct: z.boolean().optional() })).min(2),
+          /** まちがえたときに もう一度 流す 台本の 文（0 から）。 */
+          line: z.number().int().min(0),
+          ok: learnerText,
+          ng: learnerText,
+        }),
+      )
+      .min(1),
+  }),
+  /** 聞いた 事実の 札を、ホワイトボードの 所に 置く。 */
+  z.object({
+    kind: z.literal("sort"),
+    title: learnerText,
+    lead: learnerText,
+    slots: z
+      .array(
+        z.object({ id: z.string(), icon: z.string(), label: learnerText, answer: learnerText }),
+      )
+      .min(2),
+  }),
+]);
+export type ListeningWork = z.infer<typeof listeningWork>;
+
+export const listeningFile = z.object({
+  $comment: z.string().optional(),
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  title: learnerText,
+  focus: learnerText,
+  participants: z
+    .array(z.object({ id: z.string(), name: learnerText.optional(), voice: z.string().optional() }))
+    .min(1),
+  script: z.array(z.object({ speaker: z.string(), text: learnerText })).min(1),
+  keywords: z.array(z.string().min(1)).min(1),
+  preOpen: z.array(z.string().min(1)).default([]),
+  /** [字, 読み]。数字・英字の、聞くとき だけの 読み。 */
+  sounds: z.array(z.tuple([z.string().min(1), z.string().regex(/^[ぁ-ゖー]+$/)])).default([]),
+  revealGoal: z.number().int().min(1).max(100),
+  check: z.object({ minLength: z.number().int().min(1), maxMiss: z.number().int().min(1) }),
+  glossary: z.array(z.object({ word: learnerText, en: z.string() })).default([]),
+  works: z.array(listeningWork).default([]),
+  memo: z.object({ id: z.string(), title: learnerText, text: learnerText }),
+});
+export type ListeningFile = z.infer<typeof listeningFile>;
