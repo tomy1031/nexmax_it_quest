@@ -571,7 +571,18 @@ export function OfficeHallScene() {
         {people.map((p, i) => (
           <group key={i} position={p.pos}>
             <group rotation={[0, Math.PI, 0]}>
-              <Chibi config={p.look} motion="sitting" phase={i * 0.37} />
+              {listening ? (
+                // リスニングの 間は、まわりの 人も 聞こえた 言葉を メモする
+                <Chibi
+                  config={p.look}
+                  motion="writing"
+                  seated
+                  holding="notebook"
+                  phase={i * 0.37}
+                />
+              ) : (
+                <Chibi config={p.look} motion="sitting" phase={i * 0.37} />
+              )}
             </group>
             {p.name && <NameTag name={p.name} />}
           </group>
