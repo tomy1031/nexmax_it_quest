@@ -4,10 +4,12 @@ import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import charactersJson from "@content/characters.json";
 import { CanvasPanel } from "@/factory/CanvasPanel";
+import { ListeningBoard3D } from "@/factory/ListeningBoard3D";
 import { block, box, FLAT, merge } from "@/factory/kit";
 import { Prop } from "@/factory/props";
 import { drawRuby, FONT_FAMILY } from "@/factory/text-canvas";
 import { playSfx } from "@/lib/audio";
+import { useListeningStage } from "@/lib/listening/stage-store";
 import { assignSeats, classmateLook, fetchClassmates, type Classmate } from "@/lib/classmates";
 import { DEFAULT_AVATAR, type AvatarConfig } from "@/lib/store";
 import { t } from "@/lib/t";
@@ -424,6 +426,8 @@ export function OfficeHallScene() {
     shots: {
       hendy: { pos: [4.45, 1.3, 2.75], look: [2.7, 0.6, 4.25], fov: 50 },
       stage: { pos: [1.3, 1.75, -0.9], look: [0, 1.0, -4.7], fov: 46 },
+      // リスニングの 間: 前の 台の ヘンディさんと 大きな 画面が 上の 55% に 入る（下は カード）
+      speech: { pos: [0, 2.0, 0.6], look: [0, 0.3, -5.4], fov: 56 },
     },
     camera: { mode: "follow", distance: 4.0, height: 2.7 },
     bounds: { minX: -4.8, maxX: 4.8, minZ: -5.8, maxZ: 7.5, maxY: 3.6 },
@@ -439,7 +443,10 @@ export function OfficeHallScene() {
     [],
   );
   const line = usePlay((s) => s.line);
-  const hendyTalking = line?.who === "hendy";
+  // リスニングの 声が 鳴っている 間も「話す 動き」
+  const listening = useListeningStage((s) => s.id !== null);
+  const listenTalking = useListeningStage((s) => s.speaking && s.speaker === "hendy");
+  const hendyTalking = line?.who === "hendy" || listenTalking;
   const showHendy = useWaiting("hendy");
   const showSeats = useWaiting("seat-front");
 
@@ -518,30 +525,34 @@ export function OfficeHallScene() {
         <meshBasicMaterial color="#bfe3fb" />
       </mesh>
 
-      {/* 前の 画面 */}
-      <CanvasPanel
-        width={4.2}
-        height={1.5}
-        position={[0, 2.35, -5.98]}
-        fontText={t("office.ceremony") + t("office.welcome")}
-        draw={(ctx, w, h) => {
-          const g = ctx.createLinearGradient(0, 0, w, h);
-          g.addColorStop(0, "#2f5fb0");
-          g.addColorStop(1, "#4f8fd8");
-          ctx.fillStyle = g;
-          ctx.fillRect(0, 0, w, h);
-          drawRuby(ctx, t("office.ceremony"), w / 2, h * 0.58, {
-            size: h * 0.36,
-            color: "#ffffff",
-            align: "center",
-          });
-          drawRuby(ctx, t("office.welcome"), w / 2, h * 0.88, {
-            size: h * 0.13,
-            color: "#ffffff",
-            align: "center",
-          });
-        }}
-      />
+      {/* 前の 画面（リスニングの 間は、いま 読んでいる 文を 虫食いで 出す） */}
+      {listening ? (
+        <ListeningBoard3D width={4.2} height={1.5} position={[0, 2.35, -5.98]} />
+      ) : (
+        <CanvasPanel
+          width={4.2}
+          height={1.5}
+          position={[0, 2.35, -5.98]}
+          fontText={t("office.ceremony") + t("office.welcome")}
+          draw={(ctx, w, h) => {
+            const g = ctx.createLinearGradient(0, 0, w, h);
+            g.addColorStop(0, "#2f5fb0");
+            g.addColorStop(1, "#4f8fd8");
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, w, h);
+            drawRuby(ctx, t("office.ceremony"), w / 2, h * 0.58, {
+              size: h * 0.36,
+              color: "#ffffff",
+              align: "center",
+            });
+            drawRuby(ctx, t("office.welcome"), w / 2, h * 0.88, {
+              size: h * 0.13,
+              color: "#ffffff",
+              align: "center",
+            });
+          }}
+        />
+      )}
       <Prop url="home/plant" position={[-2.1, 0.25, -5.4]} />
       <Prop url="home/plant" position={[2.1, 0.25, -5.4]} />
 

@@ -174,24 +174,132 @@ test("ステージ1を最初から修了証まで通す（第2章の 声の 会�
           await page.screenshot({ path: `${SHOTS}/panel-report-sent.png` });
           await page.getByTestId("report-close").click();
           break;
+        case "listening": {
+          // ヘンディさんの お話（docs/design/02_リスニング.md）。声は にせ（1文を みじかい 時間で「再生した」ことに する）
+          await page.evaluate(() => {
+            const w = window as unknown as { __fakeLive?: unknown };
+            w.__fakeLive ??= { answers: [] };
+          });
+          await expect(page.getByTestId("listen-intro")).toBeVisible();
+          await expect(page.getByTestId("memo-box")).toHaveCount(0);
+          await page.screenshot({ path: `${SHOTS}/listen-01-intro.png` });
+          await page.getByTestId("listen-start").click();
+          await page.waitForTimeout(700);
+          await page.screenshot({ path: `${SHOTS}/listen-02-listen.png` });
+          const input = page.getByTestId("listen-input");
+          const send = async (word: string) => {
+            await input.fill(word);
+            await page.getByTestId("listen-submit").click();
+            await page.waitForTimeout(150);
+          };
+          const badge = page.getByTestId("listen-result").locator("[data-kind]");
+          // はずれ 1回
+          await send("りんご");
+          await expect(badge).toHaveAttribute("data-kind", "miss");
+          await page.screenshot({ path: `${SHOTS}/listen-03-miss.png` });
+          // 読みで 当てる（ひらがな）
+          await send("じかん");
+          await expect(badge).toHaveAttribute("data-kind", "hiragana");
+          await page.waitForTimeout(150);
+          await page.screenshot({ path: `${SHOTS}/listen-04-hit-glow.png` });
+          // 漢字で 当てる
+          await send("相談");
+          await expect(badge).toHaveAttribute("data-kind", "keyword");
+          // 貼り付けは できない
+          await input.focus();
+          await page.evaluate(() => {
+            const el = document.querySelector("[data-testid=listen-input]")!;
+            const data = new DataTransfer();
+            data.setData("text/plain", "あいさつ");
+            el.dispatchEvent(
+              new ClipboardEvent("paste", { clipboardData: data, cancelable: true, bubbles: true }),
+            );
+          });
+          await expect(input).toHaveValue("");
+          await expect(page.getByTestId("listen-review")).toBeDisabled();
+          for (const w of [
+            "あいさつ",
+            "大切",
+            "れんらく",
+            "先輩",
+            "げんき",
+            "ごふんまえ",
+            "毎日",
+            "日本",
+            "会社",
+            "おはよう",
+          ]) {
+            await send(w);
+            if (await page.getByTestId("listen-review").isEnabled()) break;
+          }
+          // ヒント（1回 全部 聞いたあとで 使える）
+          await expect(page.getByTestId("listen-hint")).toBeEnabled({ timeout: 20000 });
+          await page.getByTestId("listen-hint").click();
+          await page.screenshot({ path: `${SHOTS}/listen-05-goal.png` });
+          await expect(page.getByTestId("listen-review")).toBeEnabled();
+          await page.getByTestId("listen-review").click();
+          await page.waitForTimeout(500);
+          await page.screenshot({ path: `${SHOTS}/listen-06-review.png` });
+          while (await page.getByTestId("listen-review-forward").isEnabled()) {
+            await page.getByTestId("listen-review-forward").click();
+            await page.waitForTimeout(60);
+          }
+          await page.getByTestId("listen-to-works").click();
+          // ワーク1: ことばと 絵（わざと 1回 まちがえる）
+          await expect(page.getByTestId("listen-work-match")).toBeVisible();
+          await page.getByTestId("match-label-時間").click();
+          await page.getByTestId("match-image-あいさつ").click();
+          await expect(page.getByTestId("work-ng")).toBeVisible();
+          await page.screenshot({ path: `${SHOTS}/listen-07-match-wrong.png` });
+          for (const l of ["あいさつ", "時間", "相談"]) {
+            await page.getByTestId(`match-label-${l}`).click();
+            await page.getByTestId(`match-image-${l}`).click();
+            await page.waitForTimeout(100);
+          }
+          await page.screenshot({ path: `${SHOTS}/listen-08-match-done.png` });
+          await page.getByTestId("work-next").click();
+          // ワーク2: こんな とき、どうする？（1問目で わざと まちがえる → もう一度 聞いて えらび直す）
+          await expect(page.getByTestId("listen-work-situation")).toBeVisible();
+          for (let i = 0; i < 4; i += 1) {
+            if (i === 0) {
+              await page.locator("[data-testid^=situation-option]:not([data-correct])").click();
+              await expect(page.getByTestId("work-ng")).toBeVisible();
+              await page.screenshot({ path: `${SHOTS}/listen-09-situation-ng.png` });
+            }
+            await expect(
+              page.locator("[data-testid^=situation-option][data-correct]"),
+            ).toBeEnabled();
+            await page.locator("[data-testid^=situation-option][data-correct]").click();
+            await expect(page.getByTestId("work-ok")).toBeVisible();
+            if (i === 0) await page.screenshot({ path: `${SHOTS}/listen-10-situation-ok.png` });
+            await page.getByTestId("work-next").click();
+            await page.waitForTimeout(100);
+          }
+          // おわったら メモに 足して 閉じる
+          await expect(page.getByTestId("listening-panel")).toHaveCount(0);
+          await expect(page.getByTestId("memo-speech")).toBeVisible();
+          break;
+        }
         case "talk": {
           // 声の 会話（Gemini Live）。テストでは にせの 相手（src/lib/ai/live-fake.ts）に つなぐ。
           // 1回目は わざと まちがえる（受付: 大事な ことばが 足りない / ヘンディさん: あいさつが ちがう）
           const answers =
-            p.panel.mode === "reception"
-              ? [
-                  "よろしくお願いします",
-                  "わたくし、本日入社するソクピセットと申します。よろしくお願いいたします。",
-                ]
-              : [
-                  "こんにちは",
-                  "おはようございます",
-                  "ソクピセットです",
-                  "カンボジアのプノンペンから来ました",
-                  "ITを勉強しました",
-                  "サッカーです",
-                  "ラーメンが好きです",
-                ];
+            p.panel.mode === "speech-check"
+              ? ["わかりません", "あいさつです"]
+              : p.panel.mode === "reception"
+                ? [
+                    "よろしくお願いします",
+                    "わたくし、本日入社するソクピセットと申します。よろしくお願いいたします。",
+                  ]
+                : [
+                    "こんにちは",
+                    "おはようございます",
+                    "ソクピセットです",
+                    "カンボジアのプノンペンから来ました",
+                    "ITを勉強しました",
+                    "サッカーです",
+                    "ラーメンが好きです",
+                  ];
           await page.evaluate((a) => {
             (window as unknown as { __fakeLive: unknown }).__fakeLive = {
               answers: a,

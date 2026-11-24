@@ -23,7 +23,7 @@ import {
   useListeningSaves,
   useListeningStage,
 } from "@/lib/listening/stage-store";
-import { createLineVoice, type LineVoice } from "@/lib/listening/voice-stub";
+import { createLineVoice, type LineVoice } from "@/lib/listening/voice";
 import { useSettings } from "@/lib/store";
 import { annotateRuby } from "@/lib/text/furigana";
 import { t, type UiKey } from "@/lib/t";
@@ -500,9 +500,19 @@ function MemoCard(props: {
       className="glass pop text-ink relative flex w-[44%] min-w-0 flex-col gap-2 overflow-visible rounded-[26px] px-4 py-3"
       data-testid="listen-memo"
     >
-      <Title file={file} />
+      <div className="flex items-center gap-2">
+        <Title file={file} />
+        {props.preparing && (
+          <span
+            className="text-cocoa ml-auto animate-pulse text-sm font-extrabold"
+            data-testid="listen-preparing"
+          >
+            <RubyText text={t("listen.preparing")} />
+          </span>
+        )}
+      </div>
       {props.voiceError ?? (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             className="btn btn-primary min-h-10 px-3 py-1 text-sm"
@@ -518,38 +528,34 @@ function MemoCard(props: {
           <IconBtn label={t("listen.next")} onClick={props.onNext}>
             ⏭
           </IconBtn>
-          <button
-            type="button"
-            className="btn btn-ghost min-h-10 px-3 py-1 text-sm"
-            onClick={props.onRestart}
-            data-testid="listen-restart"
+          <IconBtn label={t("listen.restart")} onClick={props.onRestart} testId="listen-restart">
+            ⏪
+          </IconBtn>
+          <div
+            className="ml-auto flex flex-col items-end gap-0.5"
+            role="group"
+            aria-label={t("listen.speed")}
           >
-            <RubyText text={t("listen.restart")} />
-          </button>
-          {props.preparing && (
-            <span className="text-cocoa animate-pulse text-sm font-extrabold">
-              <RubyText text={t("listen.preparing")} />
+            <span className="text-cocoa text-[11px] leading-none font-extrabold">
+              <RubyText text={t("listen.speed")} />
             </span>
-          )}
+            <div className="flex gap-1">
+              {SPEEDS.map((s) => (
+                <button
+                  key={s.rate}
+                  type="button"
+                  className={`rounded-full border-2 px-2 py-0.5 text-[11px] font-extrabold whitespace-nowrap text-white ${props.rate === s.rate ? "border-[#18825a] bg-[#1f9b6c]" : "border-[#48362c] bg-[#6e5648] opacity-75"}`}
+                  aria-pressed={props.rate === s.rate}
+                  onClick={() => props.setRate(s.rate)}
+                  data-testid={`listen-speed-${s.rate}`}
+                >
+                  <RubyText text={t(s.key)} />
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
-      <div className="flex items-center gap-1.5" role="group" aria-label={t("listen.speed")}>
-        <span className="text-cocoa text-xs font-extrabold">
-          <RubyText text={t("listen.speed")} />
-        </span>
-        {SPEEDS.map((s) => (
-          <button
-            key={s.rate}
-            type="button"
-            className={`rounded-full border-2 px-2.5 py-0.5 text-xs font-extrabold ${props.rate === s.rate ? "border-[#18825a] bg-[#1f9b6c] text-white" : "border-[#48362c] bg-[#6e5648] text-white opacity-70"}`}
-            aria-pressed={props.rate === s.rate}
-            onClick={() => props.setRate(s.rate)}
-            data-testid={`listen-speed-${s.rate}`}
-          >
-            <RubyText text={t(s.key)} />
-          </button>
-        ))}
-      </div>
       <form
         className="relative flex gap-2"
         onSubmit={(e) => {
@@ -649,7 +655,10 @@ function MemoCard(props: {
         </span>
       </div>
       {state.foundKeywords.length > 0 && (
-        <p className="text-cocoa truncate text-xs font-bold" data-testid="listen-found">
+        <p
+          className="text-cocoa overflow-hidden text-xs leading-[2.1] font-bold text-ellipsis whitespace-nowrap"
+          data-testid="listen-found"
+        >
           <RubyText text={t("listen.found")} />:{" "}
           {state.foundKeywords.map((kw) => (
             <span key={kw} className="mr-1.5">
@@ -703,10 +712,12 @@ function IconBtn({
   label,
   onClick,
   children,
+  testId,
 }: {
   label: string;
   onClick: () => void;
   children: React.ReactNode;
+  testId?: string;
 }) {
   return (
     <button
@@ -715,6 +726,7 @@ function IconBtn({
       onClick={onClick}
       aria-label={label}
       title={label}
+      data-testid={testId}
     >
       {children}
     </button>
@@ -783,11 +795,11 @@ function NoteCard({
                 onClick={() => onPick(i)}
                 data-testid={`listen-line-${i}`}
               >
-                <span className="text-cocoa mt-[1.05rem] w-8 shrink-0 text-xs font-extrabold">
+                <span className="text-cocoa mt-[0.85rem] w-8 shrink-0 text-xs font-extrabold">
                   {i === line ? "▶" : ""}
                   {i + 1}
                 </span>
-                <span className="text-cocoa min-w-0 flex-1 text-lg leading-[2.6] font-extrabold whitespace-pre-wrap">
+                <span className="text-cocoa min-w-0 flex-1 text-lg leading-[2.35] font-extrabold whitespace-pre-wrap">
                   <ClozeLine
                     text={l.text}
                     start={starts[i]!}
