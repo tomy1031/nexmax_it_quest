@@ -106,17 +106,34 @@ export function playSfx(id: SfxId | string): void {
     case "dive": {
       const a = ac();
       if (!a) return;
+      // 1) VR ゴーグル起動の きらめきチャイム（やさしい和音）
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+        tone(f, 0.18 + i * 0.11, 0.34, "triangle", 0.07),
+      );
+      // 2) ポータルへ吸い込まれる 明るい光のスイープ
       const o = a.createOscillator();
+      const o2 = a.createOscillator();
       const g = a.createGain();
-      o.type = "sawtooth";
-      o.frequency.setValueAtTime(80, a.currentTime);
-      o.frequency.exponentialRampToValueAtTime(900, a.currentTime + 2.6);
-      g.gain.setValueAtTime(0.0001, a.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.05, a.currentTime + 1.5);
-      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 2.8);
-      o.connect(g).connect(a.destination);
-      o.start();
-      o.stop(a.currentTime + 2.9);
+      o.type = "sine";
+      o2.type = "triangle";
+      const t0 = a.currentTime + 0.85;
+      o.frequency.setValueAtTime(220, t0);
+      o.frequency.exponentialRampToValueAtTime(880, t0 + 2.1);
+      o2.frequency.setValueAtTime(330, t0);
+      o2.frequency.exponentialRampToValueAtTime(1320, t0 + 2.1);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.055, t0 + 1.1);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.35);
+      o.connect(g);
+      o2.connect(g);
+      g.connect(a.destination);
+      o.start(t0);
+      o2.start(t0);
+      o.stop(t0 + 2.45);
+      o2.stop(t0 + 2.45);
+      // 3) 到着の やわらかいベル
+      tone(1046.5, 2.9, 0.45, "sine", 0.08);
+      tone(1318.5, 3.0, 0.45, "sine", 0.07);
       return;
     }
     default:

@@ -316,16 +316,18 @@ const KIGURUMI: [Kigurumi, UiKey][] = [
 ];
 
 const SKINS = [
-  "#fbe0c8",
-  "#f1c9a5",
-  "#e0ac83",
-  "#d49a6a",
-  "#c68e64",
-  "#b98258",
-  "#a8714a",
-  "#8a5a3b",
-  "#6b4430",
-  "#56352a",
+  "#fff0e2",
+  "#fde5d0",
+  "#fae0c8",
+  "#f5d5b8",
+  "#f0c9a6",
+  "#e8bc96",
+  "#ddb086",
+  "#d19e72",
+  "#c28c62",
+  "#ac7750",
+  "#8d5d3e",
+  "#6d4631",
 ];
 
 const HAIRS = [
