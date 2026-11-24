@@ -86,6 +86,7 @@
     "settings.sound": "音",
     "settings.ready": "設定が できました！ タイトルに もどって、スタートを 押しましょう。",
     "settings.notReady": "名前と ニックネームを 入れると、スタートできます。",
+    "settings.notReadyLogin": "名前と ニックネームを 入れて、Google で ログインすると、スタートできます。",
     "settings.toTitle": "タイトルへ",
 
     "select.title": "ステージを えらぶ",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { useSetupComplete } from "@/app/use-setup";
+import { useLoginRequired, useSetupComplete } from "@/app/use-setup";
 import { checkGeminiKey } from "@/lib/ai/key-check";
 import { signInWithGoogle, signOut, useAuth } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/env";
@@ -21,6 +21,7 @@ import { IconCamera, IconCheck } from "@/ui/icons";
 export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
   const [, navigate] = useLocation();
   const ready = useSetupComplete();
+  const loginRequired = useLoginRequired();
   const profile = useGame((s) => s.profile);
   const setProfile = useGame((s) => s.setProfile);
   const nameOk = profile.name.length === 0 || isKatakanaName(profile.name);
@@ -80,7 +81,15 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
           className={`glass rounded-2xl p-4 text-center text-lg font-bold ${ready ? "text-leaf" : "text-sun"}`}
           data-testid="settings-status"
         >
-          <RubyText text={ready ? t("settings.ready") : t("settings.notReady")} />
+          <RubyText
+            text={
+              ready
+                ? t("settings.ready")
+                : loginRequired
+                  ? t("settings.notReadyLogin")
+                  : t("settings.notReady")
+            }
+          />
           {ready && (
             <div className="mt-3">
               <button
