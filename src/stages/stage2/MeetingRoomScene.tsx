@@ -60,7 +60,7 @@ export function MeetingRoomScene() {
     blocks: BLOCKS,
     shots: {
       yamamoto: { pos: [0.5, 1.45, 3.15], look: [-1.9, 0.95, 2.2], fov: 50 },
-      "yamamoto-seat": { pos: [0.15, 1.3, -0.35], look: [-1.0, 0.7, -1.55], fov: 50 },
+      "yamamoto-seat": { pos: [0.7, 1.45, 0.3], look: [-1.0, 0.65, -1.55], fov: 52 },
       "talk-view": { pos: [-0.2, 1.85, 2.9], look: [0.7, 1.15, -2.6], fov: 55 },
       // 2まいの カードが 下に 出るので、ホワイトボードと 山本社長が 画面の 上の 55% に 入る 向き
       board: { pos: [0.1, 1.45, 1.1], look: [-0.75, 0.5, -3.47], fov: 58 },

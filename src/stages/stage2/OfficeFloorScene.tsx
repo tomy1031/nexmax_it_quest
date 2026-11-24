@@ -50,7 +50,7 @@ function useWaiting(id: string): boolean {
 export function OfficeFloorScene() {
   useSceneLayout({
     anchors: {
-      elevator: { pos: [3.2, 0, 2.1], yaw: Math.PI },
+      elevator: { pos: [3.2, 0, 2.1], yaw: -Math.PI / 2 },
     },
     walk: WALK,
     blocks: BLOCKS,
