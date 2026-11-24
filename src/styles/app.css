@@ -2,22 +2,26 @@
 @import "./fonts.css";
 
 /*
- * 見た目の決まり。タイトル画像（ダイブの渦・濃い青・シアンの光・白・桜色）から色を取った。
- * 画面の上に重ねる板は「ガラスの板＋シアンの縁」でそろえる（docs/design/00_全体設計.md）。
+ * 見た目の決まり（tomy さん 2026-11-23・24「色彩感はどう森」「全体的なUIもそっちに寄せて欲しい」）。
+ * 3D のパステルな世界と調和する、あたたかいクリーム色の丸いカード＋こげ茶の文字＋濃い色のぷっくりボタン（白文字）。
+ * タイトル画面のボタン（.title-btn*）だけは、ボタンのイメージ（2026-11-21）のまま維持する。
  */
 @theme {
   --font-sans:
     "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
-  --color-deep: #071a46;
-  --color-navy: #0a2a6b;
-  --color-sky: #1f8fff;
-  --color-cyan: #38e1ff;
-  --color-ice: #e8f6ff;
+  --color-deep: #243b4a;
+  --color-navy: #235d6e;
+  --color-sky: #258be0;
+  --color-cyan: #2ab7c9;
+  --color-ice: #e8f8f5;
   --color-sakura: #ffb7d5;
-  --color-leaf: #3ccf7a;
-  --color-sun: #ffc93c;
-  --color-coral: #ff7a6b;
-  --color-ink: #12305a;
+  --color-leaf: #23a86b;
+  --color-sun: #f5bf3b;
+  --color-coral: #e25868;
+  --color-ink: #47352b;
+  --color-cocoa: #5c463a;
+  --color-cream: #fffbf0;
+  --color-sand: #e6d4b3;
   /* タイトルの画面だけは、ボタンのイメージと同じ角ゴシック */
   --font-title: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
 }
@@ -31,13 +35,13 @@ body,
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-deep);
-  color: #fff;
+  background: #e9f6ef;
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
 
-/* ふりがなの色は、いつも文字と同じ色（色の面でふりがなだけ沈まない。academy 2026-08-18） */
+/* ふりがなの色は、いつも文字と同じ色（濃い背景では白、明るいクリーム背景ではこげ茶） */
 rt {
   color: currentColor;
   opacity: 1;
@@ -55,21 +59,43 @@ rt {
   ruby-align: center;
 }
 
+/* どう森ふうの 明るくやさしい パステル背景（ステージ選択・設定・ストーリー・管理者・修了証） */
+.bg-pastel-page {
+  background-color: #eaf7ef;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.65) 2.2px, transparent 2.2px),
+    radial-gradient(circle at 18% 12%, #fff8eb 0%, #e5f7ec 48%, #d8f0fc 100%);
+  background-size:
+    28px 28px,
+    100% 100%;
+}
+
+/* どう森ふうの クリーム色の丸いカード（3D の上でも ページの上でも やさしく読みやすい） */
 .glass {
-  background: linear-gradient(180deg, rgb(10 42 107 / 0.82), rgb(7 26 70 / 0.88));
-  border: 1.5px solid rgb(56 225 255 / 0.55);
+  background: linear-gradient(180deg, rgb(255 253 245 / 0.96), rgb(255 247 232 / 0.96));
+  color: var(--color-ink);
+  border: 2.5px solid #e6d4b3;
   box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.06) inset,
-    0 10px 40px rgb(0 0 0 / 0.35),
-    0 0 24px rgb(56 225 255 / 0.18);
-  backdrop-filter: blur(8px);
+    0 2px 0 rgb(255 255 255 / 0.85) inset,
+    0 12px 32px rgb(74 52 38 / 0.18),
+    0 3px 0 rgb(216 195 160 / 0.65);
 }
 
 .glass-light {
-  background: rgb(255 255 255 / 0.94);
+  background: linear-gradient(180deg, rgb(255 254 248 / 0.98), rgb(255 249 237 / 0.98));
   color: var(--color-ink);
-  border: 1.5px solid rgb(56 225 255 / 0.6);
-  box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+  border: 2.5px solid #e6d4b3;
+  box-shadow:
+    0 2px 0 rgb(255 255 255 / 0.9) inset,
+    0 14px 36px rgb(74 52 38 / 0.2),
+    0 3px 0 rgb(216 195 160 / 0.7);
+}
+
+/* クリームカードの中の やさしい区切り箱 */
+.cream-box {
+  background: #f8efdc;
+  border: 1.5px solid #e6d4b3;
+  color: var(--color-ink);
 }
 
 .btn {
@@ -77,57 +103,65 @@ rt {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 14px;
-  padding: 0.7rem 1.3rem;
+  border-radius: 18px;
+  padding: 0.68rem 1.3rem;
   font-weight: 800;
   transition:
     transform 0.08s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    filter 0.18s ease;
   cursor: pointer;
   user-select: none;
 }
-.btn:active {
+.btn:active:not(:disabled) {
   transform: translateY(2px);
 }
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.48;
 }
 /* ボタンは「濃い色の地に白い字」（tomy さん 2026-11-22「灰色に黒は読めない。水色に黒もきたない」） */
 .btn-primary {
-  background: linear-gradient(180deg, #1f8ff5, #0a63d6);
+  background: linear-gradient(180deg, #32bd86, #1f9b6c);
   color: #ffffff;
+  border: 2px solid #18825a;
   box-shadow:
-    0 4px 0 #063f8c,
-    0 0 18px rgb(56 225 255 / 0.45);
+    0 4px 0 #136848,
+    0 6px 16px rgb(31 155 108 / 0.28);
 }
 .btn-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
   box-shadow:
-    0 4px 0 #063f8c,
-    0 0 30px rgb(56 225 255 / 0.75);
+    0 4px 0 #136848,
+    0 8px 20px rgb(31 155 108 / 0.38);
 }
-/* 明るい板の上の、二番目のボタン（濃い灰青の地に白い字） */
-.btn-sub {
-  background: #34466b;
-  color: #ffffff;
-  border: 1.5px solid #1d2c4d;
-}
-.btn-sub:hover:not(:disabled) {
-  background: #2a3a5c;
-}
+/* クリームカードや 3D の上で映える、あたたかいココアブラウンのサブボタン（白文字） */
+.btn-sub,
 .btn-ghost {
-  background: rgb(7 26 70 / 0.7);
-  color: #fff;
-  border: 1.5px solid rgb(56 225 255 / 0.55);
+  background: linear-gradient(180deg, #6e5648, #584337);
+  color: #ffffff;
+  border: 2px solid #48362c;
+  box-shadow: 0 3px 0 #3f2f26;
 }
+.btn-sub:hover:not(:disabled),
 .btn-ghost:hover:not(:disabled) {
-  background: rgb(20 60 140 / 0.8);
+  background: linear-gradient(180deg, #7d6253, #664e40);
 }
 .btn-ok {
-  background: linear-gradient(180deg, #2fb86a, #1b8a4a);
+  background: linear-gradient(180deg, #3ac774, #229c56);
   color: #ffffff;
-  box-shadow: 0 4px 0 #11663a;
+  border: 2px solid #198246;
+  box-shadow: 0 4px 0 #146a39;
+}
+.btn-sky {
+  background: linear-gradient(180deg, #2d9ae8, #1978c6);
+  color: #ffffff;
+  border: 2px solid #1464a6;
+  box-shadow: 0 4px 0 #105187;
+}
+.btn-sky:hover:not(:disabled) {
+  filter: brightness(1.06);
 }
 
 .focus-ring:focus-visible,
@@ -191,16 +225,20 @@ input:focus-visible {
 
 .input {
   width: 100%;
-  border-radius: 12px;
-  border: 1.5px solid rgb(56 225 255 / 0.5);
-  background: rgb(255 255 255 / 0.95);
+  border-radius: 16px;
+  border: 2px solid #dcc8a4;
+  background: #ffffff;
   color: var(--color-ink);
-  padding: 0.7rem 0.9rem;
+  padding: 0.7rem 0.95rem;
   font-size: 1.05rem;
   font-weight: 700;
+  box-shadow: 0 2px 6px rgb(74 52 38 / 0.06) inset;
+}
+.input:focus {
+  border-color: #24a878;
 }
 .input::placeholder {
-  color: rgb(18 48 90 / 0.45);
+  color: rgb(71 53 43 / 0.45);
 }
 
 /*

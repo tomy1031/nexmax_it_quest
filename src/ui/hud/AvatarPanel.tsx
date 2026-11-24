@@ -654,7 +654,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
     return (
       <div className="flex flex-col gap-2">
         {opts.label && (
-          <div className="text-sm font-extrabold text-white/90">
+          <div className="text-ink text-sm font-extrabold">
             <RubyText text={t(opts.label)} />
           </div>
         )}
@@ -663,14 +663,14 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             <button
               key={c}
               type="button"
-              className={`h-9 w-9 rounded-full border-[3px] shadow transition ${cur === c ? "border-cyan scale-110 ring-2 ring-white" : "border-white/85 hover:scale-105"}`}
+              className={`h-9 w-9 rounded-full border-[3px] shadow transition ${cur === c ? "scale-110 border-[#1f9b6c] ring-2 ring-[#47352b]" : "border-white hover:scale-105"}`}
               style={{ background: c }}
               onClick={() => set({ [key]: c })}
               aria-label={c}
             />
           ))}
           {custom && (
-            <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/30 bg-[#12305a] px-3 py-1.5 text-xs font-extrabold text-white hover:bg-[#1a437c]">
+            <label className="flex cursor-pointer items-center gap-1.5 rounded-full border-2 border-[#48362c] bg-[#6e5648] px-3 py-1.5 text-xs font-extrabold text-white hover:bg-[#7d6253]">
               <input
                 type="color"
                 value={cur}
@@ -688,12 +688,12 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
   return (
     <div
-      className="glass pop flex max-h-[92vh] w-full max-w-6xl flex-col gap-3 overflow-hidden rounded-3xl p-3.5 md:flex-row md:p-4"
+      className="glass pop text-ink flex max-h-[92vh] w-full max-w-6xl flex-col gap-3 overflow-hidden rounded-[28px] p-3.5 md:flex-row md:p-4"
       data-testid="avatar-editor"
     >
       {/* 左: どう森ふう パステル着がえスタジオ */}
       <div
-        className="relative h-72 shrink-0 overflow-hidden rounded-2xl border border-white/25 shadow-inner md:h-auto md:min-h-[500px] md:w-[44%]"
+        className="relative h-72 shrink-0 overflow-hidden rounded-[22px] border-2 border-[#e6d4b3] shadow-inner md:h-auto md:min-h-[500px] md:w-[44%]"
         style={{ background: bg.css }}
       >
         <Canvas
@@ -734,14 +734,14 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
         {/* 左上: 名前・身長バッジ & カメラ切り替え */}
         <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col gap-1.5">
-          <div className="flex items-center gap-2 rounded-full bg-[#0a2a6b]/85 px-3 py-1 text-xs font-extrabold text-white shadow">
+          <div className="flex items-center gap-2 rounded-full bg-[#5c463a]/90 px-3 py-1 text-xs font-extrabold text-white shadow">
             {nickname && <span>{nickname}</span>}
-            <span className="text-white/95">{avatar.height} cm</span>
+            <span className="text-white">{avatar.height} cm</span>
           </div>
           <div className="pointer-events-auto flex flex-wrap gap-1">
             <button
               type="button"
-              className={`rounded-lg px-2 py-1 text-[11px] font-extrabold text-white transition ${yawTarget === 0 ? "bg-[#0a63d6]" : "bg-[#0a2a6b]/80 hover:bg-[#14408f]"}`}
+              className={`rounded-xl px-2.5 py-1 text-[11px] font-extrabold text-white shadow-xs transition ${yawTarget === 0 ? "bg-[#1f9b6c]" : "bg-[#5c463a]/85 hover:bg-[#705547]"}`}
               onClick={() => {
                 playSfx("click");
                 setYawTarget(0);
@@ -751,7 +751,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </button>
             <button
               type="button"
-              className={`rounded-lg px-2 py-1 text-[11px] font-extrabold text-white transition ${yawTarget === Math.PI ? "bg-[#0a63d6]" : "bg-[#0a2a6b]/80 hover:bg-[#14408f]"}`}
+              className={`rounded-xl px-2.5 py-1 text-[11px] font-extrabold text-white shadow-xs transition ${yawTarget === Math.PI ? "bg-[#1f9b6c]" : "bg-[#5c463a]/85 hover:bg-[#705547]"}`}
               onClick={() => {
                 playSfx("click");
                 setYawTarget(Math.PI);
@@ -761,7 +761,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </button>
             <button
               type="button"
-              className={`rounded-lg px-2 py-1 text-[11px] font-extrabold text-white transition ${viewMode === "face" ? "bg-[#0a63d6]" : "bg-[#0a2a6b]/80 hover:bg-[#14408f]"}`}
+              className={`rounded-xl px-2.5 py-1 text-[11px] font-extrabold text-white shadow-xs transition ${viewMode === "face" ? "bg-[#1f9b6c]" : "bg-[#5c463a]/85 hover:bg-[#705547]"}`}
               onClick={() => {
                 playSfx("click");
                 setViewMode((v) => (v === "face" ? "auto" : "face"));
@@ -771,7 +771,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
             </button>
             <button
               type="button"
-              className={`rounded-lg px-2 py-1 text-[11px] font-extrabold text-white transition ${viewMode === "full" ? "bg-[#0a63d6]" : "bg-[#0a2a6b]/80 hover:bg-[#14408f]"}`}
+              className={`rounded-xl px-2.5 py-1 text-[11px] font-extrabold text-white shadow-xs transition ${viewMode === "full" ? "bg-[#1f9b6c]" : "bg-[#5c463a]/85 hover:bg-[#705547]"}`}
               onClick={() => {
                 playSfx("click");
                 setViewMode((v) => (v === "full" ? "auto" : "full"));
@@ -783,12 +783,12 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         </div>
 
         {/* 右上: スタジオの 背景テーマ 4つ */}
-        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-[#0a2a6b]/80 px-2 py-1.5 shadow">
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-[#5c463a]/85 px-2.5 py-1.5 shadow">
           {(Object.keys(BACKDROPS) as BackdropId[]).map((id) => (
             <button
               key={id}
               type="button"
-              className={`h-5 w-5 rounded-full border-2 transition ${backdrop === id ? "scale-115 border-white ring-2 ring-[#38e1ff]" : "border-white/60 opacity-85 hover:opacity-100"}`}
+              className={`h-5 w-5 rounded-full border-2 transition ${backdrop === id ? "scale-115 border-white ring-2 ring-[#f5bf3b]" : "border-white/75 opacity-90 hover:opacity-100"}`}
               style={{ background: BACKDROPS[id].dot }}
               onClick={() => {
                 playSfx("click");
@@ -802,15 +802,15 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
         {/* 下: ポーズ確認バー */}
         <div className="absolute right-2 bottom-2 left-2 flex flex-col items-center gap-1">
-          <div className="rounded-full bg-[#0a2a6b]/70 px-2.5 py-0.5 text-[11px] font-bold text-white/95">
+          <div className="rounded-full bg-[#5c463a]/80 px-2.5 py-0.5 text-[11px] font-bold text-white">
             <RubyText text={t("avatar.dragHint")} />
           </div>
-          <div className="flex flex-wrap justify-center gap-1 rounded-2xl bg-[#0a2a6b]/85 p-1.5 shadow-lg">
+          <div className="flex flex-wrap justify-center gap-1 rounded-2xl bg-[#5c463a]/90 p-1.5 shadow-lg">
             {POSES.map((p) => (
               <button
                 key={p.id}
                 type="button"
-                className={`rounded-xl px-2.5 py-1 text-xs font-extrabold text-white transition ${pose === p.id ? "bg-[#0a63d6] ring-1 ring-white" : "bg-white/10 hover:bg-white/25"}`}
+                className={`rounded-xl px-2.5 py-1 text-xs font-extrabold text-white transition ${pose === p.id ? "bg-[#1f9b6c] ring-1 ring-white" : "bg-white/15 hover:bg-white/25"}`}
                 onClick={() => {
                   playSfx("click");
                   setPose(p.id);
@@ -828,10 +828,10 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         {/* ヘッダー */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="text-xl leading-tight font-extrabold text-white md:text-2xl">
+            <h2 className="text-ink text-xl leading-tight font-extrabold md:text-2xl">
               <RubyText text={t("avatar.title")} />
             </h2>
-            <p className="text-xs font-bold text-white/85">
+            <p className="text-cocoa text-xs font-bold">
               <RubyText text={t("avatar.subtitle")} />
             </p>
           </div>
@@ -864,7 +864,11 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
               <button
                 key={c.id}
                 type="button"
-                className={`flex flex-col items-center justify-center gap-0.5 rounded-2xl border-2 px-1 py-2 text-xs font-extrabold text-white transition md:flex-row md:gap-1.5 md:text-sm ${active ? "border-cyan bg-[#0a63d6] shadow-[0_0_16px_rgba(56,225,255,0.4)]" : "border-white/15 bg-white/10 hover:bg-white/20"}`}
+                className={`flex flex-col items-center justify-center gap-0.5 rounded-2xl border-2 px-1 py-2 text-xs font-extrabold text-white transition md:flex-row md:gap-1.5 md:text-sm ${
+                  active
+                    ? "border-[#146e4c] bg-[#1f9b6c] shadow-[0_3px_0_#136848]"
+                    : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"
+                }`}
                 onClick={() => selectCategory(c.id)}
                 data-testid={`avatar-cat-${c.id}`}
               >
@@ -882,7 +886,11 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
               <button
                 key={tb.id}
                 type="button"
-                className={`rounded-xl px-3 py-1.5 text-sm font-extrabold text-white transition ${sub === tb.id ? "bg-[#0a63d6] ring-2 ring-white/80" : "bg-[#102e6b] hover:bg-[#1a438f]"}`}
+                className={`rounded-xl border-2 px-3 py-1.5 text-sm font-extrabold text-white transition ${
+                  sub === tb.id
+                    ? "border-[#146e4c] bg-[#1f9b6c] shadow-xs"
+                    : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"
+                }`}
                 onClick={() => selectSub(tb.id)}
                 data-testid={`avatar-tab-${tb.id}`}
               >
@@ -893,7 +901,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         )}
 
         {/* 選択エリア（スクロール可能） */}
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-2xl bg-white/6 p-3.5">
+        <div className="cream-box min-h-0 flex-1 overflow-y-auto rounded-[22px] p-3.5">
           {/* ── おすすめコーデ（プリセット） ── */}
           {sub === "presets" && (
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
@@ -901,12 +909,12 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 <button
                   key={p.id}
                   type="button"
-                  className="group hover:border-cyan flex items-center gap-2.5 rounded-2xl border-2 border-white/15 bg-[#102b63]/90 p-3 text-left font-extrabold text-white transition hover:scale-[1.02] hover:bg-[#163a82]"
+                  className="text-ink group flex items-center gap-2.5 rounded-2xl border-2 border-[#e6d4b3] bg-white p-3 text-left font-extrabold shadow-[0_3px_0_#e2cfa9] transition hover:scale-[1.02] hover:border-[#1f9b6c] hover:bg-[#fffef8]"
                   onClick={() => applyPreset(p)}
                   data-testid={`avatar-preset-${p.id}`}
                 >
                   <span
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-white/80 shadow"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-white shadow"
                     style={{ background: p.accent }}
                   >
                     <CategoryIcon id="presets" className="h-5 w-5 text-white" />
@@ -926,13 +934,13 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
           {sub === "eyes" && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <div className="text-sm font-extrabold text-white/90">
+                <div className="text-ink text-sm font-extrabold">
                   <RubyText text={t("avatar.eyeColor")} />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    className={`rounded-full border-2 px-3 py-1 text-xs font-extrabold text-white transition ${!avatar.eyeColor ? "border-cyan bg-[#0a63d6]" : "border-white/30 bg-[#12305a] hover:bg-[#1a437c]"}`}
+                    className={`rounded-full border-2 px-3 py-1 text-xs font-extrabold text-white transition ${!avatar.eyeColor ? "border-[#146e4c] bg-[#1f9b6c]" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => set({ eyeColor: undefined })}
                   >
                     <RubyText text={t("avatar.eyeColorDefault")} />
@@ -941,7 +949,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                     <button
                       key={c}
                       type="button"
-                      className={`h-8 w-8 rounded-full border-[3px] shadow transition ${avatar.eyeColor === c ? "border-cyan scale-110 ring-2 ring-white" : "border-white/85 hover:scale-105"}`}
+                      className={`h-8 w-8 rounded-full border-[3px] shadow transition ${avatar.eyeColor === c ? "scale-110 border-[#1f9b6c] ring-2 ring-[#47352b]" : "border-white hover:scale-105"}`}
                       style={{ background: c }}
                       onClick={() => set({ eyeColor: c })}
                       aria-label={c}
@@ -954,7 +962,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <button
                     key={e}
                     type="button"
-                    className={`flex w-[92px] flex-col items-center gap-1 rounded-xl border-2 px-1 py-1.5 text-[12px] font-extrabold whitespace-nowrap text-white transition ${avatar.eyes === e ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                    className={`flex w-[92px] flex-col items-center gap-1 rounded-xl border-2 px-1 py-1.5 text-[12px] font-extrabold whitespace-nowrap text-white transition ${avatar.eyes === e ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => set({ eyes: e })}
                     data-testid={`avatar-eyes-${e}`}
                   >
@@ -973,7 +981,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 <button
                   key={b}
                   type="button"
-                  className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.eyebrow ?? "soft") === b ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                  className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.eyebrow ?? "soft") === b ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                   onClick={() => set({ eyebrow: b })}
                   data-testid={`avatar-brow-${b}`}
                 >
@@ -997,7 +1005,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 <button
                   key={n}
                   type="button"
-                  className={`flex w-[92px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.nose ?? "dot") === n ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                  className={`flex w-[92px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.nose ?? "dot") === n ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                   onClick={() => set({ nose: n })}
                   data-testid={`avatar-nose-${n}`}
                 >
@@ -1023,7 +1031,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <button
                     key={m}
                     type="button"
-                    className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.mouth ?? "smile") === m ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                    className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${(avatar.mouth ?? "smile") === m ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => set({ mouth: m })}
                     data-testid={`avatar-mouth-${m}`}
                   >
@@ -1049,7 +1057,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <button
                     key={ch}
                     type="button"
-                    className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${curCheek === ch ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                    className={`flex w-[96px] flex-col items-center gap-1 rounded-xl border-2 px-1.5 py-2 text-xs font-extrabold text-white transition ${curCheek === ch ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => set({ cheek: ch, blush: ch !== "none" })}
                     data-testid={`avatar-cheek-${ch}`}
                   >
@@ -1074,7 +1082,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 ))}
               </div>
               <div className="flex flex-col gap-2">
-                <div className="text-sm font-extrabold text-white/90">
+                <div className="text-ink text-sm font-extrabold">
                   <RubyText text={t("avatar.faceMark")} />
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -1102,7 +1110,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <button
                     key={g.id}
                     type="button"
-                    className={`rounded-full px-3 py-1 text-xs font-extrabold text-white transition ${hairGroup === g.id ? "bg-[#0a63d6] ring-1 ring-white" : "bg-[#12305a] hover:bg-[#1a437c]"}`}
+                    className={`rounded-full border-2 px-3 py-1 text-xs font-extrabold text-white transition ${hairGroup === g.id ? "border-[#146e4c] bg-[#1f9b6c]" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => {
                       playSfx("click");
                       setHairGroup(g.id);
@@ -1117,7 +1125,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                   <button
                     key={hs}
                     type="button"
-                    className={`flex w-[92px] flex-col items-center rounded-xl border-2 px-1 pb-1.5 text-[12px] font-extrabold whitespace-nowrap text-white transition ${avatar.hairStyle === hs ? "border-white bg-[#0a63d6]" : "border-transparent bg-white/10 hover:bg-white/20"}`}
+                    className={`flex w-[92px] flex-col items-center rounded-xl border-2 px-1 pb-1.5 text-[12px] font-extrabold whitespace-nowrap text-white transition ${avatar.hairStyle === hs ? "border-[#146e4c] bg-[#1f9b6c] shadow-sm" : "border-[#48362c] bg-[#6e5648] hover:bg-[#7d6253]"}`}
                     onClick={() => set({ hairStyle: hs })}
                     data-testid={`avatar-hair-${hs}`}
                   >
@@ -1157,7 +1165,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
               {avatar.outfit === "casual" && (
                 <div className="flex flex-col gap-2">
-                  <div className="text-sm font-extrabold text-white/90">
+                  <div className="text-ink text-sm font-extrabold">
                     <RubyText text={t("avatar.casualStyle")} />
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1178,7 +1186,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
 
               {avatar.outfit === "kigurumi" && (
                 <div className="flex flex-col gap-2">
-                  <div className="text-sm font-extrabold text-white/90">
+                  <div className="text-ink text-sm font-extrabold">
                     <RubyText text={t("avatar.kigurumiKind")} />
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1218,7 +1226,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                 ))}
               </div>
               <div className="flex flex-col gap-2">
-                <div className="text-sm font-extrabold text-white/90">
+                <div className="text-ink text-sm font-extrabold">
                   <RubyText text={t("avatar.height")} />
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
@@ -1229,10 +1237,10 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
                     step={1}
                     value={avatar.height}
                     onChange={(e) => set({ height: Number(e.target.value) }, { quiet: true })}
-                    className="w-64 accent-cyan-400"
+                    className="w-64 accent-[#1f9b6c]"
                     data-testid="avatar-height"
                   />
-                  <span className="text-2xl font-extrabold text-white">{avatar.height} cm</span>
+                  <span className="text-ink text-2xl font-extrabold">{avatar.height} cm</span>
                 </div>
               </div>
             </div>
@@ -1427,7 +1435,7 @@ export function AvatarEditor({ mode, onDone }: { mode: "suit" | "free"; onDone: 
         {/* 注意メッセージ */}
         {warn && (
           <p
-            className="pop bg-sun text-ink rounded-2xl px-4 py-2.5 text-base font-extrabold"
+            className="pop rounded-2xl border-2 border-[#e0b248] bg-[#fff5d6] px-4 py-2.5 text-base font-extrabold text-[#6b4408]"
             data-testid="avatar-warn"
           >
             <RubyText text={t(warn)} />

@@ -26,10 +26,10 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
   const nameOk = profile.name.length === 0 || isKatakanaName(profile.name);
 
   return (
-    <main className="h-full overflow-y-auto bg-[radial-gradient(circle_at_20%_0%,#1f5fd1_0%,#071a46_55%)] px-4 py-6">
+    <main className="bg-pastel-page h-full overflow-y-auto px-4 py-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-5">
         <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold">
+          <h1 className="text-ink text-3xl font-extrabold drop-shadow-[0_2px_0_rgba(255,255,255,0.9)]">
             <RubyText text={t("settings.title")} />
           </h1>
           <button
@@ -53,7 +53,7 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
               autoComplete="off"
             />
             {!nameOk && (
-              <p className="text-coral mt-1 text-sm font-bold">
+              <p className="mt-1 text-sm font-extrabold text-[#c43a4b]">
                 <RubyText text={t("settings.nameError")} />
               </p>
             )}
@@ -77,7 +77,11 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
         <ViewSection />
 
         <div
-          className={`glass rounded-2xl p-4 text-center text-lg font-bold ${ready ? "text-leaf" : "text-sun"}`}
+          className={`rounded-[24px] border-2 p-4 text-center text-lg font-extrabold shadow-md ${
+            ready
+              ? "border-[#23a86b] bg-[#e9fbf1] text-[#146e48]"
+              : "border-[#e2b238] bg-[#fff7dc] text-[#7a4f0a]"
+          }`}
           data-testid="settings-status"
         >
           <RubyText text={ready ? t("settings.ready") : t("settings.notReady")} />
@@ -95,7 +99,7 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
         </div>
         <a
           href={`${import.meta.env.BASE_URL}credits.txt`}
-          className="self-center text-sm text-white underline"
+          className="text-cocoa self-center text-sm font-bold underline"
         >
           <RubyText text={t("title.credits")} />
         </a>
@@ -106,8 +110,9 @@ export function SettingsScreen({ onClose }: { onClose?: () => void } = {}) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="glass rounded-2xl p-5">
-      <h2 className="mb-3 text-xl font-extrabold text-white">
+    <section className="glass text-ink rounded-[26px] p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-xl font-extrabold">
+        <span className="inline-block h-3 w-3 rounded-full bg-[#24a878]" aria-hidden />
         <RubyText text={title} />
       </h2>
       <div className="flex flex-col gap-4">{children}</div>
@@ -128,18 +133,18 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-2 font-bold">
+      <span className="flex items-center gap-2 font-extrabold">
         <RubyText text={label} />
         {badge && (
           <span
-            className={`rounded-full px-2 py-0.5 text-xs ${badge === "required" ? "bg-sun text-ink" : "bg-white/15"}`}
+            className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold text-white ${badge === "required" ? "bg-[#d94f61]" : "bg-[#6e5648]"}`}
           >
             <RubyText text={t(badge === "required" ? "settings.required" : "settings.optional")} />
           </span>
         )}
       </span>
       {help && (
-        <span className="text-sm text-white">
+        <span className="text-cocoa text-sm font-bold">
           <RubyText text={help} />
         </span>
       )}
@@ -168,21 +173,21 @@ function PhotoField() {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="flex items-center gap-2 font-bold">
+      <span className="flex items-center gap-2 font-extrabold">
         <RubyText text={t("settings.photo")} />
-        <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs">
+        <span className="rounded-full bg-[#6e5648] px-2.5 py-0.5 text-xs font-extrabold text-white">
           <RubyText text={t("settings.optional")} />
         </span>
       </span>
-      <span className="text-sm text-white">
+      <span className="text-cocoa text-sm font-bold">
         <RubyText text={t("settings.photoHelp")} />
       </span>
       <div className="flex flex-wrap items-center gap-4">
-        <div className="border-cyan/60 grid h-28 w-28 place-items-center overflow-hidden rounded-2xl border-2 bg-white/10">
+        <div className="cream-box grid h-28 w-28 place-items-center overflow-hidden rounded-2xl">
           {url ? (
             <img src={url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <IconCamera className="h-10 w-10 text-white/40" />
+            <IconCamera className="text-cocoa/50 h-10 w-10" />
           )}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -215,7 +220,7 @@ function PhotoField() {
           />
         </div>
       </div>
-      <p className="text-xs text-white">
+      <p className="text-cocoa text-xs font-bold">
         <RubyText text={t("settings.photoNote")} />
       </p>
       {camera && <CameraModal onClose={() => setCamera(false)} onShot={store} />}
@@ -256,14 +261,14 @@ function CameraModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-      <div className="glass pop flex w-full max-w-md flex-col items-center gap-4 rounded-2xl p-5">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#3b2c23]/55 p-4">
+      <div className="glass pop flex w-full max-w-md flex-col items-center gap-4 rounded-[28px] p-5">
         {error ? (
-          <p className="text-sun font-bold">
+          <p className="font-extrabold text-[#c43a4b]">
             <RubyText text={t("settings.cameraError")} />
           </p>
         ) : (
-          <div className="aspect-square w-full overflow-hidden rounded-xl bg-black">
+          <div className="aspect-square w-full overflow-hidden rounded-2xl bg-black">
             <video
               ref={videoRef}
               className="h-full w-full scale-x-[-1] object-cover"
@@ -295,10 +300,10 @@ function SchoolField() {
   return (
     // ボタンを ならべるので label で つつまない（文字を おすと 1つめの ボタンが 押されてしまう）
     <div className="flex flex-col gap-1.5">
-      <span className="font-bold">
+      <span className="font-extrabold">
         <RubyText text={t("settings.school")} />
       </span>
-      <span className="text-sm text-white">
+      <span className="text-cocoa text-sm font-bold">
         <RubyText text={t("settings.schoolHelp")} />
       </span>
       <div className="flex flex-col gap-2">
@@ -344,20 +349,20 @@ function LoginSection() {
   return (
     <Section title={t("settings.loginTitle")}>
       {!isSupabaseConfigured ? (
-        <p className="text-white">
+        <p className="text-cocoa font-bold">
           <RubyText text={t("settings.loginDemo")} />
         </p>
       ) : problem && !session ? (
-        <p className="text-sun font-bold" data-testid="login-down">
+        <p className="font-extrabold text-[#b45a0c]" data-testid="login-down">
           <RubyText text={t("settings.loginDown")} />
         </p>
       ) : session ? (
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-leaf flex items-center gap-2 font-bold">
+          <span className="flex items-center gap-2 font-extrabold text-[#157a4e]">
             <IconCheck className="h-5 w-5" />
             <RubyText text={t("settings.loggedIn")} />
           </span>
-          <span className="text-sm text-white">{email}</span>
+          <span className="text-cocoa text-sm font-bold">{email}</span>
           <button type="button" className="btn btn-ghost" onClick={() => void signOut()}>
             <RubyText text={t("settings.logout")} />
           </button>
@@ -430,12 +435,12 @@ function GeminiSection() {
           />
         </button>
         {(geminiOk || (state !== "idle" && state !== "checking")) && (
-          <span className={`font-bold ${geminiOk ? "text-leaf" : "text-sun"}`}>
+          <span className={`font-extrabold ${geminiOk ? "text-[#157a4e]" : "text-[#c43a4b]"}`}>
             <RubyText text={t(geminiOk ? "settings.geminiOk" : (state as UiKey))} />
           </span>
         )}
         <a
-          className="text-sm text-white underline"
+          className="text-sm font-extrabold text-[#157a4e] underline"
           href="https://aistudio.google.com/apikey"
           target="_blank"
           rel="noreferrer"
@@ -443,7 +448,7 @@ function GeminiSection() {
           <RubyText text={t("settings.geminiHowto")} />
         </a>
       </div>
-      <p className="text-xs text-white">
+      <p className="text-cocoa text-xs font-bold">
         <RubyText text={t("settings.geminiNote")} />
       </p>
     </Section>
@@ -508,15 +513,17 @@ function Toggle<V extends string | number | boolean>({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <span className="font-bold">
+      <span className="font-extrabold">
         <RubyText text={label} />
       </span>
-      <div className="flex gap-1 rounded-xl bg-white/10 p-1">
+      <div className="cream-box flex gap-1.5 rounded-2xl p-1">
         {options.map(([v, l]) => (
           <button
             key={String(v)}
             type="button"
-            className={`rounded-lg px-3 py-1.5 font-bold transition ${v === value ? "bg-[#0a63d6] text-white" : "text-white hover:bg-white/10"}`}
+            className={`rounded-xl px-3.5 py-1.5 font-extrabold text-white transition ${
+              v === value ? "bg-[#1f9b6c] shadow-sm" : "bg-[#6e5648] hover:bg-[#7d6253]"
+            }`}
             onClick={() => onChange(v)}
           >
             <RubyText text={l} />

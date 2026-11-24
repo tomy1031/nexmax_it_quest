@@ -24,10 +24,10 @@ export function StageSelect() {
     navigate(section ? `/stage/stage1?from=${section}` : "/stage/stage1");
 
   return (
-    <main className="relative h-full overflow-y-auto bg-[radial-gradient(circle_at_50%_-10%,#2a7bff_0%,#0a2a6b_40%,#030c26_100%)] px-4 py-8">
+    <main className="bg-pastel-page relative h-full overflow-y-auto px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-extrabold drop-shadow-[0_0_12px_rgba(56,225,255,0.6)]">
+          <h1 className="text-ink text-3xl font-extrabold drop-shadow-[0_2px_0_rgba(255,255,255,0.9)]">
             <RubyText text={t("select.title")} />
           </h1>
           <div className="flex items-center gap-2">
@@ -47,41 +47,41 @@ export function StageSelect() {
         </header>
 
         {avatarOpen && (
-          <div className="bg-deep/65 fixed inset-0 z-30 grid place-items-center overflow-y-auto p-3">
+          <div className="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-[#3b2c23]/45 p-3">
             <AvatarEditor mode="free" onDone={() => setAvatarOpen(false)} />
           </div>
         )}
 
         <div className="mx-auto grid w-full max-w-2xl gap-6">
           <article
-            className="glass pop flex flex-col overflow-hidden rounded-3xl"
+            className="glass pop flex flex-col overflow-hidden rounded-[28px]"
             data-testid="stage-card-1"
           >
-            <div className="relative h-44 overflow-hidden bg-[linear-gradient(135deg,#38e1ff_0%,#1f8fff_45%,#8f7bff_100%)]">
+            <div className="relative h-44 overflow-hidden bg-[linear-gradient(135deg,#ffd6e7_0%,#d4f1ff_52%,#d6f5e3_100%)]">
               <img
                 src={`${import.meta.env.BASE_URL}img/nexmax/guide.webp`}
                 alt=""
-                className="bob absolute right-4 bottom-0 h-40 w-40"
+                className="bob absolute right-4 bottom-0 h-40 w-40 drop-shadow-[0_6px_12px_rgba(74,52,38,0.18)]"
               />
-              <div className="text-ink absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1 text-sm font-extrabold">
+              <div className="absolute top-4 left-4 rounded-full bg-[#5c463a] px-3.5 py-1 text-sm font-extrabold text-white shadow">
                 <RubyText text={t("select.stage")} /> 1
               </div>
               {cleared && (
-                <div className="absolute top-4 left-32 flex items-center gap-1 rounded-full bg-[#1b8a4a] px-3 py-1 text-sm font-extrabold text-white">
+                <div className="absolute top-4 left-32 flex items-center gap-1 rounded-full bg-[#1f9b6c] px-3.5 py-1 text-sm font-extrabold text-white shadow">
                   <IconCheck className="h-4 w-4" />
                   <RubyText text={t("select.cleared")} />
                 </div>
               )}
             </div>
-            <div className="flex flex-1 flex-col gap-3 p-5">
+            <div className="text-ink flex flex-1 flex-col gap-3 p-5">
               <h2 className="text-xl leading-relaxed font-extrabold">
                 <RubyText text={stage1.title} />
               </h2>
-              <p className="text-white">
+              <p className="text-ink/85 font-bold">
                 <RubyText text={stage1.subtitle} />
               </p>
               {/* 学ぶ量の目安（Codex の UI の相談 10） */}
-              <p className="text-base font-bold text-white/90" data-testid="stage1-info">
+              <p className="text-cocoa text-base font-bold" data-testid="stage1-info">
                 <RubyText
                   text={t("select.info", {
                     scenes: stage1.sections.length,
@@ -133,7 +133,7 @@ export function StageSelect() {
                 {cleared && (
                   <button
                     type="button"
-                    className="btn btn-ghost"
+                    className="btn btn-sky"
                     onClick={() => navigate("/certificate/stage1")}
                   >
                     <RubyText text={t("select.certificate")} />
@@ -141,7 +141,7 @@ export function StageSelect() {
                 )}
               </div>
               {chapters && (
-                <div className="flex flex-col gap-2 rounded-2xl bg-white/5 p-3">
+                <div className="cream-box flex flex-col gap-2 rounded-2xl p-3">
                   {stage1.chapters.map((c) => {
                     const first = stage1.sections.find((s) => s.chapter === c.no);
                     return (
@@ -156,7 +156,7 @@ export function StageSelect() {
                         <RubyText text={t("hud.chapter", { no: c.no })} />
                         <RubyText text={c.title} />
                         {!first && (
-                          <span className="ml-auto rounded-full bg-white/15 px-2 py-0.5 text-sm">
+                          <span className="ml-auto rounded-full bg-white/20 px-2 py-0.5 text-sm text-white">
                             <RubyText text={t("select.soon")} />
                           </span>
                         )}

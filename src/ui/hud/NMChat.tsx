@@ -34,14 +34,14 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
 
   return (
     <div
-      className="text-ink flex h-[min(84vh,700px)] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
+      className="text-ink flex h-[min(84vh,700px)] w-full overflow-hidden rounded-[28px] border-[3px] border-[#e6d4b3] bg-[#fffdf7] shadow-2xl"
       data-testid="nmchat"
     >
-      <aside className="flex w-44 shrink-0 flex-col gap-1 bg-[#1b2a5c] p-3 text-white sm:w-56">
+      <aside className="flex w-44 shrink-0 flex-col gap-1.5 bg-[#235d6e] p-3.5 text-white sm:w-56">
         <p className="mb-2 text-lg font-black tracking-wide">
           <RubyText text={t("chat.title")} />
         </p>
-        <p className="text-xs font-bold text-white">
+        <p className="text-xs font-bold text-white/90">
           <RubyText text={t("chat.channels")} />
         </p>
         {CHAT.channels.map((c) => {
@@ -51,12 +51,12 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
               key={c.id}
               type="button"
               onClick={() => open(c.id)}
-              className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-left font-bold ${channel === c.id ? "bg-[#0a63d6] text-white" : "hover:bg-white/10"} ${unread ? "ring-sun ring-2" : ""}`}
+              className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-left font-extrabold text-white transition ${channel === c.id ? "bg-[#1f9b6c] shadow-sm" : "hover:bg-white/15"} ${unread ? "ring-sun ring-2" : ""}`}
               data-testid={`channel-${c.id}`}
             >
               <span># {c.name}</span>
               {unread && (
-                <span className="bg-coral rounded-full px-1.5 text-xs text-white">
+                <span className="rounded-full bg-[#e25868] px-2 py-0.5 text-xs font-extrabold text-white">
                   <RubyText text={t("chat.unread")} />
                 </span>
               )}
@@ -64,12 +64,12 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
           );
         })}
       </aside>
-      <section className="flex min-w-0 flex-1 flex-col">
+      <section className="flex min-w-0 flex-1 flex-col bg-[#fffdf7]">
         {current ? (
           <>
-            <header className="border-b border-slate-200 px-4 py-3">
+            <header className="border-b-2 border-[#efe2c6] bg-[#fff9ec] px-4 py-3">
               <p className="text-lg font-extrabold"># {current.name}</p>
-              <p className="text-sm text-slate-500">
+              <p className="text-cocoa text-sm font-bold">
                 <RubyText text={current.topic} />
               </p>
             </header>
@@ -94,7 +94,7 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
                           text={m.from === "hendy" ? t("speaker.hendy") : t("speaker.nexmax")}
                         />
                       </span>
-                      <span className="text-xs text-slate-400">{m.time}</span>
+                      <span className="text-cocoa/70 text-xs font-bold">{m.time}</span>
                     </p>
                     {m.lines.map((l, j) => (
                       <p key={j} className="text-lg leading-[2.05] break-words">
@@ -106,18 +106,18 @@ export function NMChat({ mode, onDone }: { mode: "onboarding" | "view"; onDone: 
               ))}
             </div>
             {moreBelow && (
-              <div className="pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-white to-transparent text-center text-xl leading-10 text-[#0a63d6]">
+              <div className="pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-[#fffdf7] to-transparent text-center text-xl leading-10 text-[#1f9b6c]">
                 ▼
               </div>
             )}
           </>
         ) : (
-          <div className="grid flex-1 place-items-center p-6 text-center text-xl font-bold text-slate-500">
+          <div className="text-cocoa grid flex-1 place-items-center p-6 text-center text-xl font-extrabold">
             <RubyText text={t("chat.readHint")} />
           </div>
         )}
-        <footer className="flex items-center justify-between gap-2 border-t border-slate-200 px-4 py-3">
-          <span className="text-sm font-bold text-slate-500">
+        <footer className="flex items-center justify-between gap-2 border-t-2 border-[#efe2c6] bg-[#fff9ec] px-4 py-3">
+          <span className="text-sm font-extrabold text-[#157a4e]">
             {mode === "onboarding" && read && <RubyText text={t("chat.readDone")} />}
           </span>
           {read && (
@@ -144,5 +144,11 @@ export function Avatar({ who }: { who: string }) {
       : who === "me"
         ? (photo ?? `${BASE}img/nexmax/hello.webp`)
         : `${BASE}img/nexmax/guide.webp`;
-  return <img src={src} alt="" className="h-11 w-11 shrink-0 rounded-xl bg-sky-100 object-cover" />;
+  return (
+    <img
+      src={src}
+      alt=""
+      className="h-11 w-11 shrink-0 rounded-xl border border-[#e6d4b3] bg-[#e9f7ef] object-cover"
+    />
+  );
 }

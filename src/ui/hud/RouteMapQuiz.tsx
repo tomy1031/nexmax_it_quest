@@ -59,7 +59,7 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      className="glass-light pop flex max-h-[88vh] w-full max-w-4xl flex-col gap-3 overflow-hidden rounded-3xl p-5"
+      className="glass-light pop text-ink flex max-h-[88vh] w-full max-w-4xl flex-col gap-3 overflow-hidden rounded-[28px] p-5"
       data-testid="routemap-quiz"
     >
       <h2 className="text-xl font-extrabold">
@@ -67,7 +67,7 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
       </h2>
       {/* 問題: 天王寺から 阿波座まで */}
       <div
-        className="bg-navy flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-white"
+        className="flex flex-wrap items-center gap-3 rounded-2xl bg-[#235d6e] px-4 py-3 text-white shadow-xs"
         data-testid="quiz-problem"
       >
         <span className="text-xl leading-loose font-extrabold">
@@ -75,20 +75,20 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
         </span>
       </div>
       {!done && q && (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-sky-50 px-4 py-3">
-          <span className="bg-navy rounded-full px-3 py-1 text-sm font-extrabold text-white">
+        <div className="cream-box flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3">
+          <span className="rounded-full bg-[#1f9b6c] px-3 py-1 text-sm font-extrabold text-white">
             Q{i + 1}
           </span>
           <span className="text-2xl leading-loose font-extrabold">
             <RubyText text={t(q.key)} />
           </span>
           {result === "ok" && (
-            <span className="bg-leaf rounded-full px-3 py-1 font-extrabold text-white">
+            <span className="rounded-full bg-[#1f9b6c] px-3 py-1 font-extrabold text-white">
               <RubyText text={t("quiz.correct")} />
             </span>
           )}
           {result === "ng" && (
-            <span className="text-coral font-extrabold">
+            <span className="font-extrabold text-[#c43a4b]">
               <RubyText text={`${t("quiz.wrong")} ${t(q.hint)}`} />
             </span>
           )}
@@ -119,12 +119,12 @@ export function RouteMapQuiz({ onDone }: { onDone: () => void }) {
         </div>
       )}
       {/* 路線図だけ 中で動かせる（問題文は いつも見える。Codex の UI の相談 7） */}
-      <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-slate-200 bg-white p-2">
+      <div className="min-h-0 flex-1 overflow-auto rounded-2xl border-2 border-[#e6d4b3] bg-white p-2">
         <RouteMap onStation={!done && q?.kind === "station" ? answer : undefined} marks={marks} />
       </div>
       {done && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#eafff1] px-4 py-3">
-          <span className="text-xl font-extrabold text-[#0b4a25]">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#23a86b] bg-[#ecfdf3] px-4 py-3">
+          <span className="text-xl font-extrabold text-[#115235]">
             <RubyText text={`${t("quiz.done")} ${t("quiz.summary")}`} />
           </span>
           <button

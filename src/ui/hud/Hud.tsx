@@ -117,12 +117,12 @@ function ObjectiveBar() {
   const hint = objective.hints[0];
   return (
     <div
-      className={`glass pop flex max-w-[min(70vw,560px)] flex-wrap items-center gap-3 rounded-2xl px-4 py-2.5 ${hint ? "pointer-events-auto cursor-pointer" : ""}`}
+      className={`glass pop text-ink flex max-w-[min(70vw,560px)] flex-wrap items-center gap-3 rounded-[22px] px-4 py-2.5 ${hint ? "pointer-events-auto cursor-pointer" : ""}`}
       data-testid="objective"
       // 押すと ヒントを1つ出す（Codex の UI の相談 3）
       onClick={() => hint && setHintFor(hintOpen ? null : objective)}
     >
-      <span className="shrink-0 rounded-full bg-[#0a63d6] px-2.5 py-0.5 text-xs font-extrabold text-white">
+      <span className="shrink-0 rounded-full bg-[#1f9b6c] px-3 py-0.5 text-xs font-extrabold text-white shadow-xs">
         <RubyText text={t("hud.objective")} />
       </span>
       {objective.lines.map((id) => (
@@ -132,13 +132,13 @@ function ObjectiveBar() {
         <RubyText text={objective.text} />
       </span>
       {hint && !hintOpen && (
-        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white">
+        <span className="rounded-full bg-[#6e5648] px-2.5 py-0.5 text-[11px] font-extrabold text-white">
           <RubyText text={t("hud.objectiveTap")} />
         </span>
       )}
       {hint && hintOpen && (
-        <span className="w-full text-[17px] font-bold text-white">
-          <span className="bg-sun text-ink mr-2 inline-flex items-center gap-1 rounded-full px-2 text-xs">
+        <span className="text-ink w-full text-[17px] font-bold">
+          <span className="mr-2 inline-flex items-center gap-1 rounded-full bg-[#c47a14] px-2.5 py-0.5 text-xs font-extrabold text-white">
             <IconBulb className="h-3.5 w-3.5" />
             <RubyText text={t("hud.hint")} />
           </span>
@@ -163,20 +163,21 @@ function TodoList() {
   const doneCount = todos.filter((x) => x.done).length;
   return (
     <div
-      className="glass pointer-events-auto w-[min(60vw,300px)] rounded-2xl px-3 py-2"
+      className="glass text-ink pointer-events-auto w-[min(60vw,310px)] rounded-[22px] px-3.5 py-2.5"
       data-testid="todo-list"
     >
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="text-sm font-extrabold text-white">
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-sm font-extrabold">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1f9b6c]" aria-hidden />
           <RubyText text={t("hud.todo")} />
-          <span className="ml-1.5 text-xs opacity-80">
+          <span className="text-cocoa ml-1 text-xs">
             {doneCount}/{todos.length}
           </span>
         </span>
         {doneCount > 0 && (
           <button
             type="button"
-            className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-white/25"
+            className="rounded-full bg-[#6e5648] px-2.5 py-0.5 text-[11px] font-extrabold text-white hover:bg-[#7d6253]"
             onClick={() => setSettings({ hideDoneTodos: !hide })}
             data-testid="todo-toggle"
           >
@@ -184,16 +185,16 @@ function TodoList() {
           </button>
         )}
       </div>
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-1.5">
         {shown.map((x) => (
           <li
             key={x.id}
-            className={`pop flex items-center gap-2 text-[15px] font-bold text-white ${x.done ? "opacity-60" : ""}`}
+            className={`pop flex items-center gap-2 text-[15px] font-bold ${x.done ? "text-cocoa/65" : "text-ink"}`}
             data-testid={`todo-${x.id}`}
             data-done={x.done}
           >
             <span
-              className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 ${x.done ? "border-[#7ee0a6] bg-[#2f9d63]" : "border-white/70"}`}
+              className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 ${x.done ? "border-[#1f9b6c] bg-[#1f9b6c]" : "border-[#bfa786] bg-white"}`}
               aria-label={x.done ? t("hud.todoDone") : undefined}
             >
               {x.done && <IconCheck className="h-3.5 w-3.5 text-white" />}
@@ -218,8 +219,8 @@ function HintBubble() {
   return (
     <div className="pop absolute bottom-6 left-4 flex items-end gap-2" key={level}>
       <img src={`${BASE}img/nexmax/guide.webp`} alt="" className="bob h-24 w-24" />
-      <div className="glass-light max-w-sm rounded-2xl rounded-bl-sm px-4 py-3 text-lg font-bold">
-        <span className="bg-sun text-ink mr-2 inline-flex items-center gap-1 rounded-full px-2 text-xs">
+      <div className="glass-light text-ink max-w-sm rounded-[24px] rounded-bl-sm px-4 py-3 text-lg font-bold">
+        <span className="mr-2 inline-flex items-center gap-1 rounded-full bg-[#c47a14] px-2.5 py-0.5 text-xs font-extrabold text-white">
           <IconBulb className="h-3.5 w-3.5" />
           <RubyText text={t("hud.hint")} />
         </span>
@@ -234,9 +235,14 @@ function ChapterBanner() {
   const stageId = usePlay((s) => s.stageId);
   if (!no) return null;
   return (
-    <div className="bg-deep/40 absolute inset-0 grid place-items-center">
-      <div className="pop glass rounded-3xl px-12 py-6 text-center" data-testid="chapter-banner">
-        <p className="text-sm font-bold tracking-widest text-white">{stageId.toUpperCase()}</p>
+    <div className="absolute inset-0 grid place-items-center bg-[#3b2c23]/35">
+      <div
+        className="pop glass text-ink rounded-[32px] px-12 py-6 text-center"
+        data-testid="chapter-banner"
+      >
+        <p className="text-sm font-extrabold tracking-widest text-[#1f9b6c]">
+          {stageId.toUpperCase()}
+        </p>
         <p className="text-4xl font-extrabold">
           <RubyText text={t("hud.chapter", { no })} />
         </p>
@@ -248,6 +254,14 @@ function ChapterBanner() {
 function speakerName(who: string, nickname: string): string {
   if (who === "me") return nickname;
   return t(`speaker.${who}` as UiKey);
+}
+
+function speakerBadgeColor(who: string): string {
+  if (who === "me") return "bg-[#1f9b6c]";
+  if (who === "nexmax") return "bg-[#1e80cf]";
+  if (who === "hendy") return "bg-[#d66838]";
+  if (who === "announce") return "bg-[#8f6626]";
+  return "bg-[#6e5648]";
 }
 
 function Dialogue() {
@@ -272,7 +286,7 @@ function Dialogue() {
       <button
         type="button"
         onClick={() => playActions.advance()}
-        className={`pop flex w-full max-w-4xl items-end gap-4 rounded-3xl p-4 text-left sm:p-5 ${announce ? "glass border-sun/70" : "glass"}`}
+        className={`pop glass text-ink flex w-full max-w-4xl items-end gap-4 rounded-[28px] p-4 text-left sm:p-5 ${announce ? "border-[#e0b248]" : ""}`}
         data-testid="dialogue"
         key={text}
       >
@@ -280,19 +294,21 @@ function Dialogue() {
           <img
             src={face}
             alt=""
-            className={`h-20 w-20 shrink-0 rounded-2xl object-cover sm:h-24 sm:w-24 ${line.who === "nexmax" ? "bob" : "border-cyan/60 border-2"}`}
+            className={`h-20 w-20 shrink-0 rounded-2xl object-cover sm:h-24 sm:w-24 ${line.who === "nexmax" ? "bob" : "border-2 border-[#e6d4b3] bg-[#f8efdc]"}`}
           />
         ) : null}
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="text-sm font-extrabold text-white">
+        <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-0.5 text-sm font-extrabold text-white shadow-xs ${speakerBadgeColor(line.who)}`}
+          >
             <RubyText text={speakerName(line.who, nickname)} />
           </span>
-          <span className="text-2xl leading-[2.4] font-bold sm:text-[1.7rem]">
+          <span className="text-ink text-2xl leading-[2.4] font-extrabold sm:text-[1.7rem]">
             <RubyText text={text} />
           </span>
         </span>
         {/* つぎへ（大きめ。パネルの どこを押しても 進む） */}
-        <span className="flex min-h-11 min-w-28 shrink-0 items-center justify-center gap-1 self-end rounded-2xl bg-[#0a63d6] px-4 py-2 text-base font-extrabold text-white shadow-[0_0_12px_rgba(56,216,255,0.5)]">
+        <span className="flex min-h-11 min-w-28 shrink-0 items-center justify-center gap-1 self-end rounded-2xl border-2 border-[#18825a] bg-[linear-gradient(180deg,#32bd86,#1f9b6c)] px-4 py-2 text-base font-extrabold text-white shadow-[0_3px_0_#136848]">
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>
@@ -304,9 +320,9 @@ function Choice() {
   const choice = usePlay((s) => s.choice);
   if (!choice) return null;
   return (
-    <div className="bg-deep/40 pointer-events-auto absolute inset-0 grid place-items-center p-4">
+    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[#3b2c23]/40 p-4">
       <div
-        className="glass pop flex w-full max-w-xl flex-col gap-4 rounded-3xl p-6"
+        className="glass pop text-ink flex w-full max-w-xl flex-col gap-4 rounded-[28px] p-6"
         data-testid="choice"
       >
         <p className="text-center text-2xl leading-loose font-extrabold">
@@ -335,12 +351,12 @@ function Verdict() {
     <div className="pointer-events-auto absolute inset-x-0 top-[18%] flex justify-center p-4">
       <button
         type="button"
-        className={`pop flex max-w-2xl items-center gap-4 rounded-3xl border-4 px-6 py-5 text-left shadow-2xl ${verdict.ok ? "border-leaf bg-[#eafff1] text-[#0b4a25]" : "border-coral bg-[#fff1ee] text-[#7a1f12]"}`}
+        className={`pop flex max-w-2xl items-center gap-4 rounded-[28px] border-4 px-6 py-5 text-left shadow-2xl ${verdict.ok ? "border-[#23a86b] bg-[#ecfdf3] text-[#115235]" : "border-[#e25868] bg-[#fff2f2] text-[#7a1e28]"}`}
         onClick={() => playActions.advance()}
         data-testid="verdict"
       >
         <span
-          className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl font-black text-white ${verdict.ok ? "bg-leaf" : "bg-coral"}`}
+          className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl font-black text-white ${verdict.ok ? "bg-[#1f9b6c]" : "bg-[#d94f61]"}`}
         >
           {verdict.ok ? <IconCheck className="h-9 w-9" /> : <IconClose className="h-8 w-8" />}
         </span>
@@ -352,7 +368,9 @@ function Verdict() {
             <RubyText text={verdict.text} />
           </span>
         </span>
-        <span className="ml-2 shrink-0 rounded-full bg-black/10 px-3 py-1 text-sm font-extrabold">
+        <span
+          className={`ml-2 shrink-0 rounded-full px-3.5 py-1.5 text-sm font-extrabold text-white ${verdict.ok ? "bg-[#1f9b6c]" : "bg-[#d94f61]"}`}
+        >
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>
@@ -370,10 +388,10 @@ function Dream() {
   const placed = showImg ? dream.filter((d) => d.x !== undefined && d.y !== undefined) : [];
   const rest = dream.filter((d) => !placed.includes(d));
   return (
-    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[radial-gradient(circle,rgba(255,183,213,0.35),rgba(7,26,70,0.6))] p-4">
+    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[radial-gradient(circle,rgba(255,214,231,0.5),rgba(74,52,38,0.45))] p-4">
       <button
         type="button"
-        className="pop text-ink flex flex-col items-center gap-5 rounded-[3rem] bg-white/95 px-10 py-8 shadow-2xl"
+        className="pop glass-light text-ink flex flex-col items-center gap-5 rounded-[3rem] px-10 py-8 shadow-2xl"
         onClick={() => playActions.advance()}
         data-testid="dream"
       >
@@ -393,7 +411,7 @@ function Dream() {
             {placed.map((d) => (
               <span
                 key={d.text}
-                className="absolute -translate-x-1/2 rounded-full border-2 border-[#0a63d6]/30 bg-white px-[1.6cqw] py-[0.6cqw] text-[clamp(0.7rem,2.1cqw,1rem)] leading-tight font-extrabold whitespace-nowrap shadow-md"
+                className="text-ink absolute -translate-x-1/2 rounded-full border-2 border-[#e6d4b3] bg-[#fffbf0] px-[1.6cqw] py-[0.6cqw] text-[clamp(0.7rem,2.1cqw,1rem)] leading-tight font-extrabold whitespace-nowrap shadow-md"
                 style={{ left: `${d.x}%`, top: `${d.y}%` }}
                 data-testid="dream-label"
               >
@@ -406,7 +424,7 @@ function Dream() {
           {rest.map((d) => (
             <div
               key={d.text}
-              className="flex w-40 flex-col items-center gap-2 rounded-3xl bg-sky-50 p-4"
+              className="cream-box flex w-40 flex-col items-center gap-2 rounded-3xl p-4"
             >
               <span className="text-6xl">{d.icon}</span>
               <span className="text-center text-lg font-extrabold">
@@ -415,7 +433,7 @@ function Dream() {
             </div>
           ))}
         </div>
-        <span className="rounded-full bg-[#0a63d6] px-4 py-1 font-extrabold text-white">
+        <span className="rounded-full bg-[#1f9b6c] px-5 py-1.5 font-extrabold text-white shadow-[0_3px_0_#136848]">
           <RubyText text={t("hud.next")} /> ▶
         </span>
       </button>
@@ -428,11 +446,11 @@ export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
   const [imgOk, setImgOk] = useState(true);
   return (
     <div
-      className="glass-light pop flex w-full max-w-2xl flex-col gap-4 rounded-3xl p-6"
+      className="glass-light pop text-ink flex w-full max-w-2xl flex-col gap-4 rounded-[28px] p-6"
       data-testid="tip"
     >
-      <div className="flex items-center gap-2">
-        <span className="bg-sun flex items-center gap-1 rounded-full px-3 py-1 text-sm font-extrabold">
+      <div className="flex items-center gap-2.5">
+        <span className="flex items-center gap-1 rounded-full bg-[#c47a14] px-3 py-1 text-sm font-extrabold text-white shadow-xs">
           <IconBulb className="h-4 w-4" />
           <RubyText text={t("hud.tip")} />
         </span>
@@ -441,7 +459,7 @@ export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
         </h3>
       </div>
       <div className="flex flex-col items-center gap-4 sm:flex-row">
-        <div className="relative grid h-48 w-full shrink-0 place-items-center overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#dff4ff,#ffffff)] sm:w-64">
+        <div className="relative grid h-48 w-full shrink-0 place-items-center overflow-hidden rounded-2xl border-2 border-[#e6d4b3] bg-[linear-gradient(180deg,#e5f7ec,#fffbf0)] sm:w-64">
           {imgOk ? (
             <img
               src={`${BASE}${tip.image.slice(1)}`}
@@ -462,11 +480,11 @@ export function TipView({ tip, onClose }: { tip: Tip; onClose: () => void }) {
             <RubyText text={tip.text} />
           </p>
           {more && tip.more && (
-            <p className="text-ink/80 text-lg leading-[2.2] font-bold">
+            <p className="text-cocoa text-lg leading-[2.2] font-bold">
               <RubyText text={tip.more} />
             </p>
           )}
-          <p className="text-ink/60 text-sm">{tip.en}</p>
+          <p className="text-cocoa/80 text-sm font-bold">{tip.en}</p>
         </div>
       </div>
       <div className="flex justify-end gap-2">
@@ -488,7 +506,7 @@ function TipCard() {
   const tip = id ? TIPS[id] : undefined;
   if (!tip) return null;
   return (
-    <div className="bg-deep/50 pointer-events-auto absolute inset-0 grid place-items-center p-4">
+    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-[#3b2c23]/45 p-4">
       <TipView key={tip.id} tip={tip} onClose={() => playActions.closeTip()} />
     </div>
   );

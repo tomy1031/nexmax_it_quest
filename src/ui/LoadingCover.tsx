@@ -31,17 +31,17 @@ export function LoadingCover() {
   if (!shown) return null;
   return (
     <div
-      className={`absolute inset-0 z-30 grid place-items-center bg-[#071b49]/80 transition-opacity duration-200 ${active ? "opacity-100" : "opacity-0"}`}
+      className={`bg-pastel-page/95 absolute inset-0 z-30 grid place-items-center transition-opacity duration-200 ${active ? "opacity-100" : "opacity-0"}`}
       data-testid="loading-cover"
     >
-      <div className="flex flex-col items-center gap-4 text-white">
+      <div className="glass pop flex flex-col items-center gap-4 rounded-[32px] px-10 py-8">
         <img src={`${BASE}img/nexmax/hello.webp`} alt="" className="bob h-32 w-32" />
-        <p className="text-2xl font-extrabold">
+        <p className="text-ink text-2xl font-extrabold">
           <RubyText text={t("loading.scene")} />
         </p>
-        <div className="h-2 w-[280px] overflow-hidden rounded-full bg-white/20">
+        <div className="h-3 w-[280px] overflow-hidden rounded-full bg-[#e6d4b3]">
           <div
-            className="h-full rounded-full bg-[#38d8ff] transition-[width] duration-200"
+            className="h-full rounded-full bg-[#24a878] transition-[width] duration-200"
             style={{ width: `${Math.round(progress)}%` }}
           />
         </div>

@@ -262,21 +262,23 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
       className="pointer-events-auto absolute right-0 bottom-0 left-0 z-20 flex justify-center p-3 sm:p-5"
       data-testid="talk-panel"
     >
-      <div className="glass pop flex w-full max-w-4xl flex-col gap-3 rounded-3xl p-4 sm:p-5">
+      <div className="glass pop text-ink flex w-full max-w-4xl flex-col gap-3 rounded-[28px] p-4 sm:p-5">
         {/* 相手 */}
         <div className="flex items-start gap-3">
           {face ? (
             <img
               src={face}
               alt=""
-              className="border-cyan/60 h-16 w-16 shrink-0 rounded-2xl border-2 object-cover"
+              className="h-16 w-16 shrink-0 rounded-2xl border-2 border-[#e6d4b3] bg-[#f8efdc] object-cover"
             />
           ) : null}
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-extrabold text-white">
-              <RubyText text={t(`speaker.${talk.partner}` as UiKey)} />
+            <p className="flex flex-wrap items-center gap-2 text-sm font-extrabold">
+              <span className="inline-flex items-center rounded-full bg-[#d66838] px-3 py-0.5 text-white">
+                <RubyText text={t(`speaker.${talk.partner}` as UiKey)} />
+              </span>
               {speaking && (
-                <span className="text-cyan ml-2 animate-pulse">
+                <span className="animate-pulse text-[#157a4e]">
                   <RubyText text={t("talk.partnerSpeaking")} />
                 </span>
               )}
@@ -287,8 +289,8 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
                   key={`${partnerLines.length}-${i}`}
                   className={
                     i === partnerLines.length - 1
-                      ? "text-xl leading-[2.3] font-bold sm:text-2xl"
-                      : "text-base leading-[2.1] text-white/80"
+                      ? "text-ink text-xl leading-[2.3] font-extrabold sm:text-2xl"
+                      : "text-cocoa text-base leading-[2.1] font-bold"
                   }
                 >
                   <RubyText text={line} />
@@ -300,14 +302,14 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
 
         {/* すること */}
         {status === "live" && step && (
-          <div className="rounded-2xl bg-[#0b2a66] p-3">
+          <div className="cream-box rounded-2xl p-3.5">
             {step.kind === "repeat" ? (
               <>
-                <p className="text-sun text-sm font-extrabold">
+                <p className="mb-1 inline-flex rounded-full bg-[#c47a14] px-2.5 py-0.5 text-xs font-extrabold text-white">
                   <RubyText text={t("talk.say")} />
                 </p>
                 <p
-                  className="text-2xl leading-[2.3] font-extrabold text-white"
+                  className="text-ink text-2xl leading-[2.3] font-extrabold"
                   data-testid="talk-line"
                 >
                   <RubyText text={fill(step.say, vars)} />
@@ -315,9 +317,9 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
               </>
             ) : (
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-sun text-sm font-extrabold">
+                <p className="inline-flex items-center gap-2 rounded-full bg-[#c47a14] px-3 py-0.5 text-sm font-extrabold text-white">
                   <RubyText text={t("talk.answer")} />
-                  <span className="ml-2 text-white">
+                  <span>
                     {stepIndex + 1 - talk.steps.filter((s) => s.kind === "repeat").length}/
                     {talk.steps.filter((s) => s.kind === "answer").length}
                   </span>
@@ -331,7 +333,7 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
                   <RubyText text={t("talk.hint")} />
                 </button>
                 {hint && (
-                  <p className="w-full text-lg font-bold text-white">
+                  <p className="text-ink w-full text-lg font-bold">
                     <RubyText text={`${t("talk.hintLead")} ${fill(step.hint, vars)}`} />
                   </p>
                 )}
@@ -344,25 +346,25 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
         {status === "live" && (heard || result) && (
           <div className="flex flex-col gap-1" data-testid="talk-heard">
             {heard && (
-              <p className="text-lg text-white">
-                <span className="mr-2 text-sm font-extrabold">
+              <p className="text-ink text-lg font-bold">
+                <span className="mr-2 inline-flex rounded-full bg-[#6e5648] px-2.5 py-0.5 text-xs font-extrabold text-white">
                   <RubyText text={t("talk.heard")} />
                 </span>
                 <RubyText text={heard} />
               </p>
             )}
             {result === "ok" && phase !== "judging" && (
-              <p className="text-leaf text-lg font-extrabold" data-testid="talk-ok">
+              <p className="text-lg font-extrabold text-[#157a4e]" data-testid="talk-ok">
                 <RubyText text={t("talk.ok")} />
               </p>
             )}
             {result === "retry" && step?.kind === "repeat" && (
-              <p className="text-sun text-lg font-extrabold" data-testid="talk-retry">
+              <p className="text-lg font-extrabold text-[#b45a0c]" data-testid="talk-retry">
                 <RubyText text={step.retry} />
               </p>
             )}
             {result === "unclear" && (
-              <p className="text-sun text-lg font-extrabold" data-testid="talk-retry">
+              <p className="text-lg font-extrabold text-[#b45a0c]" data-testid="talk-retry">
                 <RubyText text={t("talk.unclear")} />
               </p>
             )}
@@ -381,13 +383,13 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
               >
                 <MicIcon /> <RubyText text={t("talk.start")} />
               </button>
-              <span className="text-sm text-white">
+              <span className="text-cocoa text-sm font-bold">
                 <RubyText text={t("talk.startHelp")} />
               </span>
             </>
           )}
           {status === "connecting" && (
-            <p className="animate-pulse font-bold text-white">
+            <p className="text-cocoa animate-pulse font-extrabold">
               <RubyText text={t("talk.connecting")} />
             </p>
           )}
@@ -395,12 +397,12 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
             <>
               <button
                 type="button"
-                className={`flex min-h-16 min-w-44 items-center justify-center gap-2 rounded-full px-6 text-xl font-extrabold text-white shadow-lg ${
+                className={`flex min-h-16 min-w-44 items-center justify-center gap-2 rounded-full border-2 px-6 text-xl font-extrabold text-white shadow-lg ${
                   phase === "talking"
-                    ? "animate-pulse bg-[#d6336c]"
+                    ? "animate-pulse border-[#a83245] bg-[#d94f61] shadow-[0_4px_0_#8f2838]"
                     : phase === "judging"
-                      ? "bg-[#4b5563]"
-                      : "bg-[#0a63d6]"
+                      ? "border-[#48362c] bg-[#6e5648]"
+                      : "border-[#18825a] bg-[linear-gradient(180deg,#32bd86,#1f9b6c)] shadow-[0_4px_0_#136848]"
                 }`}
                 disabled={phase === "judging"}
                 onClick={() => (phase === "talking" ? talkEnd() : talkStart())}
@@ -417,14 +419,14 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
                   }
                 />
               </button>
-              <span className="max-w-md text-sm text-white">
+              <span className="text-cocoa max-w-md text-sm font-bold">
                 <RubyText text={t("talk.micHelp")} />
               </span>
             </>
           )}
           {status === "error" && errKey && (
             <div className="flex w-full flex-col gap-2" data-testid="talk-error">
-              <p className="text-sun text-lg font-bold">
+              <p className="text-lg font-extrabold text-[#c43a4b]">
                 <RubyText text={t(errKey)} />
               </p>
               <div className="flex flex-wrap gap-2">
@@ -448,7 +450,7 @@ export function TalkPanel({ talkId, onDone }: { talkId: string; onDone: () => vo
           )}
           {status === "done" && (
             <>
-              <p className="text-leaf font-bold">
+              <p className="font-extrabold text-[#157a4e]">
                 <RubyText text={t("talk.done")} />
               </p>
               <button
