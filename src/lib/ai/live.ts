@@ -218,10 +218,10 @@ export async function openLive(opts: LiveOptions): Promise<LiveConn> {
 
 // ── 接続キー ──────────────────────────────────────────
 
-type Auth = { ok: true; auth: string } | { ok: false; reason: LiveFailReason };
+export type Auth = { ok: true; auth: string } | { ok: false; reason: LiveFailReason };
 
 /** 本人の キーで、1回だけ・30分で 切れる 接続キーを 作る。作れない キー（400）のときは キーで 直接 つなぐ。 */
-async function mintAuth(apiKey: string, now = new Date()): Promise<Auth> {
+export async function mintAuth(apiKey: string, now = new Date()): Promise<Auth> {
   const expireTime = new Date(now.getTime() + 30 * 60_000).toISOString();
   const newSessionExpireTime = new Date(now.getTime() + 2 * 60_000).toISOString();
   let res: Response;
