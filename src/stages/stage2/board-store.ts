@@ -14,6 +14,8 @@ export interface BoardState {
   selected: string | null;
   pickable: boolean;
   talking: string | null;
+  /** 質問の 時間で、いま 番の 人の id（その 人が 手を あげる）。 */
+  turnId: string | null;
 }
 
 export const initialBoard: BoardState = {
@@ -22,6 +24,7 @@ export const initialBoard: BoardState = {
   selected: null,
   pickable: false,
   talking: null,
+  turnId: null,
 };
 
 export const useBoard = create<BoardState>(() => initialBoard);

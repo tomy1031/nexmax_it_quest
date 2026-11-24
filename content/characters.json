@@ -28,18 +28,21 @@
       "look": {
         "outfit": "suit",
         "figure": "f",
+        "bottom": "skirt",
         "skin": "#f1c9a5",
-        "hair": "#2e211b",
+        "hair": "#3b2a20",
         "hairStyle": "bob",
         "glasses": false,
-        "height": 160,
+        "height": 162,
+        "eyes": "lashes",
+        "mouth": "smile",
+        "blush": true,
         "suit": "#2f5d50",
         "shirt": "#ffffff",
-        "tie": "#ffffff",
-        "coat": "#8a8f98",
+        "tie": "#9cc9a8",
+        "coat": "#2f5d50",
         "pants": "#2f5d50",
-        "eyes": "calm",
-        "blush": true,
+        "bag": false,
         "accessory": "none"
       }
     }

@@ -113,9 +113,16 @@ function Meeting({ m, onDone }: { m: MeetingFile; onDone: () => void }) {
     useBoard.setState({ opened: Object.keys(state.opened) });
   }, [state.opened]);
   useEffect(() => {
-    useBoard.setState({ pickable: phase === "rounds" && !state.done });
-    return () => useBoard.setState({ pickable: false, selected: null, talking: null });
-  }, [phase, state.done]);
+    const live = phase === "rounds" && !state.done;
+    useBoard.setState({
+      pickable: live,
+      turnId: live ? (state.members[state.turn % state.members.length]?.id ?? null) : null,
+    });
+  }, [phase, state.done, state.turn, state.members]);
+  useEffect(
+    () => () => useBoard.setState({ pickable: false, selected: null, talking: null, turnId: null }),
+    [],
+  );
 
   const finish = () => {
     const memo = memoText(stateRef.current, m);

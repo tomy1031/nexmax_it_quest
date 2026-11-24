@@ -15,8 +15,6 @@ export type ChibiMotion =
   | "walk"
   | "run"
   | "sitting"
-  /** 座ったまま 話す（会議の 席。足は 座る 形・手と 頭は 話す 動き）。 */
-  | "sitTalking"
   | "talking"
   | "agree"
   | "bow"
@@ -152,14 +150,6 @@ export function Chibi({
         lRx = -1.45;
         aLx = -0.5;
         aRx = -0.5;
-        break;
-      case "sitTalking":
-        lLx = -1.45;
-        lRx = -1.45;
-        aLx = -0.5;
-        aRx = -0.85 + Math.sin(tt * 4) * 0.25;
-        aR = -0.3;
-        headPitch = Math.sin(tt * 6) * 0.06;
         break;
       case "talking":
         headPitch = Math.sin(tt * 6) * 0.06;

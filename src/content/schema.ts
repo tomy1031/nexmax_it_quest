@@ -364,7 +364,7 @@ export const charactersFile = z.object({
         hairStyle: z.enum(["model", "spiky", "side", "bob", "long", "ponytail", "twin", "bun"]),
         glasses: z.boolean(),
         height: z.number().min(140).max(200),
-        eyes: z.enum(["round", "smile", "sparkle", "calm"]).optional(),
+        eyes: z.enum(["round", "smile", "sparkle", "calm", "lashes"]).optional(),
         blush: z.boolean().optional(),
         suit: z.string(),
         shirt: z.string(),

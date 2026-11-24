@@ -75,6 +75,9 @@ export function MeetingRoomScene() {
   const showTags = usePlay((s) => !s.focus);
   const line = usePlay((s) => s.line);
   const talking = useBoard((s) => s.talking);
+  const turnId = useBoard((s) => s.turnId);
+  // リスニングの 間は、チームの 人が ノートに メモする
+  const listening = usePlay((s) => s.panel?.id === "listening");
   const team = useSeatedTeam();
 
   // 山本社長: まだ いない → 戸から 入って くる → 立って あいさつ → 席に 座る
@@ -232,6 +235,8 @@ export function MeetingRoomScene() {
             seat={seat}
             look={m.look}
             talking={talking === m.id}
+            raise={turnId === m.id}
+            writing={listening}
             name={showTags ? m.name : undefined}
             phase={i * 0.41}
           />
@@ -261,19 +266,32 @@ function Seated({
   talking,
   name,
   phase = 0,
+  raise = false,
+  writing = false,
 }: {
   seat: { pos: V3; yaw: number };
   look: AvatarConfig;
   talking: boolean;
   name?: string;
   phase?: number;
+  /** 質問の 番（手を あげる）。 */
+  raise?: boolean;
+  /** リスニングの 間（ノートに メモする）。 */
+  writing?: boolean;
 }) {
-  const motion: ChibiMotion = talking ? "sitTalking" : "sitting";
+  const motion: ChibiMotion = talking ? "talking" : raise ? "raise" : writing ? "writing" : "idle";
   return (
     <group position={[seat.pos[0], seat.pos[1], seat.pos[2]]}>
       <group rotation={[0, seat.yaw, 0]}>
         <Suspense fallback={null}>
-          <Chibi config={look} motion={motion} phase={phase} expression="happy" />
+          <Chibi
+            config={look}
+            motion={motion}
+            seated
+            holding={writing && !talking ? "notebook" : undefined}
+            phase={phase}
+            expression="happy"
+          />
         </Suspense>
         <mesh position={[0, 0.6, 0]}>
           <boxGeometry args={[0.6, 1.2, 0.6]} />
