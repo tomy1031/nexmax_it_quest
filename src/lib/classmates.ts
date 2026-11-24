@@ -43,7 +43,7 @@ export async function fetchClassmates(): Promise<Classmate[]> {
   }
 }
 
-const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b"];
+const SKINS = ["#fde5d0", "#f5d5b8", "#f0c9a6", "#e8bc96", "#ddb086", "#d19e72"];
 const HAIRS = ["#2e211b", "#4a3326", "#3a2820", "#5e4030"];
 const SUITS = ["#1c1e24", "#232f52", "#3a3d45", "#2f3a5e"];
 const M_STYLES: AvatarConfig["hairStyle"][] = ["model", "side", "spiky", "twoblock", "center"];

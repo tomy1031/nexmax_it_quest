@@ -25,7 +25,8 @@ export function npcHolding(i: number, outfit: AvatarConfig["outfit"]): ChibiHold
   return i % 2 === 0 ? "phone" : i % 5 === 3 ? "coffee" : undefined;
 }
 
-const SKINS = ["#f1c9a5", "#e0ac83", "#c68e64", "#a8714a", "#8a5a3b"];
+// 日本の街・駅を歩く人（大阪の通行人）に合わせた、自然で明るい肌色
+const SKINS = ["#fce6d4", "#f7dac2", "#f3cfb2", "#ecc2a0", "#f9e0cb", "#e6b894"];
 const HAIRS = ["#2e211b", "#4a3326", "#5e4030", "#6b4a36", "#6a6a6a", "#3a2820"];
 const SUITS = ["#1c1e24", "#232f52", "#3a3d45", "#4b505a"];
 const COATS = ["#8a8f98", "#3b6ea5", "#9c3b3b", "#4e7d4e", "#d8c3a5", "#2b2b2b"];

@@ -90,6 +90,17 @@
     "settings.toTitle": "タイトルへ",
 
     "select.title": "ステージを えらぶ",
+    "select.plazaBadge": "バーチャル 大阪 プラザ",
+    "select.welcome": "きょうの 行き先を えらぼう！",
+    "select.player": "%name% さん",
+    "select.routeLabel": "きょうの ルート",
+    "select.stopHome": "家",
+    "select.stopTennoji": "天王寺",
+    "select.stopHommachi": "本町",
+    "select.stopAwaza": "阿波座",
+    "select.tapAvatar": "アバターを クリックで アクション",
+    "select.nextTitle": "つぎの ステージ",
+    "select.nextSub": "これから ふえて いきます。おたのしみに！",
     "select.stage": "ステージ",
     "select.start": "はじめる",
     "select.continue": "つづきから",
@@ -114,6 +125,9 @@
     "date.week6": "土曜日",
 
     "dive.skip": "とばす",
+    "dive.visor": "VR ゴーグルを つけて います……",
+    "dive.link": "バーチャル 大阪へ ダイブ！",
+    "dive.arrive": "ようこそ、バーチャル 大阪へ！",
     "loading": "読み込み中……",
     "webgl.error": "この パソコンでは 3Dが 動きません。先生に 伝えて ください。",
 

@@ -156,7 +156,7 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   outfit: "pajama",
   pajama: "#a9cdeb",
   figure: "m",
-  skin: "#c68e64",
+  skin: "#f5d5b8",
   hair: "#4a3326",
   hairStyle: "model",
   glasses: false,
