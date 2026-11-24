@@ -47,7 +47,9 @@ export function Menu({ onClose }: { onClose: () => void }) {
           <SettingsScreen onClose={() => setSettings(false)} />
         </div>
       )}
-      <div className="glass pop flex max-h-full w-full max-w-4xl flex-col gap-4 overflow-hidden rounded-3xl p-5">
+      <div
+        className={`glass pop flex max-h-full w-full flex-col gap-4 overflow-hidden rounded-3xl p-5 ${view === "avatar" ? "max-w-6xl" : "max-w-4xl"}`}
+      >
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-extrabold">
             <RubyText text={t("menu.title")} />

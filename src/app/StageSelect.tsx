@@ -3,8 +3,9 @@ import { useLocation } from "wouter";
 import stage1 from "@content/stages/stage1.json";
 import { useGame } from "@/lib/store";
 import { t } from "@/lib/t";
+import { AvatarEditor } from "@/ui/hud/AvatarPanel";
 import { RubyText } from "@/ui/RubyText";
-import { IconCheck, IconPlay } from "@/ui/icons";
+import { IconCheck, IconPlay, IconShirt } from "@/ui/icons";
 
 /**
  * ステージ選択。ステージ1「入社初日」は、第1章（家から会社の駅まで）が遊べる。
@@ -15,6 +16,7 @@ export function StageSelect() {
   const progress = useGame((s) => s.stages.stage1);
   const resetStage = useGame((s) => s.resetStage);
   const [chapters, setChapters] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const cleared = Boolean(progress?.cleared);
   const resume = progress?.section;
 
@@ -24,14 +26,31 @@ export function StageSelect() {
   return (
     <main className="relative h-full overflow-y-auto bg-[radial-gradient(circle_at_50%_-10%,#2a7bff_0%,#0a2a6b_40%,#030c26_100%)] px-4 py-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-extrabold drop-shadow-[0_0_12px_rgba(56,225,255,0.6)]">
             <RubyText text={t("select.title")} />
           </h1>
-          <button type="button" className="btn btn-ghost" onClick={() => navigate("/")}>
-            <RubyText text={t("select.back")} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setAvatarOpen(true)}
+              data-testid="select-avatar"
+            >
+              <IconShirt className="h-5 w-5" />
+              <RubyText text={t("select.avatar")} />
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => navigate("/")}>
+              <RubyText text={t("select.back")} />
+            </button>
+          </div>
         </header>
+
+        {avatarOpen && (
+          <div className="bg-deep/65 fixed inset-0 z-30 grid place-items-center overflow-y-auto p-3">
+            <AvatarEditor mode="free" onDone={() => setAvatarOpen(false)} />
+          </div>
+        )}
 
         <div className="mx-auto grid w-full max-w-2xl gap-6">
           <article

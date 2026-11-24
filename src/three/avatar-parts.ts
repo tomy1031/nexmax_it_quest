@@ -1,5 +1,12 @@
 import * as THREE from "three";
-import type { AvatarConfig, Kigurumi } from "@/lib/store";
+import type {
+  AvatarConfig,
+  BagStyle,
+  CasualStyle,
+  CheekStyle,
+  GlassesStyle,
+  Kigurumi,
+} from "@/lib/store";
 import { pastelize, type PastelOpts } from "@/factory/kit";
 
 /**
@@ -35,6 +42,29 @@ export interface AvatarParts {
 /** くつの形（tomy さん 2026-11-23「靴もかわぐつ、スニーカー、サンダルを選べるように」）。 */
 export function shoeTypeOf(cfg: AvatarConfig): "leather" | "sneaker" | "sandal" {
   return cfg.shoeType ?? (cfg.outfit === "suit" ? "leather" : "sneaker");
+}
+
+/** めがねの形（古い保存データの glasses: boolean とも互換）。 */
+export function glassesStyleOf(cfg: AvatarConfig): GlassesStyle {
+  if (cfg.glassesStyle) return cfg.glassesStyle;
+  return cfg.glasses ? "round" : "none";
+}
+
+/** バッグの形（古い保存データの bag: boolean とも互換）。 */
+export function bagStyleOf(cfg: AvatarConfig): BagStyle {
+  if (cfg.bagStyle) return cfg.bagStyle;
+  return cfg.bag === false ? "none" : "backpack";
+}
+
+/** ほっぺの形（古い保存データの blush: boolean とも互換）。 */
+export function cheekOf(cfg: AvatarConfig): CheekStyle {
+  if (cfg.cheek) return cfg.cheek;
+  return cfg.blush === false ? "none" : "round";
+}
+
+/** ふだんの服の 上着の形。 */
+export function casualStyleOf(cfg: AvatarConfig): CasualStyle {
+  return cfg.casualStyle ?? "hoodie";
 }
 
 const SHOE_DEFAULT = { leather: "#24201f", sneaker: "#f4f4f2", sandal: "#5b4a3f" } as const;
@@ -120,17 +150,75 @@ function boost(hex: string, k: number): string {
   return `#${c.getHexString()}`;
 }
 
-/** 着ぐるみの色（体・おなか・耳の内がわ・しっぽ）。 */
-const KIG_COLORS: Record<Kigurumi, { main: string; belly: string; inner: string; tail: string }> = {
-  bear: { main: "#9a6a48", belly: "#f0d9b8", inner: "#e2b98f", tail: "#9a6a48" },
-  cat: { main: "#f0b25e", belly: "#fff4e2", inner: "#f7a8b8", tail: "#f0b25e" },
-  rabbit: { main: "#f6f3ee", belly: "#ffffff", inner: "#f7b2c0", tail: "#ffffff" },
+/** 着ぐるみの色（体・手足・おなか・耳の内がわ・しっぽ）。 */
+const KIG_COLORS: Record<
+  Kigurumi,
+  {
+    main: string;
+    limb?: string;
+    belly: string;
+    inner: string;
+    tail: string;
+    hoodBase: "bear" | "cat" | "rabbit" | "none";
+    tailBase: "bear" | "cat" | "rabbit" | "none";
+  }
+> = {
+  bear: {
+    main: "#9a6a48",
+    belly: "#f0d9b8",
+    inner: "#e2b98f",
+    tail: "#9a6a48",
+    hoodBase: "bear",
+    tailBase: "bear",
+  },
+  cat: {
+    main: "#f0b25e",
+    belly: "#fff4e2",
+    inner: "#f7a8b8",
+    tail: "#f0b25e",
+    hoodBase: "cat",
+    tailBase: "cat",
+  },
+  rabbit: {
+    main: "#f6f3ee",
+    belly: "#ffffff",
+    inner: "#f7b2c0",
+    tail: "#ffffff",
+    hoodBase: "rabbit",
+    tailBase: "rabbit",
+  },
+  panda: {
+    main: "#f8f7f3",
+    limb: "#2b2d34",
+    belly: "#ffffff",
+    inner: "#2b2d34",
+    tail: "#2b2d34",
+    hoodBase: "none",
+    tailBase: "bear",
+  },
+  frog: {
+    main: "#74c27c",
+    belly: "#f5f1d4",
+    inner: "#f5f1d4",
+    tail: "#74c27c",
+    hoodBase: "none",
+    tailBase: "none",
+  },
+  shiba: {
+    main: "#e3a254",
+    belly: "#fff4df",
+    inner: "#fff0d6",
+    tail: "#e3a254",
+    hoodBase: "cat",
+    tailBase: "none",
+  },
 };
 
 /** 着ぐるみのときの色（null なら使わない）。髪・人の耳・ふつうの服の小物は かくす。 */
 function kigurumiColor(name: string, cfg: AvatarConfig): string | null {
   const kind = cfg.kigurumi ?? "bear";
-  const k = KIG_COLORS[kind];
+  const k = KIG_COLORS[kind] ?? KIG_COLORS.bear;
+  const limb = k.limb ?? k.main;
   const side = name.replace(/_[LR]$/, "");
   switch (side) {
     case "top_torso":
@@ -138,20 +226,19 @@ function kigurumiColor(name: string, cfg: AvatarConfig): string | null {
     case "top_torsoF":
       return cfg.figure === "f" ? k.main : null;
     case "sleeve":
-    case "bottom_hips":
     case "leg":
     case "hand":
+      return limb;
+    case "bottom_hips":
       return k.main;
     case "shoe":
-      return shade(k.main, 0.82);
-    case "glasses_frame":
-      return cfg.glasses ? "#2a2d35" : null;
+      return shade(limb, 0.82);
     case "kig_belly":
       return k.belly;
     default:
-      if (name === `kig_hood_${kind}`) return k.main;
-      if (name === `kig_inner_${kind}`) return k.inner;
-      if (name === `kig_tail_${kind}`) return k.tail;
+      if (k.hoodBase !== "none" && name === `kig_hood_${k.hoodBase}`) return k.main;
+      if (k.hoodBase !== "none" && name === `kig_inner_${k.hoodBase}`) return k.inner;
+      if (k.tailBase !== "none" && name === `kig_tail_${k.tailBase}`) return k.tail;
       return null;
   }
 }
@@ -173,8 +260,6 @@ function pajamaColor(name: string, cfg: AvatarConfig): string | null {
     case "ear":
     case "skin_foot":
       return cfg.skin;
-    case "glasses_frame":
-      return cfg.glasses ? "#2a2d35" : null;
     case "acc_flowerPetals":
     case "acc_flowerCenter":
     case "acc_ribbon":
@@ -190,6 +275,8 @@ function pajamaColor(name: string, cfg: AvatarConfig): string | null {
 
 /** 部品の名前 → 色（null なら この設定では使わない）。 */
 function colorFor(name: string, cfg: AvatarConfig): string | null {
+  // めがねは avatar-extras.tsx で いろいろな形を描く（GLB の 仮めがねは 使わない）
+  if (name === "glasses_frame") return null;
   if (cfg.outfit === "kigurumi") return kigurumiColor(name, cfg);
   if (cfg.outfit === "pajama") return pajamaColor(name, cfg);
   if (name.startsWith("kig_")) return null;
@@ -207,6 +294,7 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
     if (sd === "skin_foot") return st === "sandal" ? cfg.skin : null;
   }
   const suit = cfg.outfit === "suit";
+  const hoodie = !suit && casualStyleOf(cfg) === "hoodie";
   const bottom = bottomOf(cfg);
   const top = suit ? cfg.suit : cfg.coat;
   const pants = suit ? cfg.suit : cfg.pants;
@@ -231,13 +319,13 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
     case "tie_suitRibbon":
       return suit && female ? cfg.tie : null;
     case "top_hoodieHood":
-      return suit ? null : shade(top, 0.93);
+      return hoodie ? shade(top, 0.93) : null;
     case "dark_hoodiePocket":
-      return suit ? null : shade(top, 0.86);
+      return hoodie ? shade(top, 0.86) : null;
     case "white_hoodieStrings":
-      return suit ? null : "#f2f2f2";
+      return hoodie ? "#f2f2f2" : null;
     case "bag_backpack":
-      return !suit && cfg.bag !== false ? "#2b2f37" : null;
+      return !suit && bagStyleOf(cfg) === "backpack" ? (cfg.bagColor ?? "#2b2f37") : null;
     case "bottom_hips":
       return bottom === "pants" ? pants : null;
     case "bottom_skirt":
@@ -247,8 +335,6 @@ function colorFor(name: string, cfg: AvatarConfig): string | null {
     case "hand":
     case "ear":
       return cfg.skin;
-    case "glasses_frame":
-      return cfg.glasses ? "#2a2d35" : null;
     case "acc_flowerPetals":
       return cfg.accessory === "flower" ? "#fff3c4" : null;
     case "acc_flowerCenter":
@@ -273,8 +359,16 @@ function fabricFor(name: string, cfg: AvatarConfig): Fabric | undefined {
   if (cfg.outfit === "pajama") return "check";
   const suit = cfg.outfit === "suit";
   const side = name.replace(/_[LR]$/, "");
-  if (side === "top_torso" || side === "top_torsoF" || side === "sleeve" || side === "top_suitHem")
-    return suit ? "twill" : "knit";
+  if (
+    side === "top_torso" ||
+    side === "top_torsoF" ||
+    side === "sleeve" ||
+    side === "top_suitHem"
+  ) {
+    if (suit) return "twill";
+    const cs = casualStyleOf(cfg);
+    return cs === "tshirt" || cs === "jacket" ? undefined : "knit";
+  }
   if (side === "bottom_hips" || (side === "leg" && bottomOf(cfg) === "pants"))
     return suit ? "twill" : "denim";
   if (side === "bottom_skirt") return suit ? "twill" : "check";

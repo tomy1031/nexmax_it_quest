@@ -7,8 +7,28 @@ import { createJSONStorage, persist } from "zustand/middleware";
  */
 
 export type Outfit = "suit" | "casual" | "kigurumi" | "pajama";
-/** 着ぐるみの どうぶつ（tomy さん 2026-11-23「服の中に着ぐるみをつくって」）。 */
-export type Kigurumi = "bear" | "cat" | "rabbit";
+/** 着ぐるみの どうぶつ（tomy さん 2026-11-23「服の中に着ぐるみをつくって」＋パンダ・かえる・しば犬）。 */
+export type Kigurumi = "bear" | "cat" | "rabbit" | "panda" | "frog" | "shiba";
+export type EyebrowStyle = "soft" | "thick" | "straight" | "gentle" | "arch" | "sharp";
+export type NoseStyle = "dot" | "curve" | "triangle" | "button" | "dots" | "side";
+export type MouthStyle = "smile" | "open" | "happy" | "cat" | "flat" | "pout" | "grin" | "soft";
+export type CheekStyle = "none" | "round" | "oval" | "lines" | "freckles" | "gloss" | "heart";
+export type FaceMark = "none" | "bandaid" | "star" | "mole";
+export type HatStyle =
+  | "none"
+  | "cap"
+  | "beanie"
+  | "beret"
+  | "bucket"
+  | "headphones"
+  | "catears"
+  | "crown"
+  | "flowerCrown";
+export type GlassesStyle = "none" | "round" | "square" | "sunglasses" | "star" | "visor";
+export type AccessoryStyle = "none" | "flower" | "ribbon" | "starClip" | "earrings" | "sprout";
+export type NeckwearStyle = "none" | "krama" | "scarf" | "bowtie" | "lanyard";
+export type BagStyle = "none" | "backpack" | "bearBag" | "wings" | "laptopBag";
+export type CasualStyle = "hoodie" | "cardigan" | "tshirt" | "jacket";
 export type HairStyle =
   | "model"
   | "spiky"
@@ -58,6 +78,10 @@ export interface AvatarConfig {
   hair: string;
   hairStyle: HairStyle;
   glasses: boolean;
+  /** めがねの 形（無ければ glasses が true のとき round）。 */
+  glassesStyle?: GlassesStyle;
+  /** めがねの 色。 */
+  glassesColor?: string;
   /** 身長（cm）。モデルの大きさを、この高さに合わせる。 */
   height: number;
   /** 目の形（ちびキャラの顔）。 */
@@ -79,12 +103,38 @@ export interface AvatarConfig {
     | "bright"
     | "star"
     | "sleepy";
-  /** ほっぺの赤み。 */
+  /** 目の 色（無ければ もとの こげ茶）。 */
+  eyeColor?: string;
+  /** まゆの 形。 */
+  eyebrow?: EyebrowStyle;
+  /** 鼻の 形。 */
+  nose?: NoseStyle;
+  /** 口の 形。 */
+  mouth?: MouthStyle;
+  /** ほっぺの赤み（古い保存データとの互換用）。 */
   blush: boolean;
-  /** 髪のかざり。 */
-  accessory?: "none" | "flower" | "ribbon";
-  /** ふだんの服のときのリュック。 */
+  /** ほっぺの 種類（無ければ blush に合わせる）。 */
+  cheek?: CheekStyle;
+  /** 顔の ワンポイント（ばんそうこう・ほし・ほくろ）。 */
+  faceMark?: FaceMark;
+  /** ぼうし・ヘッドホン。 */
+  hat?: HatStyle;
+  /** ぼうしの 色。 */
+  hatColor?: string;
+  /** 髪や 耳の かざり。 */
+  accessory?: AccessoryStyle;
+  /** 首もとの かざり（クロマー・マフラー・ちょうネクタイ・社員証）。 */
+  neckwear?: NeckwearStyle;
+  /** 首もとの 色。 */
+  neckColor?: string;
+  /** ふだんの服のときのリュック（古い保存データとの互換用）。 */
   bag?: boolean;
+  /** バッグの 種類（無ければ bag に合わせる）。 */
+  bagStyle?: BagStyle;
+  /** バッグの 色。 */
+  bagColor?: string;
+  /** ふだんの服の 上着の形（パーカー・カーディガン・Tシャツ・ジャケット）。 */
+  casualStyle?: CasualStyle;
   /** くつの形（無ければ、スーツは革ぐつ・ふだんの服はスニーカー）。 */
   shoeType?: "leather" | "sneaker" | "sandal";
   /** くつの色（無ければ、スーツは黒・ふだんの服は白）。 */
@@ -110,11 +160,25 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   hair: "#4a3326",
   hairStyle: "model",
   glasses: false,
+  glassesStyle: "none",
+  glassesColor: "#2a2d35",
   height: 168,
   eyes: "round",
+  eyebrow: "soft",
+  nose: "dot",
+  mouth: "smile",
   blush: true,
+  cheek: "round",
+  faceMark: "none",
+  hat: "none",
+  hatColor: "#3b6ea5",
   accessory: "none",
+  neckwear: "none",
+  neckColor: "#c83e4d",
   bag: true,
+  bagStyle: "backpack",
+  bagColor: "#2b2f37",
+  casualStyle: "hoodie",
   suit: "#2f3a5e",
   shirt: "#f4f6f8",
   tie: "#1f3f7a",

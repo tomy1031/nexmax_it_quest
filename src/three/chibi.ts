@@ -2,7 +2,11 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { AvatarConfig } from "@/lib/store";
 import {
+  CHEEK_COLS,
+  EYEBROW_COLS,
   EYE_SLOTS,
+  MOUTH_SLOTS,
+  NOSE_COLS,
   drawFacePart,
   faceAtlasReady,
   faceCell,
@@ -527,24 +531,32 @@ function paintFaceParts(
   const cx = W * 0.25;
   const gap = W * 0.072;
   const ey = H * 0.57;
-  // ほっぺ
-  if (cfg.blush ?? true) {
+
+  // ほっぺ（6種類＋なし）
+  const cheek = cfg.cheek ?? (cfg.blush === false ? "none" : "round");
+  if (cheek !== "none") {
+    const cc = CHEEK_COLS[cheek] ?? 0;
+    const alpha = cheek === "freckles" ? 0.85 : cheek === "heart" ? 0.78 : 0.72;
+    const cScale = cheek === "freckles" ? s * 0.78 : s * 0.72;
     for (const sx of [-1, 1]) {
-      drawFacePart(ctx, "face_cheeks", 0, 0, cx + sx * W * 0.1, H * 0.66, s * 0.7, {
+      drawFacePart(ctx, "face_cheeks", cc, 0, cx + sx * W * 0.102, H * 0.658, cScale, {
         mirror: sx > 0,
-        alpha: 0.7,
+        alpha,
       });
     }
   }
-  // まゆ（髪の色。びっくりは高い山・考えるは ななめ）
-  const brow = expr === "surprised" ? 4 : expr === "thinking" ? 5 : 0;
-  const browY = H * (expr === "surprised" ? 0.4 : 0.42);
+
+  // まゆ（髪の色。びっくりは高い山・考えるは ななめ。ふつう・にこにこは 選んだ形）
+  const baseBrow = EYEBROW_COLS[cfg.eyebrow ?? "soft"] ?? 0;
+  const brow = expr === "surprised" ? 4 : expr === "thinking" ? 5 : baseBrow;
+  const browY = H * (expr === "surprised" ? 0.4 : 0.425);
   for (const sx of [-1, 1]) {
-    drawFacePart(ctx, "face_mouth", brow, 0, cx + sx * gap, browY, s * 0.62, {
+    drawFacePart(ctx, "face_mouth", brow, 0, cx + sx * gap, browY, s * 0.64, {
       mirror: sx > 0,
       tint: darker(cfg.hair, 0.85),
     });
   }
+
   // 目（とじる・にこにこ・びっくり・考える は列を切りかえる。位置は ひらいた目に そろえる）
   const col = !open
     ? 1
@@ -559,11 +571,18 @@ function paintFaceParts(
     drawFacePart(ctx, sheet, col, row, cx + sx * gap, ey, se, {
       mirror: sx > 0,
       anchor: [0, row],
+      irisColor: col !== 1 && col !== 2 ? cfg.eyeColor : undefined,
     });
   }
-  // 鼻（はだの色を こくした 小さな点）
-  drawFacePart(ctx, "face_mouth", 0, 1, cx, H * 0.625, s * 0.7, { tint: darker(cfg.skin, 0.72) });
-  // 口
+
+  // 鼻（はだの色を こくした 選んだ形）
+  const noseCol = NOSE_COLS[cfg.nose ?? "dot"] ?? 0;
+  drawFacePart(ctx, "face_mouth", noseCol, 1, cx, H * 0.625, s * 0.72, {
+    tint: darker(cfg.skin, 0.72),
+  });
+
+  // 口（ふつうは 選んだ形、表情があるときは そちらに 切りかえる）
+  const baseMouth = MOUTH_SLOTS[cfg.mouth ?? "smile"] ?? [0, 2];
   const [mc, mr] =
     expr === "happy"
       ? [1, 2]
@@ -571,8 +590,44 @@ function paintFaceParts(
         ? [3, 2]
         : expr === "thinking"
           ? [4, 2]
-          : [0, 2];
-  drawFacePart(ctx, "face_mouth", mc, mr, cx, H * 0.675, s * 0.85);
+          : baseMouth;
+  drawFacePart(ctx, "face_mouth", mc, mr, cx, H * 0.682, s * 0.85);
+
+  // 顔の ワンポイント（ばんそうこう・ほし・ほくろ）
+  const mark = cfg.faceMark ?? "none";
+  if (mark === "bandaid") {
+    ctx.save();
+    ctx.translate(cx + W * 0.088, H * 0.645);
+    ctx.rotate(-0.22);
+    const bw = W * 0.044;
+    const bh = H * 0.036;
+    ctx.fillStyle = "#f7d4b2";
+    ctx.strokeStyle = "#d19d72";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-bw / 2, -bh / 2, bw, bh, bh * 0.42);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#fff1e0";
+    ctx.fillRect(-bw * 0.16, -bh * 0.34, bw * 0.32, bh * 0.68);
+    ctx.fillStyle = "#c88f63";
+    for (const dx of [-bw * 0.32, bw * 0.32]) {
+      ctx.beginPath();
+      ctx.arc(dx, -bh * 0.14, 1.5, 0, Math.PI * 2);
+      ctx.arc(dx, bh * 0.14, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  } else if (mark === "star") {
+    drawFacePart(ctx, "face_cheeks", 2, 1, cx + W * 0.105, H * 0.645, s * 0.56, { alpha: 0.95 });
+  } else if (mark === "mole") {
+    ctx.save();
+    ctx.fillStyle = "#3a251f";
+    ctx.beginPath();
+    ctx.arc(cx - W * 0.072, H * 0.635, W * 0.0042, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
 function paintFace(canvas: HTMLCanvasElement, cfg: AvatarConfig, open: boolean, expr: Expression) {
@@ -600,7 +655,21 @@ export function faceTexture(
   expr: Expression = "normal",
 ): THREE.CanvasTexture {
   const eyes = (cfg.eyes ?? "round") as EyeStyle;
-  const key = `${cfg.skin}|${cfg.hair}|${eyes}|${cfg.blush ?? true}|${cfg.figure}|${open}|${expr}`;
+  const cheek = cfg.cheek ?? (cfg.blush === false ? "none" : "round");
+  const key = [
+    cfg.skin,
+    cfg.hair,
+    eyes,
+    cfg.eyeColor ?? "",
+    cfg.eyebrow ?? "soft",
+    cfg.nose ?? "dot",
+    cfg.mouth ?? "smile",
+    cheek,
+    cfg.faceMark ?? "none",
+    cfg.figure,
+    open,
+    expr,
+  ].join("|");
   const hit = faceCache.get(key);
   if (hit) return hit.tex;
   const canvas = document.createElement("canvas");

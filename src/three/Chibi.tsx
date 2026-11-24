@@ -5,6 +5,7 @@ import type { AvatarConfig } from "@/lib/store";
 import { useGLTF } from "@react-three/drei";
 import { faceTexture, type Expression } from "@/three/chibi";
 import { AVATAR_URL, DRACO_URL, pickParts, softMaterial } from "@/three/avatar-parts";
+import { AvatarBodyExtras, AvatarHeadExtras } from "@/three/avatar-extras";
 
 /** 頭の半径（tools/blender/build_avatar.py の R と同じ）。 */
 const HEAD_R = 0.29;
@@ -19,7 +20,10 @@ export type ChibiMotion =
   | "bow"
   | "surprised"
   | "sleep"
-  | "phone";
+  | "phone"
+  | "wave"
+  | "cheer"
+  | "twirl";
 
 /** 手に持つ物（まわりの人の くらしの様子）。 */
 export type ChibiHolding = "phone" | "briefcase" | "coffee";
@@ -35,6 +39,7 @@ export function Chibi({
   phase = 0,
   holding,
   expression = "normal",
+  hopTrigger = 0,
 }: {
   config: AvatarConfig;
   motion?: ChibiMotion;
@@ -43,6 +48,8 @@ export function Chibi({
   holding?: ChibiHolding;
   /** 表情（セリフや場面に合わせて変える）。 */
   expression?: Expression;
+  /** 値が増えるたびに、着がえた時の ぴょんっと よろこぶ動きをする。 */
+  hopTrigger?: number;
 }) {
   const key = JSON.stringify(config);
   // ブレンダーで作った部品（public/models/avatar/avatar.glb）から、設定に合うものを選ぶ
@@ -50,7 +57,7 @@ export function Chibi({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const parts = useMemo(() => pickParts(gltf.scene, config), [gltf, key]);
   const J = parts.joints;
-  const headGeo = useMemo(() => faceShape(), []);
+  const headGeo = getHeadGeo();
 
   const faceOpen = useMemo(() => faceTexture(config, true, expression), [config, expression]);
   const faceClosed = useMemo(
@@ -67,6 +74,7 @@ export function Chibi({
   );
   useEffect(() => () => faceMat.dispose(), [faceMat]);
 
+  const root = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
   const armL = useRef<THREE.Group>(null);
@@ -75,6 +83,7 @@ export function Chibi({
   const legR = useRef<THREE.Group>(null);
   const blink = useRef({ next: 2 + phase * 3, until: 0 });
   const t0 = useRef(phase * 10);
+  const hop = useRef({ last: hopTrigger, t: 1 });
 
   useFrame((s, dt) => {
     const m = motionRef?.current ?? motion;
@@ -82,20 +91,31 @@ export function Chibi({
     const b = body.current;
     const h = head.current;
     if (!b || !h || !armL.current || !armR.current || !legL.current || !legR.current) return;
+    if (hopTrigger !== hop.current.last) {
+      hop.current.last = hopTrigger;
+      hop.current.t = 0;
+    }
+    if (hop.current.t < 1) {
+      hop.current.t = Math.min(1, hop.current.t + dt * 2.8);
+    }
+    const hopArc = hop.current.t < 1 ? Math.sin(hop.current.t * Math.PI) : 0;
+
     const k = Math.min(1, dt * 12);
     const lerp = (o: THREE.Object3D, axis: "x" | "y" | "z", v: number) => {
       o.rotation[axis] += (v - o.rotation[axis]) * k;
     };
     let bodyY = 0;
+    let rootY = 0;
     let bodyPitch = 0;
     let headPitch = 0;
     let headRoll = Math.sin(tt * 1.3) * 0.03;
-    let aL = 0.12;
-    let aR = -0.12;
+    let aL = 0.08;
+    let aR = -0.08;
     let aLx = 0;
     let aRx = 0;
     let lLx = 0;
     let lRx = 0;
+    let rootSpin = 0;
     switch (m) {
       case "walk":
       case "run": {
@@ -106,7 +126,7 @@ export function Chibi({
         lRx = -sw * amp;
         aLx = -sw * amp * 1.1;
         aRx = sw * amp * 1.1;
-        bodyY = Math.abs(Math.cos(tt * f)) * 0.035;
+        rootY = Math.abs(Math.cos(tt * f)) * 0.028;
         headRoll = sw * 0.05;
         break;
       }
@@ -147,18 +167,56 @@ export function Chibi({
         headRoll = 0.15;
         break;
       case "surprised":
-        bodyY = Math.max(0, Math.sin(tt * 9)) * 0.05;
+        rootY = Math.max(0, Math.sin(tt * 9)) * 0.055;
         aL = 0.9;
         aR = -0.9;
         aLx = -0.4;
         aRx = -0.4;
         headPitch = -0.12;
         break;
+      case "wave":
+        // 元気に 手をふる
+        aR = -2.25 + Math.sin(tt * 8.5) * 0.35;
+        aRx = -0.35;
+        aL = 0.15;
+        headRoll = -0.08 + Math.sin(tt * 4.2) * 0.04;
+        rootY = Math.abs(Math.sin(tt * 4.2)) * 0.015;
+        break;
+      case "cheer":
+        // うれしくて ぴょんぴょん ばんざい（全身で 跳ねて 胴と足が 離れないようにする）
+        rootY = Math.abs(Math.sin(tt * 6.5)) * 0.075;
+        aL = 2.35 + Math.sin(tt * 6.5) * 0.2;
+        aR = -2.35 - Math.sin(tt * 6.5) * 0.2;
+        headPitch = -0.08;
+        headRoll = Math.sin(tt * 6.5) * 0.09;
+        lLx = Math.sin(tt * 6.5) * 0.2;
+        lRx = -Math.sin(tt * 6.5) * 0.2;
+        break;
+      case "twirl":
+        // くるっと 1回転して 服を 見せる
+        rootSpin = tt * 2.2;
+        aL = 0.65;
+        aR = -0.65;
+        rootY = Math.abs(Math.sin(tt * 4.4)) * 0.025;
+        break;
       default:
-        bodyY = Math.sin(tt * 2.2) * 0.008;
-        aL = 0.12 + Math.sin(tt * 2.2) * 0.03;
-        aR = -0.12 - Math.sin(tt * 2.2) * 0.03;
+        bodyY = Math.sin(tt * 2.2) * 0.006;
+        aL = 0.08 + Math.sin(tt * 2.2) * 0.03;
+        aR = -0.08 - Math.sin(tt * 2.2) * 0.03;
     }
+
+    if (hopArc > 0) {
+      rootY += hopArc * 0.09;
+      aL += hopArc * 0.45;
+      aR -= hopArc * 0.45;
+    }
+
+    if (root.current) {
+      root.current.position.y += (rootY - root.current.position.y) * k;
+      if (m === "twirl") root.current.rotation.y = rootSpin;
+      else root.current.rotation.y += (0 - root.current.rotation.y) * k;
+    }
+
     const baseY = J.hipL.y;
     b.position.y += (baseY + bodyY - b.position.y) * k;
     lerp(b, "x", bodyPitch);
@@ -186,22 +244,27 @@ export function Chibi({
 
   const scale = (config.height ?? 168) / 168;
   const hipY = J.hipL.y;
+  // 肩を 少し 内がわへ寄せて、胴と腕の すきまを 無くす（やわらかい どう森ふうの ライン）
+  const shoulderL: [number, number, number] = [J.shoulderL.x * 0.84, J.shoulderL.y, J.shoulderL.z];
+  const shoulderR: [number, number, number] = [J.shoulderR.x * 0.84, J.shoulderR.y, J.shoulderR.z];
   const meshes = (list: THREE.Mesh[]) => list.map((m) => <primitive key={m.name} object={m} />);
 
   return (
-    <group scale={scale}>
+    <group ref={root} scale={scale}>
       {/* 腰を中心に曲げる（おじぎ）ため、体は腰の高さに置き、中身を下げる */}
       <group ref={body} position={[0, hipY, 0]}>
         <group position={[0, -hipY, 0]}>
           {meshes(parts.body)}
+          <AvatarBodyExtras config={config} />
           <group ref={head} position={J.head.toArray()}>
             <mesh geometry={headGeo} material={faceMat} />
             {meshes(parts.head)}
+            <AvatarHeadExtras config={config} />
           </group>
-          <group ref={armL} position={J.shoulderL.toArray()}>
+          <group ref={armL} position={shoulderL}>
             {meshes(parts.armL)}
           </group>
-          <group ref={armR} position={J.shoulderR.toArray()}>
+          <group ref={armR} position={shoulderR}>
             {meshes(parts.armR)}
             {holding && <Held kind={holding} />}
           </group>
@@ -222,6 +285,12 @@ export function Chibi({
  * ほっぺを ふっくら横に広げ、あごは まるく少し平らにする（おもちのような顔）。上の半分は 今までの まるい頭のまま
  * （髪は この上に かぶせて作ってあるので、上は変えない）。
  */
+let sharedHeadGeo: THREE.BufferGeometry | null = null;
+function getHeadGeo(): THREE.BufferGeometry {
+  sharedHeadGeo ??= faceShape();
+  return sharedHeadGeo;
+}
+
 function faceShape(): THREE.BufferGeometry {
   const g = new THREE.SphereGeometry(HEAD_R, 48, 32);
   const p = g.getAttribute("position") as THREE.BufferAttribute;
