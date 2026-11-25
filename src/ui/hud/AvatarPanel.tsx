@@ -132,22 +132,25 @@ const POSES: { id: ChibiMotion; label: UiKey; expr?: Expression }[] = [
 
 const EYES: [AvatarConfig["eyes"], UiKey][] = [
   ["round", "avatar.eyes.round"],
-  ["smile", "avatar.eyes.smile"],
   ["sparkle", "avatar.eyes.sparkle"],
-  ["calm", "avatar.eyes.calm"],
-  ["small", "avatar.eyes.small"],
-  ["gloss", "avatar.eyes.gloss"],
-  ["flick", "avatar.eyes.flick"],
-  ["twinkle", "avatar.eyes.twinkle"],
-  ["heart", "avatar.eyes.heart"],
-  ["egg", "avatar.eyes.egg"],
-  ["lashes", "avatar.eyes.lashes"],
-  ["roly", "avatar.eyes.roly"],
-  ["dot", "avatar.eyes.dot"],
-  ["sharp", "avatar.eyes.sharp"],
   ["bright", "avatar.eyes.bright"],
+  ["jewel", "avatar.eyes.jewel"],
+  ["droopy", "avatar.eyes.droopy"],
+  ["cat", "avatar.eyes.cat"],
+  ["sharp", "avatar.eyes.sharp"],
+  ["cool", "avatar.eyes.cool"],
+  ["wing", "avatar.eyes.wing"],
+  ["teary", "avatar.eyes.teary"],
+  ["heart", "avatar.eyes.heart"],
   ["star", "avatar.eyes.star"],
+  ["starry", "avatar.eyes.starry"],
+  ["jito", "avatar.eyes.jito"],
+  ["wide", "avatar.eyes.wide"],
+  ["wink", "avatar.eyes.wink"],
+  ["smile", "avatar.eyes.smile"],
+  ["laugh", "avatar.eyes.laugh"],
   ["sleepy", "avatar.eyes.sleepy"],
+  ["peace", "avatar.eyes.peace"],
 ];
 
 const EYE_COLORS: string[] = [
@@ -1583,16 +1586,22 @@ function SparkleBurst({ trigger }: { trigger: number }) {
 
 function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string }) {
   const [name, row] = EYE_SLOTS[style] ?? ["face_eyes", 0];
-  const col = style === "smile" ? 2 : 0;
-  const box = faceCell(name, col, row);
+  const leftCol = style === "smile" ? 2 : style === "peace" ? 1 : 0;
+  const rightCol = style === "smile" || style === "wink" ? 2 : style === "peace" ? 1 : 0;
+  const leftBox = faceCell(name, leftCol, row);
+  const rightBox = faceCell(name, rightCol, row);
   const ref = faceCell("face_eyes", 0, 0);
   const sheet = FACE_ATLAS[name];
-  if (!box || !ref || !sheet) return null;
+  if (!leftBox || !rightBox || !ref || !sheet) return null;
   const rb = faceCell(name, 0, row) ?? ref;
-  const k = (30 / ref[3]) * (Math.sqrt(ref[2] * ref[3]) / Math.sqrt(rb[2] * rb[3])) ** 0.7;
-  const eye = (flip: boolean) => (
+  const baseK = (30 / ref[3]) * (Math.sqrt(ref[2] * ref[3]) / Math.sqrt(rb[2] * rb[3])) ** 0.7;
+  // 横に広い目（クール・ねこ目・ジト目など）も 76px の枠にすっきり収める
+  const maxW = Math.max(leftBox[2], rightBox[2]);
+  const maxH = Math.max(leftBox[3], rightBox[3]);
+  const k = Math.min(baseK, 30 / maxW, 34 / maxH);
+  const renderEye = (box: [number, number, number, number], flip: boolean) => (
     <span
-      className="block"
+      className="block shrink-0"
       style={{
         width: box[2] * k,
         height: box[3] * k,
@@ -1605,11 +1614,11 @@ function EyePair({ style, skin }: { style: AvatarConfig["eyes"]; skin: string })
   );
   return (
     <span
-      className="flex h-11 w-[76px] items-center justify-center gap-2 rounded-lg"
+      className="flex h-11 w-[76px] items-center justify-center gap-1.5 rounded-lg"
       style={{ background: skin }}
     >
-      {eye(false)}
-      {eye(true)}
+      {renderEye(leftBox, false)}
+      {renderEye(rightBox, true)}
     </span>
   );
 }

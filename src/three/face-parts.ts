@@ -25,7 +25,7 @@ export const EYE_SLOTS: Record<AvatarConfig["eyes"], [sheet: string, row: number
   gloss: ["face_eyes_cute1", 0],
   flick: ["face_eyes_cute1", 1],
   twinkle: ["face_eyes_cute1", 2],
-  heart: ["face_eyes_cute1", 3],
+  heart: ["face_eyes_charm1", 1],
   egg: ["face_eyes_cute2", 0],
   lashes: ["face_eyes_cute2", 1],
   roly: ["face_eyes_cute2", 2],
@@ -34,6 +34,18 @@ export const EYE_SLOTS: Record<AvatarConfig["eyes"], [sheet: string, row: number
   bright: ["face_eyes_unique1", 1],
   star: ["face_eyes_unique1", 2],
   sleepy: ["face_eyes_unique1", 3],
+  jewel: ["face_eyes_jewel1", 0],
+  cat: ["face_eyes_jewel1", 1],
+  cool: ["face_eyes_jewel1", 2],
+  wing: ["face_eyes_jewel1", 3],
+  teary: ["face_eyes_express1", 0],
+  jito: ["face_eyes_express1", 1],
+  starry: ["face_eyes_express1", 2],
+  wide: ["face_eyes_express1", 3],
+  droopy: ["face_eyes_charm1", 0],
+  wink: ["face_eyes_charm1", 2],
+  laugh: ["face_eyes_charm1", 3],
+  peace: ["face_eyes", 0],
 };
 
 /** まゆの形 → face_mouth 1行目の列。 */
