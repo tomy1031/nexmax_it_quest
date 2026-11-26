@@ -102,7 +102,19 @@ export interface AvatarConfig {
     | "sharp"
     | "bright"
     | "star"
-    | "sleepy";
+    | "sleepy"
+    | "jewel"
+    | "droopy"
+    | "cat"
+    | "cool"
+    | "wing"
+    | "teary"
+    | "starry"
+    | "jito"
+    | "wide"
+    | "wink"
+    | "laugh"
+    | "peace";
   /** 目の 色（無ければ もとの こげ茶）。 */
   eyeColor?: string;
   /** まゆの 形。 */

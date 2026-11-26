@@ -557,21 +557,24 @@ function paintFaceParts(
     });
   }
 
-  // 目（とじる・にこにこ・びっくり・考える は列を切りかえる。位置は ひらいた目に そろえる）
-  const col = !open
-    ? 1
-    : expr === "happy" || eyes === "smile"
-      ? 2
-      : expr === "surprised"
-        ? 3
-        : expr === "thinking"
-          ? 4
-          : 0;
+  // 目（とじる・にこにこ・びっくり・考える は列を切りかえる。ウィンクは片目だけ閉じる）
+  const baseCol =
+    !open || (eyes === "peace" && expr === "normal")
+      ? 1
+      : expr === "happy" || eyes === "smile"
+        ? 2
+        : expr === "surprised"
+          ? 3
+          : expr === "thinking"
+            ? 4
+            : 0;
   for (const sx of [-1, 1]) {
+    const col = eyes === "wink" && open && expr === "normal" && sx > 0 ? 2 : baseCol;
+    const noIris = col === 1 || col === 2 || eyes === "laugh";
     drawFacePart(ctx, sheet, col, row, cx + sx * gap, ey, se, {
       mirror: sx > 0,
       anchor: [0, row],
-      irisColor: col !== 1 && col !== 2 ? cfg.eyeColor : undefined,
+      irisColor: !noIris ? cfg.eyeColor : undefined,
     });
   }
 
