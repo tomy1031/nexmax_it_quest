@@ -69,10 +69,13 @@ export function Interactable({
   const onClick = (e: ThreeEvent<MouseEvent>) => {
     if (disabled || isDrag(e)) return;
     e.stopPropagation();
-    if (usePlay.getState().line || usePlay.getState().panel) return;
+    const play = usePlay.getState();
+    if (play.line || play.panel) return;
     playSfx("click");
     const fire = () => questEvents.emit(`click:${id}`);
-    if (approach) {
+    // アップ（focus）の 間は 自分が 歩けない（Player.tsx）。歩かずに その場で 合図を 出す
+    // （山本社長を クリックしても 会話が 始まらなかった。tomy さん 2026-11-26）
+    if (approach && !play.focus) {
       const d = Math.hypot(player.pos.x - approach[0], player.pos.z - approach[1]);
       if (d < 0.25) fire();
       else walkTo(approach[0], approach[1], fire);

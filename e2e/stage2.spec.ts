@@ -384,6 +384,23 @@ test("ステージ2を チーム（2人）で 最初から 修了証まで 通�
         await page.waitForTimeout(400);
         await page.screenshot({ path: `${SHOTS}/s2-wait-${w.replace(":", "-")}.png` });
       }
+      if (w === "click:yamamoto") {
+        // 山本社長は アップの 間に クリックする。合図を 送らずに 本当に 3D を クリックする
+        // （歩けない 間に クリックしても 会話が 始まらなかった。tomy さん 2026-11-26）
+        await page.waitForTimeout(2500);
+        const at = await page.evaluate(() =>
+          (
+            window as unknown as {
+              __quest: { project: (x: number, y: number, z: number) => { x: number; y: number } };
+            }
+          ).__quest.project(-1.9, 0.9, 2.4),
+        );
+        await page.mouse.click(at.x, at.y);
+        await expect
+          .poll(async () => (await play(page)).waitingFor, { timeout: 5000 })
+          .not.toBe("click:yamamoto");
+        continue;
+      }
       await quest(page, "emit", w);
       await page.waitForTimeout(200);
       continue;

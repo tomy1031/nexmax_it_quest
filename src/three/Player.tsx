@@ -78,7 +78,8 @@ export function Player() {
         const near = (a?: [number, number]) =>
           a ? Math.hypot(player.pos.x - a[0], player.pos.z - a[1]) : 0;
         const w = want ? interactables.get(want) : undefined;
-        if (want && w && !w.disabled && (!w.approach || near(w.approach) < 1.6)) {
+        // アップ（focus）の 間は 歩けないので、はなれていても 押せる（Interactable と 同じ）
+        if (want && w && !w.disabled && (!w.approach || p.focus || near(w.approach) < 1.6)) {
           e.preventDefault();
           fireInteractable(want);
           return;
