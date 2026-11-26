@@ -9,7 +9,8 @@ const PORT = Number(process.env.E2E_PORT ?? 5174);
 
 export default defineConfig({
   testDir: "e2e",
-  timeout: 8 * 60 * 1000,
+  // 1本の 持ち時間。遅い 機械（CPU 4つ）では ステージ1が 7分 こえる ので、長めに とる
+  timeout: 12 * 60 * 1000,
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],

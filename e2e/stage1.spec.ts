@@ -98,7 +98,8 @@ test("ステージ1を最初から修了証まで通す（第2章の 声の 会�
   const seen = new Set<string>();
   const wrongDone = new Set<string>();
   let lastSection = "";
-  const deadline = Date.now() + 7 * 60 * 1000;
+  // 遅い 機械（CPU 4つ）でも 最後まで 通るように（2026-11-26 に 7分では 足りなかった）
+  const deadline = Date.now() + 10 * 60 * 1000;
 
   while (Date.now() < deadline) {
     const p = await play(page);

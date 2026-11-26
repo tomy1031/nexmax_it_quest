@@ -202,7 +202,7 @@ test("ステージ2を チーム（2人）で 最初から 修了証まで 通�
   const seen = new Set<string>();
   let lastSection = "";
   let greetWrong = false;
-  const deadline = Date.now() + 9 * 60 * 1000;
+  const deadline = Date.now() + 10 * 60 * 1000;
 
   while (Date.now() < deadline) {
     const p = await play(page);
